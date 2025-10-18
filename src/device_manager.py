@@ -1,6 +1,4 @@
 import subprocess
-import json
-import os
 from .config_manager import ConfigManager
 
 class DeviceManager:
