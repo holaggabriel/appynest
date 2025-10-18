@@ -234,6 +234,7 @@ class MainWindow(QMainWindow):
     def load_devices(self):
         self.device_list.clear()
         devices = self.device_manager.get_connected_devices()
+        device_ids = [d['device'] for d in devices]
 
         if devices:
             for device in devices:
@@ -242,7 +243,14 @@ class MainWindow(QMainWindow):
         else:
             self.device_list.addItem("No se encontraron dispositivos")
 
+        # Verificar si el dispositivo seleccionado sigue conectado
+        if self.selected_device not in device_ids:
+            self.selected_device = None
+            # No actualizar el banner aquí para evitar sobrescribir la selección activa
+            # asi el usuario sabe cual fue el ultimo seleccionado
+
         self.update_device_status_emoji()
+        self.update_install_button()
 
     def on_device_selected(self):
         selected_items = self.device_list.selectedItems()
@@ -459,11 +467,14 @@ class MainWindow(QMainWindow):
                 device_id = self.preselected_device
 
             self.active_device = device_id
+            self.selected_device = device_id
             self.selected_device_banner.setText(self.preselected_device)
             self.confirm_device_btn.setEnabled(False)
 
             # Actualizar emoji inmediatamente
             self.update_device_status_emoji()
+            self.update_install_button()
+
 
     def update_device_status_emoji(self):
         """Actualiza el emoji según si el dispositivo activo sigue conectado"""
