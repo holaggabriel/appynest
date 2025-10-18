@@ -70,16 +70,49 @@ class MainWindow(QMainWindow):
         main_layout.setStretchFactor(right_panel, 2)
    
     def setup_devices_panel(self):
-        """Crea el panel lateral de dispositivos"""
+        """Crea el panel lateral de dispositivos con preselección y confirmación"""
         panel = QFrame()
         panel.setFrameStyle(QFrame.Shape.StyledPanel)
         layout = QVBoxLayout(panel)
         
+        # Banner de dispositivo seleccionado con emoji al lado
+        banner_frame = QFrame()
+        banner_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        banner_layout = QHBoxLayout(banner_frame)
+        
+        # Banner principal
+        self.selected_device_banner = QLabel("No hay un dispositivo seleccionado")
+        self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.selected_device_banner.setStyleSheet("""
+            QLabel {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #3498db, stop:1 #2980b9);
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                border-radius: 5px;
+                border: 1px solid #2980b9;
+                font-size: 12px;
+            }
+        """)
+        self.selected_device_banner.setMinimumHeight(35)
+        
+        # Emoji de estado
+        self.device_status_emoji = QLabel("")  # inicialmente vacío
+        self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.device_status_emoji.setStyleSheet("font-size: 16px;")  # tamaño del emoji
+        
+        banner_layout.addWidget(self.selected_device_banner)
+        banner_layout.addWidget(self.device_status_emoji)
+        
+        layout.addWidget(banner_frame)
+        
+        # Lista de dispositivos y botones como antes...
         device_label = QLabel("Dispositivos Conectados:")
         layout.addWidget(device_label)
         
         self.device_list = QListWidget()
-        self.device_list.itemSelectionChanged.connect(self.on_device_selected)
+        self.device_list.itemSelectionChanged.connect(self.on_device_preselected)
         layout.addWidget(self.device_list)
         
         device_buttons_layout = QHBoxLayout()
@@ -87,10 +120,19 @@ class MainWindow(QMainWindow):
         self.refresh_devices_btn.clicked.connect(self.load_devices)
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
+        self.confirm_device_btn = QPushButton("Seleccionar Dispositivo")
+        self.confirm_device_btn.setEnabled(False)
+        self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
+        device_buttons_layout.addWidget(self.confirm_device_btn)
+        
         layout.addLayout(device_buttons_layout)
         
+        # Variables de estado
+        self.preselected_device = None
+        self.active_device = None
+        
         return panel
-    
+        
     def setup_install_tab(self, parent):
         layout = QVBoxLayout(parent)
         
@@ -192,13 +234,16 @@ class MainWindow(QMainWindow):
     def load_devices(self):
         self.device_list.clear()
         devices = self.device_manager.get_connected_devices()
-        
+
         if devices:
             for device in devices:
-                self.device_list.addItem(f"📱 {device['model']} - {device['device']}")
+                text = f"📱 {device['model']} - {device['device']}"
+                self.device_list.addItem(text)
         else:
             self.device_list.addItem("No se encontraron dispositivos")
-    
+
+        self.update_device_status_emoji()
+
     def on_device_selected(self):
         selected_items = self.device_list.selectedItems()
         if selected_items:
@@ -387,4 +432,47 @@ class MainWindow(QMainWindow):
                 self.load_installed_apps()  # Recargar lista
             else:
                 QMessageBox.critical(self, "Error", f"Error al desinstalar: {message}")
+
+    def on_device_preselected(self):
+        selected_items = self.device_list.selectedItems()
+        if selected_items:
+            self.preselected_device = selected_items[0].text()
+
+            # Extraer el ID real de la preselección
+            if " - " in self.preselected_device:
+                preselected_id = self.preselected_device.split(" - ")[1]
+            else:
+                preselected_id = self.preselected_device
+
+            # Habilitar el botón solo si es distinto del dispositivo activo
+            self.confirm_device_btn.setEnabled(preselected_id != getattr(self, 'active_device', None))
+        else:
+            self.preselected_device = None
+            self.confirm_device_btn.setEnabled(False)
+
+    def on_device_confirmed(self):
+        if self.preselected_device:
+            # Obtener el ID real
+            if " - " in self.preselected_device:
+                device_id = self.preselected_device.split(" - ")[1]
+            else:
+                device_id = self.preselected_device
+
+            self.active_device = device_id
+            self.selected_device_banner.setText(self.preselected_device)
+            self.confirm_device_btn.setEnabled(False)
+
+            # Actualizar emoji inmediatamente
+            self.update_device_status_emoji()
+
+    def update_device_status_emoji(self):
+        """Actualiza el emoji según si el dispositivo activo sigue conectado"""
+        devices = self.device_manager.get_connected_devices()
+        device_ids = [d['device'] for d in devices]
+
+        if self.active_device and self.active_device not in device_ids:
+            self.device_status_emoji.setText("⚠️")
+        else:
+            self.device_status_emoji.setText("")
+
 
