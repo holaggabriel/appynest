@@ -1,103 +1,132 @@
 import subprocess
+import logging
 from .config_manager import ConfigManager
+from utils.print_in_debug_mode import print_in_debug_mode
 
 class AppManager:
     def __init__(self):
         self.config_manager = ConfigManager()
     
+    def extract_app_name_from_package(self, package_name):
+        """Intenta extraer un nombre legible del nombre del paquete"""
+        # Ejemplo: com.example.myapp -> MyApp
+        # Ejemplo: com.example.emovie -> Emovie
+        parts = package_name.split('.')
+        if len(parts) >= 2:
+            last_part = parts[-1]
+            # Convertir a formato título: myapp -> MyApp
+            return last_part.title()
+        return package_name
+    
     def get_installed_apps(self, device_id, include_system=False):
         """Obtiene la lista de aplicaciones instaladas en el dispositivo"""
+        print_in_debug_mode(f"Obteniendo aplicaciones para dispositivo {device_id}, incluir sistema: {include_system}")
+        
         try:
             adb_path = self.config_manager.get_adb_path()
-            
+            print_in_debug_mode(f"Ruta de ADB: {adb_path}")
+
             # Comando para listar paquetes
             if include_system:
                 cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f"]
             else:
                 cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f", "-3"]  # Solo apps de usuario
             
+            print_in_debug_mode(f"Ejecutando comando: {' '.join(cmd)}")
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            
+
+            print_in_debug_mode(f"Return code: {result.returncode}")
+            print_in_debug_mode(f"STDOUT: {result.stdout}")
+            print_in_debug_mode(f"STDERR: {result.stderr}")
+
             if result.returncode != 0:
+                print_in_debug_mode(f"Error en comando ADB: {result.stderr}")
                 return []
             
             apps = []
             lines = result.stdout.strip().split('\n')
+            print_in_debug_mode(f"Se encontraron {len(lines)} líneas en la salida")
             
             for line in lines:
                 if line.startswith('package:'):
                     # Formato: package:/path/to/base.apk=package.name
-                    parts = line.replace('package:', '').split('=')
-                    if len(parts) == 2:
-                        apk_path = parts[0]
-                        package_name = parts[1]
-                        
+                    # Dividir solo en el último "=" porque la ruta puede contener "="
+                    line_clean = line.replace('package:', '')
+                    
+                    # Encontrar la última ocurrencia de "="
+                    last_equal_index = line_clean.rfind('=')
+                    
+                    if last_equal_index != -1:
+                        apk_path = line_clean[:last_equal_index]
+                        package_name = line_clean[last_equal_index + 1:]
+
+                        print_in_debug_mode(f"Procesando paquete: {package_name}, ruta: {apk_path}")
+
                         # Obtener información adicional de la app
                         app_info = self.get_app_info(device_id, package_name, apk_path)
                         if app_info:
                             apps.append(app_info)
+                    else:
+                        print_in_debug_mode(f"Línea sin '=': {line}")
+            
+            print_in_debug_mode(f"Se procesaron {len(apps)} aplicaciones correctamente")
             
             # Ordenar por nombre de aplicación
             apps.sort(key=lambda x: x['name'].lower())
             return apps
             
+        except subprocess.TimeoutExpired:
+            print_in_debug_mode("Tiempo de espera agotado al obtener aplicaciones")
+            return []
         except Exception as e:
-            print(f"Error al obtener aplicaciones: {e}")
+            print_in_debug_mode(f"Error inesperado al obtener aplicaciones: {e}")
             return []
     
     def get_app_info(self, device_id, package_name, apk_path):
         """Obtiene información detallada de una aplicación"""
+        print_in_debug_mode(f"Obteniendo información para: {package_name}")
+        
         try:
             adb_path = self.config_manager.get_adb_path()
             
-            # Obtener nombre de la aplicación
-            name_result = subprocess.run(
-                [adb_path, "-s", device_id, "shell", "dumpsys", "package", package_name, "|", "grep", "applicationLabel"],
-                capture_output=True, text=True, shell=True, timeout=10
-            )
-            
-            app_name = package_name  # Por defecto
-            if name_result.returncode == 0 and name_result.stdout:
-                # Buscar el label en la salida
-                for line in name_result.stdout.split('\n'):
-                    if 'applicationLabel' in line:
-                        app_name = line.split('=')[1].strip() if '=' in line else line
-                        break
-            
-            # Si no se encontró el label, intentar con otro método
-            if app_name == package_name:
-                name_result = subprocess.run(
-                    [adb_path, "-s", device_id, "shell", "pm", "dump", package_name, "|", "grep", "label"],
-                    capture_output=True, text=True, shell=True, timeout=10
-                )
-                if name_result.returncode == 0 and name_result.stdout:
-                    for line in name_result.stdout.split('\n'):
-                        if 'label=' in line:
-                            app_name = line.split('=')[1].strip()
-                            break
+            # USAR MÉTODO RÁPIDO para obtener nombre legible
+            app_name = self.extract_app_name_from_package(package_name)
+            print_in_debug_mode(f"Nombre generado desde paquete: {app_name}")
             
             # Obtener versión
-            version_result = subprocess.run(
-                [adb_path, "-s", device_id, "shell", "dumpsys", "package", package_name, "|", "grep", "versionName"],
-                capture_output=True, text=True, shell=True, timeout=10
-            )
-            
             version = "Desconocida"
-            if version_result.returncode == 0 and version_result.stdout:
-                for line in version_result.stdout.split('\n'):
-                    if 'versionName=' in line:
-                        version = line.split('=')[1].strip()
-                        break
-            
-            return {
+            try:
+                cmd = f"{adb_path} -s {device_id} shell dumpsys package {package_name} | grep versionName"
+                print_in_debug_mode(f"Ejecutando comando versión: {cmd}")
+
+                version_result = subprocess.run(
+                    cmd, capture_output=True, text=True, shell=True, timeout=10
+                )
+
+                print_in_debug_mode(f"Return code versión: {version_result.returncode}")
+                print_in_debug_mode(f"STDOUT versión: {version_result.stdout}")
+
+                if version_result.returncode == 0 and version_result.stdout.strip():
+                    for line in version_result.stdout.split('\n'):
+                        if 'versionName=' in line:
+                            version = line.split('=')[1].strip()
+                            print_in_debug_mode(f"Versión encontrada: {version}")
+                            break
+            except Exception as e:
+                print_in_debug_mode(f"Error obteniendo versión para {package_name}: {e}")
+
+            app_info = {
                 'package_name': package_name,
                 'name': app_name,
                 'version': version,
                 'apk_path': apk_path
             }
+
+            print_in_debug_mode(f"Información final de la app: {app_info}")
+            return app_info
             
         except Exception as e:
-            print(f"Error al obtener info de {package_name}: {e}")
+            print_in_debug_mode(f"Error al obtener info de {package_name}: {e}")
             return {
                 'package_name': package_name,
                 'name': package_name,
@@ -107,18 +136,28 @@ class AppManager:
     
     def uninstall_app(self, device_id, package_name):
         """Desinstala una aplicación"""
+        print_in_debug_mode(f"Desinstalando {package_name} del dispositivo {device_id}")
+        
         try:
             adb_path = self.config_manager.get_adb_path()
-            
-            result = subprocess.run(
-                [adb_path, "-s", device_id, "uninstall", package_name],
-                capture_output=True, text=True, timeout=30
-            )
+            cmd = [adb_path, "-s", device_id, "uninstall", package_name]
+
+            print_in_debug_mode(f"Ejecutando comando desinstalación: {' '.join(cmd)}")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+            print_in_debug_mode(f"Return code desinstalación: {result.returncode}")
+            print_in_debug_mode(f"STDOUT desinstalación: {result.stdout}")
+            print_in_debug_mode(f"STDERR desinstalación: {result.stderr}")
             
             success = result.returncode == 0
             message = result.stdout if success else result.stderr
-            
+
+            print_in_debug_mode(f"Desinstalación de {package_name}: {'éxito' if success else 'fallo'} - {message}")
             return success, message
             
+        except subprocess.TimeoutExpired:
+            print_in_debug_mode(f"Tiempo de espera agotado al desinstalar {package_name}")
+            return False, "Tiempo de espera agotado"
         except Exception as e:
+            print_in_debug_mode(f"Error inesperado al desinstalar {package_name}: {e}")
             return False, str(e)
