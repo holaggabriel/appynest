@@ -27,18 +27,24 @@ class MainWindow(QMainWindow):
     
     def init_ui(self):
         self.setWindowTitle("APK Installer")
-        self.setGeometry(100, 100, 1000, 700)
+        self.setGeometry(100, 100, 850, 700)  # Ventana más ancha
         
         # Widget central
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        # Layout principal
-        layout = QVBoxLayout(central_widget)
+        # Layout principal HORIZONTAL (cambio clave)
+        main_layout = QHBoxLayout(central_widget)
         
-        # Tabs
+        # Panel izquierdo - Dispositivos (fuera de los tabs)
+        left_panel = self.setup_devices_panel()
+        main_layout.addWidget(left_panel)
+        
+        # Panel derecho - Tabs
+        right_panel = QWidget()
+        right_layout = QVBoxLayout(right_panel)
+        
         tabs = QTabWidget()
-        layout.addWidget(tabs)
         
         # Tab de instalación
         install_tab = QWidget()
@@ -55,6 +61,35 @@ class MainWindow(QMainWindow):
         self.setup_install_tab(install_tab)
         self.setup_apps_tab(apps_tab)  
         self.setup_config_tab(config_tab)
+        
+        right_layout.addWidget(tabs)
+        main_layout.addWidget(right_panel)
+        
+        # Ajustar proporciones (dispositivos 30%, tabs 70%)
+        main_layout.setStretchFactor(left_panel, 1)
+        main_layout.setStretchFactor(right_panel, 2)
+   
+    def setup_devices_panel(self):
+        """Crea el panel lateral de dispositivos"""
+        panel = QFrame()
+        panel.setFrameStyle(QFrame.Shape.StyledPanel)
+        layout = QVBoxLayout(panel)
+        
+        device_label = QLabel("Dispositivos Conectados:")
+        layout.addWidget(device_label)
+        
+        self.device_list = QListWidget()
+        self.device_list.itemSelectionChanged.connect(self.on_device_selected)
+        layout.addWidget(self.device_list)
+        
+        device_buttons_layout = QHBoxLayout()
+        self.refresh_devices_btn = QPushButton("Actualizar Dispositivos")
+        self.refresh_devices_btn.clicked.connect(self.load_devices)
+        device_buttons_layout.addWidget(self.refresh_devices_btn)
+        
+        layout.addLayout(device_buttons_layout)
+        
+        return panel
     
     def setup_install_tab(self, parent):
         layout = QVBoxLayout(parent)
@@ -82,32 +117,12 @@ class MainWindow(QMainWindow):
         apk_layout.addLayout(apk_buttons_layout)
         layout.addWidget(apk_section)
         
-        # Sección de dispositivos
-        device_section = QFrame()
-        device_section.setFrameStyle(QFrame.Shape.StyledPanel)
-        device_layout = QVBoxLayout(device_section)
-        
-        device_label = QLabel("Dispositivos Conectados:")
-        device_layout.addWidget(device_label)
-        
-        self.device_list = QListWidget()
-        self.device_list.itemSelectionChanged.connect(self.on_device_selected)
-        device_layout.addWidget(self.device_list)
-        
-        device_buttons_layout = QHBoxLayout()
-        self.refresh_devices_btn = QPushButton("Actualizar Dispositivos")
-        self.refresh_devices_btn.clicked.connect(self.load_devices)
-        device_buttons_layout.addWidget(self.refresh_devices_btn)
-        
-        device_layout.addLayout(device_buttons_layout)
-        layout.addWidget(device_section)
-        
         # Barra de progreso
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         layout.addWidget(self.progress_bar)
         
-        self.status_label = QLabel("Selecciona un APK y un dispositivo")
+        self.status_label = QLabel("Selecciona un APK")  # <- Texto actualizado
         layout.addWidget(self.status_label)
         
         # Botón de instalación
@@ -200,7 +215,10 @@ class MainWindow(QMainWindow):
         if enabled:
             self.status_label.setText("Listo para instalar")
         else:
-            self.status_label.setText("Selecciona un APK y un dispositivo")
+            if not self.selected_apk:
+                self.status_label.setText("Selecciona un APK")
+            else:
+                self.status_label.setText("Selecciona un dispositivo")
     
     def install_apk(self):
         if not self.selected_apk or not self.selected_device:
@@ -369,3 +387,4 @@ class MainWindow(QMainWindow):
                 self.load_installed_apps()  # Recargar lista
             else:
                 QMessageBox.critical(self, "Error", f"Error al desinstalar: {message}")
+
