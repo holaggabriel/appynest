@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         self.device_manager = DeviceManager()
         self.config_manager = ConfigManager()
         self.app_manager = AppManager() 
-        self.selected_apk = None
+        self.selected_apks = []
         self.selected_device = None
         self.init_ui()
         self.load_devices()
@@ -141,18 +141,25 @@ class MainWindow(QMainWindow):
         apk_section.setFrameStyle(QFrame.Shape.StyledPanel)
         apk_layout = QVBoxLayout(apk_section)
         
-        apk_label = QLabel("Seleccionar APK:")
+        apk_label = QLabel("APKs Seleccionados:")
         apk_layout.addWidget(apk_label)
         
         self.apk_list = QListWidget()
+        self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)  # ← AÑADIR ESTA LÍNEA
+        self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
         apk_layout.addWidget(self.apk_list)
         
         apk_buttons_layout = QHBoxLayout()
-        self.select_apk_btn = QPushButton("Seleccionar APK")
+        self.select_apk_btn = QPushButton("Agregar APKs")
         self.select_apk_btn.clicked.connect(self.select_apk)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
-        self.clear_apk_btn = QPushButton("Limpiar")
+        self.remove_apk_btn = QPushButton("Eliminar Seleccionados")
+        self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
+        self.remove_apk_btn.setEnabled(False)  # Inicialmente deshabilitado
+        apk_buttons_layout.addWidget(self.remove_apk_btn)
+        
+        self.clear_apk_btn = QPushButton("Limpiar Todo")
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
@@ -164,11 +171,11 @@ class MainWindow(QMainWindow):
         self.progress_bar.setVisible(False)
         layout.addWidget(self.progress_bar)
         
-        self.status_label = QLabel("Selecciona un APK")  # <- Texto actualizado
+        self.status_label = QLabel("Selecciona al menos un APK")
         layout.addWidget(self.status_label)
         
         # Botón de instalación
-        self.install_btn = QPushButton("Instalar APK")
+        self.install_btn = QPushButton("Instalar APKs")
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
         layout.addWidget(self.install_btn)
@@ -213,24 +220,31 @@ class MainWindow(QMainWindow):
             self.adb_path_label.setText("Ruta ADB: No encontrada")
     
     def select_apk(self):
-        file_path, _ = QFileDialog.getOpenFileName(
+        file_paths, _ = QFileDialog.getOpenFileNames(
             self, 
-            "Seleccionar APK", 
+            "Seleccionar APKs", 
             "", 
             "APK Files (*.apk)"
         )
         
-        if file_path:
-            self.selected_apk = file_path
-            self.apk_list.clear()
-            self.apk_list.addItem(f"📱 {os.path.basename(file_path)}")
+        if file_paths:
+            # Si es la primera vez que seleccionamos, inicializar la lista
+            if not hasattr(self, 'selected_apks'):
+                self.selected_apks = []
+            
+            # Agregar nuevos archivos, evitando duplicados
+            for file_path in file_paths:
+                if file_path not in self.selected_apks:
+                    self.selected_apks.append(file_path)
+            
+            self.update_apk_list_display()
             self.update_install_button()
     
     def clear_apk(self):
-        self.selected_apk = None
-        self.apk_list.clear()
+        self.selected_apks = []
+        self.update_apk_list_display()
         self.update_install_button()
-    
+        
     def load_devices(self):
         self.device_list.clear()
         devices = self.device_manager.get_connected_devices()
@@ -262,26 +276,29 @@ class MainWindow(QMainWindow):
             self.update_install_button()
     
     def update_install_button(self):
-        enabled = self.selected_apk is not None and self.selected_device is not None
+        has_apks = hasattr(self, 'selected_apks') and len(self.selected_apks) > 0
+        enabled = has_apks and self.selected_device is not None
+        
         self.install_btn.setEnabled(enabled)
         
         if enabled:
-            self.status_label.setText("Listo para instalar")
+            apk_count = len(self.selected_apks)
+            self.status_label.setText(f"Listo para instalar {apk_count} APK(s)")
         else:
-            if not self.selected_apk:
-                self.status_label.setText("Selecciona un APK")
+            if not has_apks or len(self.selected_apks) == 0:
+                self.status_label.setText("Selecciona al menos un APK")
             else:
                 self.status_label.setText("Selecciona un dispositivo")
     
     def install_apk(self):
-        if not self.selected_apk or not self.selected_device:
+        if not hasattr(self, 'selected_apks') or len(self.selected_apks) == 0 or not self.selected_device:
             return
         
         self.install_btn.setEnabled(False)
         self.progress_bar.setVisible(True)
-        self.status_label.setText("Instalando...")
+        self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
-        self.installation_thread = InstallationThread(self.selected_apk, self.selected_device)
+        self.installation_thread = InstallationThread(self.selected_apks, self.selected_device)  # Cambiar a lista
         self.installation_thread.progress_update.connect(self.update_progress)
         self.installation_thread.finished_signal.connect(self.installation_finished)
         self.installation_thread.start()
@@ -294,8 +311,10 @@ class MainWindow(QMainWindow):
         self.install_btn.setEnabled(True)
         
         if success:
-            QMessageBox.information(self, "Éxito", "APK instalado correctamente")
+            QMessageBox.information(self, "Éxito", message)  # Usar el mensaje del thread
             self.status_label.setText("Instalación completada")
+            # Opcional: limpiar la lista después de instalación exitosa
+            # self.clear_apk()
         else:
             QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
             self.status_label.setText("Error en la instalación")
@@ -485,5 +504,39 @@ class MainWindow(QMainWindow):
             self.device_status_emoji.setText("⚠️")
         else:
             self.device_status_emoji.setText("")
+    
+    def on_apk_selection_changed(self):
+        """Habilita/deshabilita el botón de eliminar según la selección"""
+        has_selection = len(self.apk_list.selectedItems()) > 0
+        self.remove_apk_btn.setEnabled(has_selection)
 
+    def remove_selected_apks(self):
+        """Elimina los APKs seleccionados de la lista"""
+        selected_items = self.apk_list.selectedItems()
+        if not selected_items:
+            return
+        
+        # Crear un conjunto de los nombres de archivo a eliminar
+        files_to_remove = set()
+        for item in selected_items:
+            item_text = item.text()
+            # Extraer el nombre del archivo (remover el emoji y espacio)
+            filename = item_text.replace("📱 ", "")
+            files_to_remove.add(filename)
+        
+        # Filtrar la lista de APKs, manteniendo solo los que NO están en files_to_remove
+        self.selected_apks = [
+            apk_path for apk_path in self.selected_apks 
+            if os.path.basename(apk_path) not in files_to_remove
+        ]
+        
+        # Actualizar la lista visual
+        self.update_apk_list_display()
+        self.update_install_button()
+
+    def update_apk_list_display(self):
+        """Actualiza la visualización de la lista de APKs"""
+        self.apk_list.clear()
+        for apk_path in self.selected_apks:
+            self.apk_list.addItem(f"📱 {os.path.basename(apk_path)}")
 
