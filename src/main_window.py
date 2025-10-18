@@ -3,12 +3,13 @@ import subprocess
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
-                             QProgressBar, QTabWidget, QFrame)
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtGui import QIcon
+                             QProgressBar, QTabWidget, QFrame, QCheckBox, QListWidgetItem)
+from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import Qt
 from .device_manager import DeviceManager
 from .apk_installer import APKInstaller
 from .config_manager import ConfigManager
+from .app_manager import AppManager 
 
 class InstallationThread(QThread):
     progress_update = pyqtSignal(str)
@@ -33,6 +34,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.device_manager = DeviceManager()
         self.config_manager = ConfigManager()
+        self.app_manager = AppManager() 
         self.selected_apk = None
         self.selected_device = None
         self.init_ui()
@@ -41,7 +43,7 @@ class MainWindow(QMainWindow):
     
     def init_ui(self):
         self.setWindowTitle("APK Installer")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 700)
         
         # Widget central
         central_widget = QWidget()
@@ -58,11 +60,16 @@ class MainWindow(QMainWindow):
         install_tab = QWidget()
         tabs.addTab(install_tab, "Instalación")
         
+        # Tab de aplicaciones instaladas (NUEVA)
+        apps_tab = QWidget()
+        tabs.addTab(apps_tab, "Aplicaciones Instaladas")
+        
         # Tab de configuración
         config_tab = QWidget()
         tabs.addTab(config_tab, "Configuración")
         
         self.setup_install_tab(install_tab)
+        self.setup_apps_tab(apps_tab)  
         self.setup_config_tab(config_tab)
     
     def setup_install_tab(self, parent):
@@ -250,3 +257,148 @@ class MainWindow(QMainWindow):
             self.config_manager.set_adb_path(file_path)
             self.check_adb()
             QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada")
+
+    def setup_apps_tab(self, parent):
+        """Configura la pestaña de aplicaciones instaladas"""
+        layout = QVBoxLayout(parent)
+        
+        # Controles superiores
+        controls_layout = QHBoxLayout()
+        
+        self.refresh_apps_btn = QPushButton("Actualizar Aplicaciones")
+        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
+        controls_layout.addWidget(self.refresh_apps_btn)
+        
+        self.include_system_apps_cb = QCheckBox("Incluir aplicaciones del sistema")
+        self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
+        controls_layout.addWidget(self.include_system_apps_cb)
+        
+        self.uninstall_btn = QPushButton("Desinstalar Aplicación")
+        self.uninstall_btn.clicked.connect(self.uninstall_app)
+        self.uninstall_btn.setEnabled(False)
+        controls_layout.addWidget(self.uninstall_btn)
+        
+        layout.addLayout(controls_layout)
+        
+        # Lista de aplicaciones
+        self.apps_list = QListWidget()
+        self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
+        layout.addWidget(self.apps_list)
+        
+        # Información de la aplicación seleccionada
+        info_frame = QFrame()
+        info_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        info_layout = QVBoxLayout(info_frame)
+        
+        self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
+        self.app_info_label.setWordWrap(True)
+        info_layout.addWidget(self.app_info_label)
+        
+        layout.addWidget(info_frame)
+
+    def on_apps_loaded(self, apps):
+        """Callback cuando se cargan las aplicaciones"""
+        self.refresh_apps_btn.setEnabled(True)
+        self.apps_list.clear()
+        
+        if not apps:
+            self.apps_list.addItem("No se encontraron aplicaciones")
+            return
+        
+        for app in apps:
+            item = QListWidgetItem()
+            
+            # Configurar el texto del item
+            item_text = f"{app['name']}\nPaquete: {app['package_name']}\nVersión: {app['version']}"
+            item.setText(item_text)
+            
+            item.setData(Qt.ItemDataRole.UserRole, app)
+            self.apps_list.addItem(item)
+
+    def on_app_selected(self):
+        """Cuando se selecciona una aplicación de la lista"""
+        selected_items = self.apps_list.selectedItems()
+        self.uninstall_btn.setEnabled(len(selected_items) > 0)
+        
+        if not selected_items:
+            self.app_info_label.setText("Selecciona una aplicación para ver detalles")
+            return
+        
+        item = selected_items[0]
+        app_data = item.data(Qt.ItemDataRole.UserRole)
+        
+        # Mostrar información
+        info_text = f"""
+        <b>Nombre:</b> {app_data['name']}<br>
+        <b>Paquete:</b> {app_data['package_name']}<br>
+        <b>Versión:</b> {app_data['version']}<br>
+        <b>Ruta APK:</b> {app_data['apk_path']}
+        """
+        self.app_info_label.setText(info_text)
+
+    def load_installed_apps(self):
+        """Carga las aplicaciones instaladas en el dispositivo seleccionado"""
+        if not self.selected_device:
+            QMessageBox.warning(self, "Advertencia", "Selecciona un dispositivo primero")
+            return
+        
+        self.apps_list.clear()
+        self.app_info_label.setText("Cargando aplicaciones...")
+        
+        include_system = self.include_system_apps_cb.isChecked()
+        
+        # Usar un hilo para cargar aplicaciones (puede tomar tiempo)
+        self.apps_loading_thread = AppsLoadingThread(
+            self.app_manager, 
+            self.selected_device, 
+            include_system
+        )
+        self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
+        self.apps_loading_thread.start()
+        
+        self.refresh_apps_btn.setEnabled(False)
+
+    def uninstall_app(self):
+        """Desinstala la aplicación seleccionada"""
+        selected_items = self.apps_list.selectedItems()
+        if not selected_items or not self.selected_device:
+            return
+        
+        item = selected_items[0]
+        app_data = item.data(Qt.ItemDataRole.UserRole)
+        
+        reply = QMessageBox.question(
+            self, 
+            "Confirmar Desinstalación",
+            f"¿Estás seguro de que quieres desinstalar {app_data['name']}?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            success, message = self.app_manager.uninstall_app(
+                self.selected_device, 
+                app_data['package_name']
+            )
+            
+            if success:
+                QMessageBox.information(self, "Éxito", f"Aplicación desinstalada: {message}")
+                self.load_installed_apps()  # Recargar lista
+            else:
+                QMessageBox.critical(self, "Error", f"Error al desinstalar: {message}")
+
+class AppsLoadingThread(QThread):
+    finished_signal = pyqtSignal(list)
+    
+    def __init__(self, app_manager, device_id, include_system):
+        super().__init__()
+        self.app_manager = app_manager
+        self.device_id = device_id
+        self.include_system = include_system
+    
+    def run(self):
+        try:
+            apps = self.app_manager.get_installed_apps(self.device_id, self.include_system)
+            self.finished_signal.emit(apps)
+        except Exception as e:
+            print(f"Error cargando aplicaciones: {e}")
+            self.finished_signal.emit([])
