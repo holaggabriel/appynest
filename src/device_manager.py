@@ -1,0 +1,77 @@
+import subprocess
+import json
+import os
+from .config_manager import ConfigManager
+
+class DeviceManager:
+    def __init__(self):
+        self.config_manager = ConfigManager()
+    
+    def check_adb_availability(self):
+        """Verifica si ADB está disponible en el sistema"""
+        try:
+            adb_path = self.config_manager.get_adb_path()
+            result = subprocess.run([adb_path, "version"], 
+                                  capture_output=True, text=True, timeout=10)
+            return result.returncode == 0
+        except:
+            return False
+    
+    def get_connected_devices(self):
+        """Obtiene la lista de dispositivos conectados"""
+        devices = []
+        
+        try:
+            adb_path = self.config_manager.get_adb_path()
+            result = subprocess.run([adb_path, "devices", "-l"], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                lines = result.stdout.strip().split('\n')[1:]  # Saltar la línea de encabezado
+                
+                for line in lines:
+                    if line.strip():
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            device_id = parts[0]
+                            # Extraer modelo si está disponible
+                            model = "Dispositivo desconocido"
+                            for part in parts:
+                                if "model:" in part:
+                                    model = part.split(":")[1]
+                                    break
+                            
+                            devices.append({
+                                'device': device_id,
+                                'model': model,
+                                'status': parts[1]
+                            })
+            
+        except Exception as e:
+            print(f"Error al obtener dispositivos: {e}")
+        
+        return devices
+    
+    def get_device_info(self, device_id):
+        """Obtiene información detallada de un dispositivo"""
+        try:
+            adb_path = self.config_manager.get_adb_path()
+            # Obtener modelo
+            model_result = subprocess.run(
+                [adb_path, "-s", device_id, "shell", "getprop", "ro.product.model"],
+                capture_output=True, text=True, timeout=10
+            )
+            
+            # Obtener versión de Android
+            android_version_result = subprocess.run(
+                [adb_path, "-s", device_id, "shell", "getprop", "ro.build.version.release"],
+                capture_output=True, text=True, timeout=10
+            )
+            
+            return {
+                'model': model_result.stdout.strip() if model_result.returncode == 0 else "Desconocido",
+                'android_version': android_version_result.stdout.strip() if android_version_result.returncode == 0 else "Desconocido"
+            }
+        except Exception as e:
+            print(f"Error al obtener información del dispositivo: {e}")
+            return {}
