@@ -4,21 +4,23 @@ from PyQt6.QtGui import QPalette, QColor
 
 class DarkTheme:
     """Clase para gestionar el tema oscuro de manera modular sin sobrescribir estilos nativos"""
-    
+        
     COLORS = {
-        'window': '#2d2d30',
+        'window': '#1a1a1a',
         'window_text': '#f0f0f0',
-        'base': '#1e1e1e',
-        'alternate_base': '#2d2d30',
-        'tooltip': '#f0f0f0',
-        'text': '#f0f0f0',
-        'button': '#3c3c3c',
-        'button_text': '#f0f0f0',
-        'highlight': '#2a82da',
-        'border': '#3e3e42',
-        'success': '#107c10',
-        'warning': '#da532c',
-        'disabled': '#5a5a5a'
+        'base': '#161616',
+        'alternate_base': '#242424',
+        'tooltip': '#e0e0e0',
+        'text': '#ffffff',
+        'button': '#363636',
+        'button_text': '#ffffff',
+        'highlight': '#4a4a4a',
+        'border': '#404040',
+        'success': '#4CAF50',
+        'warning': '#FF9800',
+        'disabled': '#666666',
+        'accent': '#BB86FC',
+        'secondary_accent': '#03DAC6'
     }
     
     @staticmethod
@@ -54,15 +56,15 @@ class DarkTheme:
         colors = DarkTheme.COLORS
         
         return {
-            # Estilos de contenedores principales
-            'main_window': f"""
+            # ===== CONTENEDORES PRINCIPALES =====
+            'app_main_window': f"""
                 background-color: {colors['window']};
                 color: {colors['text']};
             """,
             
-            'content_frame': f"""
+            'content_main_frame': f"""
                 QFrame {{
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                     color: {colors['text']};
                     border: 1px solid {colors['border']};
                     border-radius: 6px;
@@ -70,9 +72,20 @@ class DarkTheme:
                 }}
             """,
             
-            'sidebar_frame': f"""
+            # ===== SIDEBAR - ESTILOS ESPECÍFICOS =====
+            'sidebar_main_panel': f"""
                 QFrame {{
-                    background-color: {colors['alternate_base']};
+                    background-color: {colors['window']};
+                    color: {colors['text']};
+                    border: none;
+                    border-radius: 6px;
+                    padding: 8px;
+                }}
+            """,
+            
+            'sidebar_banner_frame': f"""
+                QFrame {{
+                    background-color: {colors['window']};
                     color: {colors['text']};
                     border: 1px solid {colors['border']};
                     border-radius: 6px;
@@ -80,11 +93,21 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de pestañas
-            'tab_widget': f"""
+            'sidebar_section_frame': f"""
+                QFrame {{
+                    background-color: {colors['window']};
+                    color: {colors['text']};
+                    border: 1px solid {colors['border']};
+                    border-radius: 6px;
+                    padding: 12px;
+                }}
+            """,
+            
+            # ===== PESTAÑAS =====
+            'tab_main_widget': f"""
                 QTabWidget::pane {{
                     border: 1px solid {colors['border']};
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                     border-radius: 4px;
                 }}
                 QTabWidget::tab-bar {{
@@ -108,10 +131,10 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de listas
-            'list_widget': f"""
+            # ===== LISTAS =====
+            'list_main_widget': f"""
                 QListWidget {{
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                     color: {colors['text']};
                     border: 1px solid {colors['border']};
                     border-radius: 4px;
@@ -136,8 +159,8 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de botones
-            'button_primary': f"""
+            # ===== BOTONES PRINCIPALES =====
+            'button_primary_default': f"""
                 QPushButton {{
                     background-color: {colors['highlight']};
                     color: white;
@@ -160,7 +183,7 @@ class DarkTheme:
                 }}
             """,
             
-            'button_secondary': f"""
+            'button_secondary_default': f"""
                 QPushButton {{
                     background-color: {colors['button']};
                     color: {colors['button_text']};
@@ -180,7 +203,7 @@ class DarkTheme:
                 }}
             """,
             
-            'button_warning': f"""
+            'button_warning_default': f"""
                 QPushButton {{
                     background-color: {colors['warning']};
                     color: white;
@@ -199,7 +222,7 @@ class DarkTheme:
                 }}
             """,
             
-            'button_success': f"""
+            'button_success_default': f"""
                 QPushButton {{
                     background-color: {colors['success']};
                     color: white;
@@ -218,8 +241,8 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de etiquetas
-            'label_default': f"""
+            # ===== ETIQUETAS =====
+            'label_default_text': f"""
                 QLabel {{
                     color: {colors['text']};
                     background: transparent;
@@ -227,29 +250,31 @@ class DarkTheme:
                 }}
             """,
             
-            'label_title': f"""
+            'label_title_text': f"""
                 QLabel {{
                     color: #cccccc;
                     font-weight: bold;
                     font-size: 12px;
                     background: transparent;
+                    border: 1px solid {colors['border']};
                 }}
             """,
             
-            'label_section': f"""
+            'label_section_header': f"""
                 QLabel {{
                     color: #cccccc;
                     font-weight: bold;
                     font-size: 12px;
                     padding: 5px;
-                    background-color: {colors['border']};
+                    background-color: {colors['window']};
+                    border: 1px solid {colors['border']};
                     border-radius: 4px;
-                    margin-bottom: 5px;
+                    
                 }}
             """,
             
-            # Estilos de barras de progreso
-            'progress_bar': f"""
+            # ===== BARRAS DE PROGRESO =====
+            'progress_bar_default': f"""
                 QProgressBar {{
                     border: 1px solid {colors['border']};
                     border-radius: 4px;
@@ -257,7 +282,7 @@ class DarkTheme:
                     color: {colors['text']};
                     height: 20px;
                     font-size: 11px;
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                 }}
                 QProgressBar::chunk {{
                     background-color: {colors['highlight']};
@@ -265,8 +290,8 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de checkboxes
-            'checkbox': f"""
+            # ===== CHECKBOXES =====
+            'checkbox_default': f"""
                 QCheckBox {{
                     color: {colors['text']};
                     spacing: 8px;
@@ -277,7 +302,7 @@ class DarkTheme:
                     height: 16px;
                     border: 1px solid {colors['border']};
                     border-radius: 3px;
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                 }}
                 QCheckBox::indicator:checked {{
                     background-color: {colors['highlight']};
@@ -291,10 +316,10 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de campos de texto
-            'line_edit': f"""
+            # ===== CAMPOS DE TEXTO =====
+            'line_edit_default': f"""
                 QLineEdit {{
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                     color: {colors['text']};
                     border: 1px solid {colors['border']};
                     border-radius: 4px;
@@ -307,9 +332,9 @@ class DarkTheme:
                 }}
             """,
             
-            'text_edit': f"""
+            'text_edit_default': f"""
                 QTextEdit {{
-                    background-color: {colors['base']};
+                    background-color: {colors['window']};
                     color: {colors['text']};
                     border: 1px solid {colors['border']};
                     border-radius: 4px;
@@ -322,8 +347,8 @@ class DarkTheme:
                 }}
             """,
             
-            # Estilos de grupo
-            'group_box': f"""
+            # ===== GRUPOS =====
+            'group_box_default': f"""
                 QGroupBox {{
                     color: {colors['text']};
                     font-weight: bold;
@@ -332,11 +357,13 @@ class DarkTheme:
                     margin-top: 10px;
                     padding-top: 10px;
                     font-size: 11px;
+                    background-color: {colors['window']};
                 }}
                 QGroupBox::title {{
                     subcontrol-origin: margin;
                     left: 10px;
                     padding: 0 5px 0 5px;
+                    background-color: {colors['window']};
                 }}
             """
         }
@@ -347,7 +374,7 @@ class DarkTheme:
         colors = DarkTheme.COLORS
         
         return {
-            'status_success': f"""
+            'status_success_message': f"""
                 QLabel {{
                     background-color: {colors['success']};
                     color: white;
@@ -358,7 +385,7 @@ class DarkTheme:
                 }}
             """,
             
-            'status_error': f"""
+            'status_error_message': f"""
                 QLabel {{
                     background-color: {colors['warning']};
                     color: white;
@@ -369,7 +396,7 @@ class DarkTheme:
                 }}
             """,
             
-            'status_info': f"""
+            'status_info_message': f"""
                 QLabel {{
                     background-color: #323233;
                     color: {colors['text']};
@@ -379,7 +406,7 @@ class DarkTheme:
                 }}
             """,
             
-            'status_warning': f"""
+            'status_warning_message': f"""
                 QLabel {{
                     background-color: #da7c2c;
                     color: white;
@@ -394,10 +421,8 @@ class DarkTheme:
     @staticmethod
     def get_special_styles():
         """Estilos para componentes especializados"""
-        colors = DarkTheme.COLORS
-        
         return {
-            'device_banner': """
+            'device_banner_label': """
                 QLabel {
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #007acc, stop:1 #005a9e);
                     color: white;
@@ -409,7 +434,7 @@ class DarkTheme:
                 }
             """,
             
-            'nav_button_active': """
+            'nav_button_active_state': """
                 QPushButton {
                     background-color: #2d6a4f;
                     color: white;
@@ -428,7 +453,7 @@ class DarkTheme:
                 }
             """,
             
-            'nav_button_inactive': """
+            'nav_button_inactive_state': """
                 QPushButton {
                     background-color: #495057;
                     color: #adb5bd;
@@ -447,14 +472,13 @@ class DarkTheme:
                 }
             """,
             
-            'device_status_emoji': """
+            'device_status_emoji_label': """
                 QLabel {
                     font-size: 18px;
                     padding: 5px;
                     background-color: #323233;
                     border-radius: 4px;
                     min-width: 30px;
-                    qproperty-alignment: AlignCenter;
                 }
             """
         }

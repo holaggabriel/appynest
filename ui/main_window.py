@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         
         # Widget central
         central_widget = QWidget()
-        central_widget.setStyleSheet(self.styles['main_window'])
+        central_widget.setStyleSheet(self.styles['app_main_window'])
         self.setCentralWidget(central_widget)
         
         # Layout principal HORIZONTAL
@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         
         # Panel derecho - Contenido principal con botones
         right_panel = QWidget()
-        right_panel.setStyleSheet(self.styles['content_frame'])
+        right_panel.setStyleSheet(self.styles['content_main_frame'])
         right_layout = QVBoxLayout(right_panel)
         right_layout.setSpacing(10)
         right_layout.setContentsMargins(15, 15, 15, 15)
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         
         # Widget apilado para las secciones
         self.stacked_widget = QStackedWidget()
-        self.stacked_widget.setStyleSheet(self.styles['content_frame'])
+        self.stacked_widget.setStyleSheet(self.styles['content_main_frame'])
         
         # Crear las secciones
         self.install_section = self.setup_install_section()
@@ -130,9 +130,9 @@ class MainWindow(QMainWindow):
         
         for button, is_active in buttons:
             if is_active:
-                button.setStyleSheet(self.styles['nav_button_active'])
+                button.setStyleSheet(self.styles['nav_button_active_state'])
             else:
-                button.setStyleSheet(self.styles['nav_button_inactive'])
+                button.setStyleSheet(self.styles['nav_button_inactive_state'])
     
     def setup_install_section(self):
         """Crea la sección de instalación"""
@@ -143,24 +143,24 @@ class MainWindow(QMainWindow):
         
         # Sección de APK
         apk_section = QFrame()
-        apk_section.setStyleSheet(self.styles['content_frame'])
+        apk_section.setStyleSheet(self.styles['sidebar_main_panel'])
         apk_layout = QVBoxLayout(apk_section)
         apk_layout.setSpacing(10)
         
         # Título de sección
         apk_title = QLabel("ARCHIVOS APK")
-        apk_title.setStyleSheet(self.styles['label_section'])
+        apk_title.setStyleSheet(self.styles['label_section_header'])
         apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         apk_layout.addWidget(apk_title)
         
         # Contador de APKs
         self.apk_count_label = QLabel("0 APKs seleccionados")
         self.apk_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apk_count_label.setStyleSheet(self.styles['label_default'])
+        self.apk_count_label.setStyleSheet(self.styles['label_section_header'])
         apk_layout.addWidget(self.apk_count_label)
         
         self.apk_list = QListWidget()
-        self.apk_list.setStyleSheet(self.styles['list_widget'])
+        self.apk_list.setStyleSheet(self.styles['list_main_widget'])
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
         apk_layout.addWidget(self.apk_list)
@@ -170,18 +170,18 @@ class MainWindow(QMainWindow):
         apk_buttons_layout.setSpacing(8)
         
         self.select_apk_btn = QPushButton("📁 Agregar APKs")
-        self.select_apk_btn.setStyleSheet(self.styles['button_primary'])
+        self.select_apk_btn.setStyleSheet(self.styles['button_primary_default'])
         self.select_apk_btn.clicked.connect(self.select_apk)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
         self.remove_apk_btn = QPushButton("🗑️ Eliminar")
-        self.remove_apk_btn.setStyleSheet(self.styles['button_secondary'])
+        self.remove_apk_btn.setStyleSheet(self.styles['button_secondary_default'])
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
         self.clear_apk_btn = QPushButton("🧹 Limpiar")
-        self.clear_apk_btn.setStyleSheet(self.styles['button_warning'])
+        self.clear_apk_btn.setStyleSheet(self.styles['button_warning_default'])
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
@@ -190,23 +190,23 @@ class MainWindow(QMainWindow):
         
         # Barra de progreso
         self.progress_bar = QProgressBar()
-        self.progress_bar.setStyleSheet(self.styles['progress_bar'])
+        self.progress_bar.setStyleSheet(self.styles['progress_bar_default'])
         self.progress_bar.setVisible(False)
         layout.addWidget(self.progress_bar)
         
         # Estado
         status_frame = QFrame()
-        status_frame.setStyleSheet(self.styles['content_frame'])
+        status_frame.setStyleSheet(self.styles['sidebar_section_frame'])
         status_layout = QVBoxLayout(status_frame)
         self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet(self.styles['status_info'])
+        self.status_label.setStyleSheet(self.styles['status_info_message'])
         status_layout.addWidget(self.status_label)
         layout.addWidget(status_frame)
         
         # Botón de instalación
         self.install_btn = QPushButton("🚀 Instalar APKs")
-        self.install_btn.setStyleSheet(self.styles['button_success'])
+        self.install_btn.setStyleSheet(self.styles['button_success_default'])
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
         layout.addWidget(self.install_btn)
@@ -222,22 +222,22 @@ class MainWindow(QMainWindow):
         
         # Controles superiores
         controls_frame = QFrame()
-        controls_frame.setStyleSheet(self.styles['content_frame'])
+        controls_frame.setStyleSheet(self.styles['sidebar_section_frame'])
         controls_layout = QHBoxLayout(controls_frame)
         controls_layout.setSpacing(8)
         
         self.refresh_apps_btn = QPushButton("🔄 Actualizar")
-        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary'])
+        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
         self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
         controls_layout.addWidget(self.refresh_apps_btn)
         
         self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        self.include_system_apps_cb.setStyleSheet(self.styles['checkbox'])
+        self.include_system_apps_cb.setStyleSheet(self.styles['checkbox_default'])
         self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
         controls_layout.addWidget(self.include_system_apps_cb)
         
         self.uninstall_btn = QPushButton("🗑️ Desinstalar")
-        self.uninstall_btn.setStyleSheet(self.styles['button_warning'])
+        self.uninstall_btn.setStyleSheet(self.styles['button_warning_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
         controls_layout.addWidget(self.uninstall_btn)
@@ -246,16 +246,16 @@ class MainWindow(QMainWindow):
         
         # Lista de aplicaciones
         apps_frame = QFrame()
-        apps_frame.setStyleSheet(self.styles['content_frame'])
+        apps_frame.setStyleSheet(self.styles['sidebar_main_panel'])
         apps_layout = QVBoxLayout(apps_frame)
         
         apps_title = QLabel("APLICACIONES INSTALADAS")
-        apps_title.setStyleSheet(self.styles['label_section'])
+        apps_title.setStyleSheet(self.styles['label_section_header'])
         apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         apps_layout.addWidget(apps_title)
         
         self.apps_list = QListWidget()
-        self.apps_list.setStyleSheet(self.styles['list_widget'])
+        self.apps_list.setStyleSheet(self.styles['list_main_widget'])
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         apps_layout.addWidget(self.apps_list)
         
@@ -263,17 +263,17 @@ class MainWindow(QMainWindow):
         
         # Información de la aplicación
         info_frame = QFrame()
-        info_frame.setStyleSheet(self.styles['content_frame'])
+        info_frame.setStyleSheet(self.styles['sidebar_main_panel'])
         info_layout = QVBoxLayout(info_frame)
         
         info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
-        info_title.setStyleSheet(self.styles['label_section'])
+        info_title.setStyleSheet(self.styles['label_section_header'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info_layout.addWidget(info_title)
         
         self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.app_info_label.setWordWrap(True)
-        self.app_info_label.setStyleSheet(self.styles['status_info'])
+        self.app_info_label.setStyleSheet(self.styles['status_info_message'])
         info_layout.addWidget(self.app_info_label)
         
         layout.addWidget(info_frame)
@@ -289,12 +289,12 @@ class MainWindow(QMainWindow):
         
         # Estado de ADB
         adb_section = QFrame()
-        adb_section.setStyleSheet(self.styles['content_frame'])
+        adb_section.setStyleSheet(self.styles['sidebar_main_panel'])
         adb_layout = QVBoxLayout(adb_section)
         adb_layout.setSpacing(10)
         
         adb_title = QLabel("ESTADO ADB")
-        adb_title.setStyleSheet(self.styles['label_section'])
+        adb_title.setStyleSheet(self.styles['label_section_header'])
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         adb_layout.addWidget(adb_title)
         
@@ -302,24 +302,24 @@ class MainWindow(QMainWindow):
         self.adb_path_label = QLabel("Ruta ADB: No detectada")
         
         for label in [self.adb_status_label, self.adb_path_label]:
-            label.setStyleSheet(self.styles['status_info'])
+            label.setStyleSheet(self.styles['status_info_message'])
             adb_layout.addWidget(label)
         
         layout.addWidget(adb_section)
         
         # Configuración de rutas
         path_section = QFrame()
-        path_section.setStyleSheet(self.styles['content_frame'])
+        path_section.setStyleSheet(self.styles['sidebar_main_panel'])
         path_layout = QVBoxLayout(path_section)
         path_layout.setSpacing(10)
         
         path_title = QLabel("CONFIGURACIÓN")
-        path_title.setStyleSheet(self.styles['label_section'])
+        path_title.setStyleSheet(self.styles['label_section_header'])
         path_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         path_layout.addWidget(path_title)
         
         self.custom_adb_btn = QPushButton("🔧 Seleccionar ADB personalizado")
-        self.custom_adb_btn.setStyleSheet(self.styles['button_primary'])
+        self.custom_adb_btn.setStyleSheet(self.styles['button_primary_default'])
         self.custom_adb_btn.clicked.connect(self.select_custom_adb)
         path_layout.addWidget(self.custom_adb_btn)
         
@@ -333,7 +333,7 @@ class MainWindow(QMainWindow):
     def setup_devices_panel(self):
         """Crea el panel lateral de dispositivos con diseño moderno"""
         panel = QFrame()
-        panel.setStyleSheet(self.styles['sidebar_frame'])
+        panel.setStyleSheet(self.styles['sidebar_main_panel'])
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -341,25 +341,25 @@ class MainWindow(QMainWindow):
         # Título de sección
         section_title = QLabel("DISPOSITIVOS")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        section_title.setStyleSheet(self.styles['label_section'])
+        section_title.setStyleSheet(self.styles['label_section_header'])
         layout.addWidget(section_title)
         
         # Banner de dispositivo seleccionado
         banner_frame = QFrame()
-        banner_frame.setStyleSheet(self.styles['content_frame'])
+        banner_frame.setStyleSheet(self.styles['sidebar_banner_frame'])
         self.banner_layout = QHBoxLayout(banner_frame)
         self.banner_layout.setContentsMargins(8, 8, 8, 8)
         self.banner_layout.setSpacing(8)
         
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setStyleSheet(self.styles['device_banner'])
+        self.selected_device_banner.setStyleSheet(self.styles['device_banner_label'])
         self.selected_device_banner.setMinimumHeight(40)
         
         # Emoji de estado - inicialmente oculto
         self.device_status_emoji = QLabel("")
         self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.device_status_emoji.setStyleSheet(self.styles['device_status_emoji'])
+        self.device_status_emoji.setStyleSheet(self.styles['device_status_emoji_label'])
         self.device_status_emoji.setVisible(False)
         
         # Agregar widgets al layout con factores de stretch iniciales
@@ -370,11 +370,11 @@ class MainWindow(QMainWindow):
         
         # Lista de dispositivos
         device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(self.styles['label_title'])
+        device_label.setStyleSheet(self.styles['label_title_text'])
         layout.addWidget(device_label)
         
         self.device_list = QListWidget()
-        self.device_list.setStyleSheet(self.styles['list_widget'])
+        self.device_list.setStyleSheet(self.styles['list_main_widget'])
         self.device_list.itemSelectionChanged.connect(self.on_device_preselected)
         layout.addWidget(self.device_list)
         
@@ -383,12 +383,12 @@ class MainWindow(QMainWindow):
         device_buttons_layout.setSpacing(8)
         
         self.refresh_devices_btn = QPushButton("🔄 Actualizar")
-        self.refresh_devices_btn.setStyleSheet(self.styles['button_primary'])
+        self.refresh_devices_btn.setStyleSheet(self.styles['button_primary_default'])
         self.refresh_devices_btn.clicked.connect(self.load_devices)
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
         self.confirm_device_btn = QPushButton("✅ Seleccionar")
-        self.confirm_device_btn.setStyleSheet(self.styles['button_success'])
+        self.confirm_device_btn.setStyleSheet(self.styles['button_success_default'])
         self.confirm_device_btn.setEnabled(False)
         self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
         device_buttons_layout.addWidget(self.confirm_device_btn)
@@ -406,11 +406,11 @@ class MainWindow(QMainWindow):
         if self.device_manager.check_adb_availability():
             self.adb_status_label.setText("Estado ADB: ✅ Disponible")
             self.adb_path_label.setText(f"Ruta ADB: {adb_path}")
-            self.adb_status_label.setStyleSheet(self.styles['status_success'])
+            self.adb_status_label.setStyleSheet(self.styles['status_success_message'])
         else:
             self.adb_status_label.setText("Estado ADB: ❌ No disponible")
             self.adb_path_label.setText("Ruta ADB: No encontrada")
-            self.adb_status_label.setStyleSheet(self.styles['status_error'])
+            self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
 
     def select_apk(self):
         file_paths, _ = QFileDialog.getOpenFileNames(
@@ -472,13 +472,13 @@ class MainWindow(QMainWindow):
         if enabled:
             apk_count = len(self.selected_apks)
             self.status_label.setText(f"✅ Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
-            self.status_label.setStyleSheet(self.styles['status_success'])
+            self.status_label.setStyleSheet(self.styles['status_success_message'])
         else:
             if not has_apks or len(self.selected_apks) == 0:
                 self.status_label.setText("Selecciona al menos un APK")
             else:
                 self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setStyleSheet(self.styles['status_info'])
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
     
     def install_apk(self):
         if not hasattr(self, 'selected_apks') or len(self.selected_apks) == 0 or not self.selected_device:
@@ -503,11 +503,11 @@ class MainWindow(QMainWindow):
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
             self.status_label.setText("🎉 Instalación completada exitosamente")
-            self.status_label.setStyleSheet(self.styles['status_success'])
+            self.status_label.setStyleSheet(self.styles['status_success_message'])
         else:
             QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
             self.status_label.setText("❌ Error en la instalación")
-            self.status_label.setStyleSheet(self.styles['status_error'])
+            self.status_label.setStyleSheet(self.styles['status_error_message'])
     
     def select_custom_adb(self):
         file_path, _ = QFileDialog.getOpenFileName(
