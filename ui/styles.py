@@ -4,7 +4,7 @@ from PyQt6.QtGui import QPalette, QColor
 
 class DarkTheme:
     """Clase para gestionar el tema oscuro de manera modular sin sobrescribir estilos nativos"""
-        
+            
     COLORS = {
         'window': '#1a1a1a',
         'window_text': '#f0f0f0',
@@ -14,15 +14,32 @@ class DarkTheme:
         'text': '#ffffff',
         'button': '#363636',
         'button_text': '#ffffff',
-        'highlight': '#4a4a4a',
+        'highlight': '#1177BB',             
+        'highlight_hover': '#3399DD',       
+        'highlight_pressed': '#0D5A8C',     
+        'highlight_disabled': '#555F70',    
+        'highlight_disabled_text': '#A0B0C0',
         'border': '#404040',
-        'success': '#4CAF50',
-        'warning': '#FF9800',
+        'success': '#4CAF50',       
+        'success_hover': '#66BB6A', 
+        'success_pressed': '#388E3C',
+        'success_disabled': '#7E9E7E',      
+        'success_disabled_text': '#C0D0C0',
+        'warning': '#FF9800',          
+        'warning_hover': '#FFB74D',    
+        'warning_pressed': '#F57C00',  
+        'warning_disabled': '#AA6A33', 
+        'warning_disabled_text': '#FFD7A5',
+        'danger': '#D32F2F',              
+        'danger_hover': '#E57373',        
+        'danger_pressed': '#B71C1C',      
+        'danger_disabled': '#8C5555',     
+        'danger_disabled_text': '#D0A0A0',
         'disabled': '#666666',
         'accent': '#BB86FC',
         'secondary_accent': '#03DAC6'
     }
-    
+
     @staticmethod
     def setup_dark_palette(app):
         """Configura solo la paleta base sin stylesheet global"""
@@ -172,14 +189,14 @@ class DarkTheme:
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
-                    background-color: #1177bb;
+                    background-color: {colors['highlight_hover']};
                 }}
                 QPushButton:pressed {{
-                    background-color: #0c547d;
+                    background-color: {colors['highlight_pressed']};
                 }}
                 QPushButton:disabled {{
-                    background-color: {colors['disabled']};
-                    color: #a0a0a0;
+                    background-color: {colors['highlight_disabled']};
+                    color: {colors['highlight_disabled_text']};
                 }}
             """,
             
@@ -203,6 +220,29 @@ class DarkTheme:
                 }}
             """,
             
+            'button_danger_default': f"""
+                QPushButton {{
+                    background-color: {colors['danger']};
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    min-height: 20px;
+                    font-size: 11px;
+                }}
+                QPushButton:hover {{
+                    background-color: {colors['danger_hover']};
+                }}
+                QPushButton:pressed {{
+                    background-color: {colors['danger_pressed']};
+                }}
+                QPushButton:disabled {{
+                    background-color: {colors['danger_disabled']};
+                    color: {colors['danger_disabled_text']};
+                }}
+            """,
+            
             'button_warning_default': f"""
                 QPushButton {{
                     background-color: {colors['warning']};
@@ -215,10 +255,14 @@ class DarkTheme:
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
-                    background-color: #e56541;
+                    background-color: {colors['warning_hover']};
                 }}
                 QPushButton:pressed {{
-                    background-color: #c44c2c;
+                    background-color: {colors['warning_pressed']};
+                }}
+                QPushButton:disabled {{
+                    background-color: {colors['warning_disabled']};
+                    color: {colors['warning_disabled_text']};
                 }}
             """,
             
@@ -234,10 +278,14 @@ class DarkTheme:
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
-                    background-color: #138a13;
+                    background-color: {colors['success_hover']};
                 }}
                 QPushButton:pressed {{
-                    background-color: #0d6b0d;
+                    background-color: {colors['success_pressed']};
+                }}
+                QPushButton:disabled {{
+                    background-color: {colors['success_disabled']};
+                    color: {colors['success_disabled_text']};
                 }}
             """,
             
@@ -433,9 +481,6 @@ class DarkTheme:
                 QPushButton:hover {
                     background-color: #40916c;
                     border: 2px solid #52b788;
-                }
-                QPushButton:pressed {
-                    background-color: #1b4332;
                 }
             """,
             

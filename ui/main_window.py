@@ -159,13 +159,13 @@ class MainWindow(QMainWindow):
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
         self.remove_apk_btn = QPushButton("Eliminar")
-        self.remove_apk_btn.setStyleSheet(self.styles['button_secondary_default'])
+        self.remove_apk_btn.setStyleSheet(self.styles['button_warning_default'])
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
         self.clear_apk_btn = QPushButton("Limpiar")
-        self.clear_apk_btn.setStyleSheet(self.styles['button_warning_default'])
+        self.clear_apk_btn.setStyleSheet(self.styles['button_danger_default'])
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
@@ -264,7 +264,7 @@ class MainWindow(QMainWindow):
         
         # Botón de desinstalar DENTRO del mismo app_details_layout
         self.uninstall_btn = QPushButton("Desinstalar Aplicación")
-        self.uninstall_btn.setStyleSheet(self.styles['button_warning_default'])
+        self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
         app_details_layout.addWidget(self.uninstall_btn)
