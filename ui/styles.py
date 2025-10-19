@@ -290,32 +290,6 @@ class DarkTheme:
                 }}
             """,
             
-            # ===== CHECKBOXES =====
-            'checkbox_default': f"""
-                QCheckBox {{
-                    color: {colors['text']};
-                    spacing: 8px;
-                    font-size: 11px;
-                }}
-                QCheckBox::indicator {{
-                    width: 16px;
-                    height: 16px;
-                    border: 1px solid {colors['border']};
-                    border-radius: 3px;
-                    background-color: {colors['window']};
-                }}
-                QCheckBox::indicator:checked {{
-                    background-color: {colors['highlight']};
-                    border: 1px solid {colors['highlight']};
-                }}
-                QCheckBox::indicator:checked:hover {{
-                    background-color: #1177bb;
-                }}
-                QCheckBox::indicator:hover {{
-                    border: 1px solid #606060;
-                }}
-            """,
-            
             # ===== CAMPOS DE TEXTO =====
             'line_edit_default': f"""
                 QLineEdit {{

@@ -215,7 +215,6 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.refresh_apps_btn)
         
         self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        self.include_system_apps_cb.setStyleSheet(self.styles['checkbox_default'])
         self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
         controls_layout.addWidget(self.include_system_apps_cb)
         
