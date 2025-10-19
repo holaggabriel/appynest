@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
         nav_buttons_layout.addWidget(self.install_btn_nav)
         
-        self.apps_btn_nav = QPushButton("📱 Aplicaciones")
+        self.apps_btn_nav = QPushButton("🧩 Aplicaciones")
         self.apps_btn_nav.setCheckable(True)
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
         nav_buttons_layout.addWidget(self.apps_btn_nav)
@@ -153,18 +153,18 @@ class MainWindow(QMainWindow):
         apk_buttons_layout = QHBoxLayout()
         apk_buttons_layout.setSpacing(8)
         
-        self.select_apk_btn = QPushButton("📁 Agregar APKs")
+        self.select_apk_btn = QPushButton("Agregar APKs")
         self.select_apk_btn.setStyleSheet(self.styles['button_primary_default'])
         self.select_apk_btn.clicked.connect(self.select_apk)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
-        self.remove_apk_btn = QPushButton("🗑️ Eliminar")
+        self.remove_apk_btn = QPushButton("Eliminar")
         self.remove_apk_btn.setStyleSheet(self.styles['button_secondary_default'])
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
-        self.clear_apk_btn = QPushButton("🧹 Limpiar")
+        self.clear_apk_btn = QPushButton("Limpiar")
         self.clear_apk_btn.setStyleSheet(self.styles['button_warning_default'])
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(status_frame)
         
         # Botón de instalación
-        self.install_btn = QPushButton("🚀 Instalar APKs")
+        self.install_btn = QPushButton("Instalar APKs")
         self.install_btn.setStyleSheet(self.styles['button_success_default'])
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
@@ -209,7 +209,7 @@ class MainWindow(QMainWindow):
         controls_layout = QHBoxLayout(controls_frame)
         controls_layout.setSpacing(8)
         
-        self.refresh_apps_btn = QPushButton("🔄 Actualizar")
+        self.refresh_apps_btn = QPushButton("Actualizar")
         self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
         self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
         controls_layout.addWidget(self.refresh_apps_btn)
@@ -263,7 +263,7 @@ class MainWindow(QMainWindow):
         app_details_layout.addWidget(self.app_info_label)
         
         # Botón de desinstalar DENTRO del mismo app_details_layout
-        self.uninstall_btn = QPushButton("🗑️ Desinstalar Aplicación")
+        self.uninstall_btn = QPushButton("Desinstalar Aplicación")
         self.uninstall_btn.setStyleSheet(self.styles['button_warning_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
@@ -304,7 +304,7 @@ class MainWindow(QMainWindow):
         path_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(path_title)
         
-        self.custom_adb_btn = QPushButton("🔧 Seleccionar ADB personalizado")
+        self.custom_adb_btn = QPushButton("Seleccionar otra ruta de ADB")
         self.custom_adb_btn.setStyleSheet(self.styles['button_primary_default'])
         self.custom_adb_btn.clicked.connect(self.select_custom_adb)
         layout.addWidget(self.custom_adb_btn)
@@ -366,12 +366,12 @@ class MainWindow(QMainWindow):
         device_buttons_layout = QHBoxLayout()
         device_buttons_layout.setSpacing(8)
         
-        self.refresh_devices_btn = QPushButton("🔄 Actualizar")
+        self.refresh_devices_btn = QPushButton("Actualizar")
         self.refresh_devices_btn.setStyleSheet(self.styles['button_primary_default'])
         self.refresh_devices_btn.clicked.connect(self.load_devices)
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
-        self.confirm_device_btn = QPushButton("✅ Seleccionar")
+        self.confirm_device_btn = QPushButton("Seleccionar")
         self.confirm_device_btn.setStyleSheet(self.styles['button_success_default'])
         self.confirm_device_btn.setEnabled(False)
         self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
@@ -427,7 +427,7 @@ class MainWindow(QMainWindow):
 
         if devices:
             for device in devices:
-                text = f"📱 {device['model']} - {device['device']}"
+                text = f"{device['model']} - {device['device']}"
                 self.device_list.addItem(text)
         else:
             self.device_list.addItem("No se encontraron dispositivos")
@@ -455,7 +455,7 @@ class MainWindow(QMainWindow):
         
         if enabled:
             apk_count = len(self.selected_apks)
-            self.status_label.setText(f"✅ Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
+            self.status_label.setText(f"Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
             self.status_label.setStyleSheet(self.styles['status_success_message'])
         else:
             if not has_apks or len(self.selected_apks) == 0:
@@ -662,7 +662,7 @@ class MainWindow(QMainWindow):
         files_to_remove = set()
         for item in selected_items:
             item_text = item.text()
-            filename = item_text.replace("📱 ", "")
+            filename = item_text.replace("🧩 ", "")
             files_to_remove.add(filename)
         
         self.selected_apks = [
@@ -677,7 +677,7 @@ class MainWindow(QMainWindow):
         """Actualiza la visualización de la lista de APKs"""
         self.apk_list.clear()
         for apk_path in self.selected_apks:
-            self.apk_list.addItem(f"📱 {os.path.basename(apk_path)}")
+            self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
         
         # Actualizar contador
         apk_count = len(self.selected_apks)

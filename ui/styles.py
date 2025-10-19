@@ -140,7 +140,7 @@ class DarkTheme:
                     border-radius: 4px;
                     padding: 2px;
                     outline: none;
-                    font-size: 11px;
+                    font-size: 12px;
                 }}
                 QListWidget::item {{
                     padding: 8px;
