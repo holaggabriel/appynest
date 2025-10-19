@@ -153,12 +153,6 @@ class MainWindow(QMainWindow):
         self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
         layout.addWidget(self.apk_list)
         
-        # Contador de APKs
-        self.apk_count_label = QLabel("0 APKs seleccionados")
-        self.apk_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apk_count_label.setStyleSheet(self.styles['label_section_header'])
-        layout.addWidget(self.apk_count_label)
-        
         # Botones de APK
         apk_buttons_layout = QHBoxLayout()
         apk_buttons_layout.setSpacing(8)
@@ -229,16 +223,9 @@ class MainWindow(QMainWindow):
         self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
         controls_layout.addWidget(self.include_system_apps_cb)
         
-        self.uninstall_btn = QPushButton("🗑️ Desinstalar")
-        self.uninstall_btn.setStyleSheet(self.styles['button_warning_default'])
-        self.uninstall_btn.clicked.connect(self.uninstall_app)
-        self.uninstall_btn.setEnabled(False)
-        controls_layout.addWidget(self.uninstall_btn)
-        
         layout.addWidget(controls_frame)
         
         # Lista de aplicaciones
-        
         apps_title = QLabel("APLICACIONES INSTALADAS")
         apps_title.setStyleSheet(self.styles['label_section_header'])
         apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -250,16 +237,42 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.apps_list)
         
         # Información de la aplicación
-        
         info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
         info_title.setStyleSheet(self.styles['label_section_header'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(info_title)
         
-        self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
+        
+        # Mensaje inicial (cuando no hay app seleccionada)
+        self.initial_info_label = QLabel("Selecciona una aplicación para ver detalles")
+        self.initial_info_label.setWordWrap(True)
+        self.initial_info_label.setStyleSheet(self.styles['status_info_message'])
+        self.initial_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.initial_info_label)
+        
+        # Widget para información cuando hay app seleccionada (inicialmente oculto)
+        self.app_details_widget = QWidget()
+        app_details_layout = QVBoxLayout(self.app_details_widget)  # Cambiado a VERTICAL
+        app_details_layout.setSpacing(12)
+        app_details_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Información de la app
+        self.app_info_label = QLabel()
         self.app_info_label.setWordWrap(True)
         self.app_info_label.setStyleSheet(self.styles['status_info_message'])
-        layout.addWidget(self.app_info_label)
+        self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        app_details_layout.addWidget(self.app_info_label)
+        
+        # Botón de desinstalar DENTRO del mismo app_details_layout
+        self.uninstall_btn = QPushButton("🗑️ Desinstalar Aplicación")
+        self.uninstall_btn.setStyleSheet(self.styles['button_warning_default'])
+        self.uninstall_btn.clicked.connect(self.uninstall_app)
+        self.uninstall_btn.setEnabled(False)
+        app_details_layout.addWidget(self.uninstall_btn)
+        
+        # Agregar el widget de detalles al layout principal (inicialmente oculto)
+        layout.addWidget(self.app_details_widget)
+        self.app_details_widget.setVisible(False)
         
         return widget
     
@@ -513,11 +526,16 @@ class MainWindow(QMainWindow):
     def on_app_selected(self):
         """Cuando se selecciona una aplicación de la lista"""
         selected_items = self.apps_list.selectedItems()
-        self.uninstall_btn.setEnabled(len(selected_items) > 0)
         
         if not selected_items:
-            self.app_info_label.setText("Selecciona una aplicación para ver detalles")
+            # No hay app seleccionada - mostrar mensaje inicial
+            self.initial_info_label.setVisible(True)
+            self.app_details_widget.setVisible(False)
             return
+        
+        # Hay app seleccionada - mostrar detalles con botón
+        self.initial_info_label.setVisible(False)
+        self.app_details_widget.setVisible(True)
         
         item = selected_items[0]
         app_data = item.data(Qt.ItemDataRole.UserRole)
@@ -529,6 +547,9 @@ class MainWindow(QMainWindow):
         <b>📁 Ruta APK:</b> {app_data['apk_path']}
         """
         self.app_info_label.setText(info_text)
+        
+        # Habilitar el botón de desinstalar
+        self.uninstall_btn.setEnabled(True)
 
     def load_installed_apps(self):
         """Carga las aplicaciones instaladas en el dispositivo seleccionado"""
@@ -660,4 +681,3 @@ class MainWindow(QMainWindow):
         
         # Actualizar contador
         apk_count = len(self.selected_apks)
-        self.apk_count_label.setText(f"{apk_count} APK(s) seleccionado(s)")
