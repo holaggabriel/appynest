@@ -283,31 +283,35 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         
         # Estado de ADB
-        
         adb_title = QLabel("ESTADO ADB")
         adb_title.setStyleSheet(self.styles['label_section_header'])
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
         
-        self.adb_status_label = QLabel("Estado ADB: Verificando...")
+        # Contenedor para la ruta ADB con botón
+        adb_path_layout = QHBoxLayout()
+        adb_path_layout.setSpacing(8)
+        
+        # Etiqueta de ruta ADB
         self.adb_path_label = QLabel("Ruta ADB: No detectada")
+        self.adb_path_label.setStyleSheet(self.styles['status_info_message'])
+        self.adb_path_label.setWordWrap(True)
         
-        for label in [self.adb_status_label, self.adb_path_label]:
-            label.setStyleSheet(self.styles['status_info_message'])
-            layout.addWidget(label)
+        # Botón con icono de carpeta
+        self.folder_adb_btn = QPushButton("📁")
+        self.folder_adb_btn.setFixedSize(40, 30)  # Tamaño fijo para que sea cuadrado
+        self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
+        self.folder_adb_btn.clicked.connect(self.select_custom_adb)
         
-        layout.addSpacing(20)
+        adb_path_layout.addWidget(self.adb_path_label, 1)  # El 1 hace que ocupe más espacio
+        adb_path_layout.addWidget(self.folder_adb_btn, 0)  # El 0 hace que ocupe espacio mínimo
         
-        # Configuración de rutas
-        path_title = QLabel("CONFIGURACIÓN")
-        path_title.setStyleSheet(self.styles['label_section_header'])
-        path_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(path_title)
+        # Estado ADB
+        self.adb_status_label = QLabel("Estado ADB: Verificando...")
+        self.adb_status_label.setStyleSheet(self.styles['status_info_message'])
         
-        self.custom_adb_btn = QPushButton("Seleccionar otra ruta de ADB")
-        self.custom_adb_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.custom_adb_btn.clicked.connect(self.select_custom_adb)
-        layout.addWidget(self.custom_adb_btn)
+        layout.addWidget(self.adb_status_label)
+        layout.addLayout(adb_path_layout)
         
         # Espacio flexible
         layout.addStretch()
@@ -389,11 +393,22 @@ class MainWindow(QMainWindow):
         adb_path = self.config_manager.get_adb_path()
         if self.device_manager.check_adb_availability():
             self.adb_status_label.setText("Estado ADB: ✅ Disponible")
-            self.adb_path_label.setText(f"Ruta ADB: {adb_path}")
+            
+            # Mostrar solo el nombre del archivo o ruta abreviada para ahorrar espacio
+            if adb_path:
+                # Si la ruta es muy larga, mostrar solo el final
+                if len(adb_path) > 50:
+                    display_path = "..." + adb_path[-47:]
+                else:
+                    display_path = adb_path
+                self.adb_path_label.setText(f"Ruta: {display_path}")
+            else:
+                self.adb_path_label.setText("Ruta: Predeterminada")
+                
             self.adb_status_label.setStyleSheet(self.styles['status_success_message'])
         else:
             self.adb_status_label.setText("Estado ADB: ❌ No disponible")
-            self.adb_path_label.setText("Ruta ADB: No encontrada")
+            self.adb_path_label.setText("Ruta: No encontrada")
             self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
 
     def select_apk(self):
@@ -498,12 +513,21 @@ class MainWindow(QMainWindow):
             self, 
             "Seleccionar ADB", 
             "", 
-            "ADB Binary (adb)"
+            "ADB Binary (adb);;All Files (*)"
         )
         
         if file_path:
             self.config_manager.set_adb_path(file_path)
+            
+            # 🔄 IMPORTANTE: Reiniciar el DeviceManager con la nueva ruta
+            self.device_manager = DeviceManager()
+            
+            # Actualizar el estado visual
             self.check_adb()
+            
+            # También sería bueno recargar los dispositivos
+            self.load_devices()
+            
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def on_apps_loaded(self, apps):
