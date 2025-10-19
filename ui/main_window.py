@@ -1,6 +1,5 @@
 # main_window.py
 import os
-import sys
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
@@ -12,10 +11,9 @@ from src.config_manager import ConfigManager
 from src.app_manager import AppManager
 from src.installation_thread import InstallationThread
 from src.apps_loading_thread import AppsLoadingThread
-from src.apk_installer import APKInstaller
 from .styles import DarkTheme
 
-class ModernMainWindow(QMainWindow):
+class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
@@ -24,23 +22,25 @@ class ModernMainWindow(QMainWindow):
         self.app_manager = AppManager() 
         self.selected_apks = []
         self.selected_device = None
+        self.styles = DarkTheme.get_all_styles()  # Cargar todos los estilos
         self.init_ui()
         self.load_devices()
         self.check_adb()
     
     def init_ui(self):
-        self.setWindowTitle("APK Installer Pro")
+        self.setWindowTitle("Easy APK")
         self.setGeometry(100, 100, 1000, 750)
         
         # Configurar fuente moderna
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         
-        # Configurar tema oscuro
-        DarkTheme.setup_dark_theme(self)
+        # Configurar solo la paleta oscura, NO el stylesheet global
+        DarkTheme.setup_dark_palette(self)
         
         # Widget central
         central_widget = QWidget()
+        central_widget.setStyleSheet(self.styles['main_window'])
         self.setCentralWidget(central_widget)
         
         # Layout principal HORIZONTAL
@@ -54,9 +54,10 @@ class ModernMainWindow(QMainWindow):
         
         # Panel derecho - Contenido principal con botones
         right_panel = QWidget()
+        right_panel.setStyleSheet(self.styles['content_frame'])
         right_layout = QVBoxLayout(right_panel)
         right_layout.setSpacing(10)
-        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setContentsMargins(15, 15, 15, 15)
         
         # Botones de navegación
         nav_buttons_layout = QHBoxLayout()
@@ -66,25 +67,23 @@ class ModernMainWindow(QMainWindow):
         self.install_btn_nav.setCheckable(True)
         self.install_btn_nav.setChecked(True)
         self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
-        self.install_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.install_btn_nav)
         
         self.apps_btn_nav = QPushButton("📱 Aplicaciones")
         self.apps_btn_nav.setCheckable(True)
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
-        self.apps_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.apps_btn_nav)
         
         self.config_btn_nav = QPushButton("⚙️ Configuración")
         self.config_btn_nav.setCheckable(True)
         self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
-        self.config_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.config_btn_nav)
         
         right_layout.addLayout(nav_buttons_layout)
         
         # Widget apilado para las secciones
         self.stacked_widget = QStackedWidget()
+        self.stacked_widget.setStyleSheet(self.styles['content_frame'])
         
         # Crear las secciones
         self.install_section = self.setup_install_section()
@@ -123,39 +122,45 @@ class ModernMainWindow(QMainWindow):
     
     def update_nav_buttons_style(self):
         """Actualiza los estilos de los botones de navegación según su estado"""
-        buttons = [self.install_btn_nav, self.apps_btn_nav, self.config_btn_nav]
+        buttons = [
+            (self.install_btn_nav, self.install_btn_nav.isChecked()),
+            (self.apps_btn_nav, self.apps_btn_nav.isChecked()),
+            (self.config_btn_nav, self.config_btn_nav.isChecked())
+        ]
         
-        for button in buttons:
-            if button.isChecked():
-                button.setStyleSheet(DarkTheme.get_nav_button_style(True))
+        for button, is_active in buttons:
+            if is_active:
+                button.setStyleSheet(self.styles['nav_button_active'])
             else:
-                button.setStyleSheet(DarkTheme.get_nav_button_style(False))
+                button.setStyleSheet(self.styles['nav_button_inactive'])
     
     def setup_install_section(self):
         """Crea la sección de instalación"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setSpacing(12)
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         # Sección de APK
         apk_section = QFrame()
+        apk_section.setStyleSheet(self.styles['content_frame'])
         apk_layout = QVBoxLayout(apk_section)
         apk_layout.setSpacing(10)
         
         # Título de sección
         apk_title = QLabel("ARCHIVOS APK")
-        apk_title.setStyleSheet(DarkTheme.get_section_title_style())
+        apk_title.setStyleSheet(self.styles['label_section'])
         apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         apk_layout.addWidget(apk_title)
         
         # Contador de APKs
         self.apk_count_label = QLabel("0 APKs seleccionados")
         self.apk_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apk_count_label.setStyleSheet(DarkTheme.get_apk_count_style())
+        self.apk_count_label.setStyleSheet(self.styles['label_default'])
         apk_layout.addWidget(self.apk_count_label)
         
         self.apk_list = QListWidget()
+        self.apk_list.setStyleSheet(self.styles['list_widget'])
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
         apk_layout.addWidget(self.apk_list)
@@ -165,17 +170,19 @@ class ModernMainWindow(QMainWindow):
         apk_buttons_layout.setSpacing(8)
         
         self.select_apk_btn = QPushButton("📁 Agregar APKs")
+        self.select_apk_btn.setStyleSheet(self.styles['button_primary'])
         self.select_apk_btn.clicked.connect(self.select_apk)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
         self.remove_apk_btn = QPushButton("🗑️ Eliminar")
+        self.remove_apk_btn.setStyleSheet(self.styles['button_secondary'])
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
         self.clear_apk_btn = QPushButton("🧹 Limpiar")
+        self.clear_apk_btn.setStyleSheet(self.styles['button_warning'])
         self.clear_apk_btn.clicked.connect(self.clear_apk)
-        self.clear_apk_btn.setProperty("class", "warning")
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
         apk_layout.addLayout(apk_buttons_layout)
@@ -183,24 +190,25 @@ class ModernMainWindow(QMainWindow):
         
         # Barra de progreso
         self.progress_bar = QProgressBar()
+        self.progress_bar.setStyleSheet(self.styles['progress_bar'])
         self.progress_bar.setVisible(False)
         layout.addWidget(self.progress_bar)
         
         # Estado
         status_frame = QFrame()
+        status_frame.setStyleSheet(self.styles['content_frame'])
         status_layout = QVBoxLayout(status_frame)
         self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet(DarkTheme.get_status_style('default'))
+        self.status_label.setStyleSheet(self.styles['status_info'])
         status_layout.addWidget(self.status_label)
         layout.addWidget(status_frame)
         
         # Botón de instalación
         self.install_btn = QPushButton("🚀 Instalar APKs")
+        self.install_btn.setStyleSheet(self.styles['button_success'])
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
-        self.install_btn.setProperty("class", "success")
-        self.install_btn.setStyleSheet(DarkTheme.get_large_button_style())
         layout.addWidget(self.install_btn)
         
         return widget
@@ -210,39 +218,44 @@ class ModernMainWindow(QMainWindow):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setSpacing(12)
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         # Controles superiores
         controls_frame = QFrame()
+        controls_frame.setStyleSheet(self.styles['content_frame'])
         controls_layout = QHBoxLayout(controls_frame)
         controls_layout.setSpacing(8)
         
         self.refresh_apps_btn = QPushButton("🔄 Actualizar")
+        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary'])
         self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
         controls_layout.addWidget(self.refresh_apps_btn)
         
         self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
+        self.include_system_apps_cb.setStyleSheet(self.styles['checkbox'])
         self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
         controls_layout.addWidget(self.include_system_apps_cb)
         
         self.uninstall_btn = QPushButton("🗑️ Desinstalar")
+        self.uninstall_btn.setStyleSheet(self.styles['button_warning'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
-        self.uninstall_btn.setProperty("class", "warning")
         controls_layout.addWidget(self.uninstall_btn)
         
         layout.addWidget(controls_frame)
         
         # Lista de aplicaciones
         apps_frame = QFrame()
+        apps_frame.setStyleSheet(self.styles['content_frame'])
         apps_layout = QVBoxLayout(apps_frame)
         
         apps_title = QLabel("APLICACIONES INSTALADAS")
-        apps_title.setStyleSheet(DarkTheme.get_section_title_style())
+        apps_title.setStyleSheet(self.styles['label_section'])
         apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         apps_layout.addWidget(apps_title)
         
         self.apps_list = QListWidget()
+        self.apps_list.setStyleSheet(self.styles['list_widget'])
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         apps_layout.addWidget(self.apps_list)
         
@@ -250,16 +263,17 @@ class ModernMainWindow(QMainWindow):
         
         # Información de la aplicación
         info_frame = QFrame()
+        info_frame.setStyleSheet(self.styles['content_frame'])
         info_layout = QVBoxLayout(info_frame)
         
         info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
-        info_title.setStyleSheet(DarkTheme.get_section_title_style())
+        info_title.setStyleSheet(self.styles['label_section'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info_layout.addWidget(info_title)
         
         self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.app_info_label.setWordWrap(True)
-        self.app_info_label.setStyleSheet(DarkTheme.get_info_label_style())
+        self.app_info_label.setStyleSheet(self.styles['status_info'])
         info_layout.addWidget(self.app_info_label)
         
         layout.addWidget(info_frame)
@@ -271,15 +285,16 @@ class ModernMainWindow(QMainWindow):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setSpacing(15)
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         # Estado de ADB
         adb_section = QFrame()
+        adb_section.setStyleSheet(self.styles['content_frame'])
         adb_layout = QVBoxLayout(adb_section)
         adb_layout.setSpacing(10)
         
         adb_title = QLabel("ESTADO ADB")
-        adb_title.setStyleSheet(DarkTheme.get_section_title_style())
+        adb_title.setStyleSheet(self.styles['label_section'])
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         adb_layout.addWidget(adb_title)
         
@@ -287,22 +302,24 @@ class ModernMainWindow(QMainWindow):
         self.adb_path_label = QLabel("Ruta ADB: No detectada")
         
         for label in [self.adb_status_label, self.adb_path_label]:
-            label.setStyleSheet(DarkTheme.get_adb_status_style())
+            label.setStyleSheet(self.styles['status_info'])
             adb_layout.addWidget(label)
         
         layout.addWidget(adb_section)
         
         # Configuración de rutas
         path_section = QFrame()
+        path_section.setStyleSheet(self.styles['content_frame'])
         path_layout = QVBoxLayout(path_section)
         path_layout.setSpacing(10)
         
         path_title = QLabel("CONFIGURACIÓN")
-        path_title.setStyleSheet(DarkTheme.get_section_title_style())
+        path_title.setStyleSheet(self.styles['label_section'])
         path_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         path_layout.addWidget(path_title)
         
         self.custom_adb_btn = QPushButton("🔧 Seleccionar ADB personalizado")
+        self.custom_adb_btn.setStyleSheet(self.styles['button_primary'])
         self.custom_adb_btn.clicked.connect(self.select_custom_adb)
         path_layout.addWidget(self.custom_adb_btn)
         
@@ -316,7 +333,7 @@ class ModernMainWindow(QMainWindow):
     def setup_devices_panel(self):
         """Crea el panel lateral de dispositivos con diseño moderno"""
         panel = QFrame()
-        panel.setFrameStyle(QFrame.Shape.StyledPanel)
+        panel.setStyleSheet(self.styles['sidebar_frame'])
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
         layout.setContentsMargins(12, 12, 12, 12)
@@ -324,25 +341,25 @@ class ModernMainWindow(QMainWindow):
         # Título de sección
         section_title = QLabel("DISPOSITIVOS")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        section_title.setStyleSheet(DarkTheme.get_section_title_style())
+        section_title.setStyleSheet(self.styles['label_section'])
         layout.addWidget(section_title)
         
         # Banner de dispositivo seleccionado
         banner_frame = QFrame()
-        banner_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        banner_frame.setStyleSheet(self.styles['content_frame'])
         self.banner_layout = QHBoxLayout(banner_frame)
         self.banner_layout.setContentsMargins(8, 8, 8, 8)
         self.banner_layout.setSpacing(8)
         
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setStyleSheet(DarkTheme.get_device_banner_style())
+        self.selected_device_banner.setStyleSheet(self.styles['device_banner'])
         self.selected_device_banner.setMinimumHeight(40)
         
         # Emoji de estado - inicialmente oculto
         self.device_status_emoji = QLabel("")
         self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.device_status_emoji.setStyleSheet(DarkTheme.get_device_status_emoji_style())
+        self.device_status_emoji.setStyleSheet(self.styles['device_status_emoji'])
         self.device_status_emoji.setVisible(False)
         
         # Agregar widgets al layout con factores de stretch iniciales
@@ -353,10 +370,11 @@ class ModernMainWindow(QMainWindow):
         
         # Lista de dispositivos
         device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(DarkTheme.get_device_label_style())
+        device_label.setStyleSheet(self.styles['label_title'])
         layout.addWidget(device_label)
         
         self.device_list = QListWidget()
+        self.device_list.setStyleSheet(self.styles['list_widget'])
         self.device_list.itemSelectionChanged.connect(self.on_device_preselected)
         layout.addWidget(self.device_list)
         
@@ -365,14 +383,14 @@ class ModernMainWindow(QMainWindow):
         device_buttons_layout.setSpacing(8)
         
         self.refresh_devices_btn = QPushButton("🔄 Actualizar")
+        self.refresh_devices_btn.setStyleSheet(self.styles['button_primary'])
         self.refresh_devices_btn.clicked.connect(self.load_devices)
-        self.refresh_devices_btn.setStyleSheet(DarkTheme.get_small_button_style())
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
         self.confirm_device_btn = QPushButton("✅ Seleccionar")
+        self.confirm_device_btn.setStyleSheet(self.styles['button_success'])
         self.confirm_device_btn.setEnabled(False)
         self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
-        self.confirm_device_btn.setStyleSheet(DarkTheme.get_small_button_style())
         device_buttons_layout.addWidget(self.confirm_device_btn)
         
         layout.addLayout(device_buttons_layout)
@@ -388,9 +406,11 @@ class ModernMainWindow(QMainWindow):
         if self.device_manager.check_adb_availability():
             self.adb_status_label.setText("Estado ADB: ✅ Disponible")
             self.adb_path_label.setText(f"Ruta ADB: {adb_path}")
+            self.adb_status_label.setStyleSheet(self.styles['status_success'])
         else:
             self.adb_status_label.setText("Estado ADB: ❌ No disponible")
             self.adb_path_label.setText("Ruta ADB: No encontrada")
+            self.adb_status_label.setStyleSheet(self.styles['status_error'])
 
     def select_apk(self):
         file_paths, _ = QFileDialog.getOpenFileNames(
@@ -452,13 +472,13 @@ class ModernMainWindow(QMainWindow):
         if enabled:
             apk_count = len(self.selected_apks)
             self.status_label.setText(f"✅ Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
-            self.status_label.setStyleSheet(DarkTheme.get_status_style('success'))
+            self.status_label.setStyleSheet(self.styles['status_success'])
         else:
             if not has_apks or len(self.selected_apks) == 0:
                 self.status_label.setText("Selecciona al menos un APK")
             else:
                 self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setStyleSheet(DarkTheme.get_status_style('default'))
+            self.status_label.setStyleSheet(self.styles['status_info'])
     
     def install_apk(self):
         if not hasattr(self, 'selected_apks') or len(self.selected_apks) == 0 or not self.selected_device:
@@ -483,11 +503,11 @@ class ModernMainWindow(QMainWindow):
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
             self.status_label.setText("🎉 Instalación completada exitosamente")
-            self.status_label.setStyleSheet(DarkTheme.get_status_style('success'))
+            self.status_label.setStyleSheet(self.styles['status_success'])
         else:
             QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
             self.status_label.setText("❌ Error en la instalación")
-            self.status_label.setStyleSheet(DarkTheme.get_status_style('error'))
+            self.status_label.setStyleSheet(self.styles['status_error'])
     
     def select_custom_adb(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -669,6 +689,3 @@ class ModernMainWindow(QMainWindow):
         # Actualizar contador
         apk_count = len(self.selected_apks)
         self.apk_count_label.setText(f"{apk_count} APK(s) seleccionado(s)")
-
-# Para mantener compatibilidad
-MainWindow = ModernMainWindow
