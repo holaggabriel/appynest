@@ -49,14 +49,16 @@ class DarkTheme:
             palette.setColor(role, QColor(color))
         
         app.setPalette(palette)
-        app.setStyleSheet(DarkTheme._get_base_stylesheet())
-
-    @staticmethod
-    def _get_base_stylesheet():
-        """Retorna el stylesheet base para la aplicación"""
-        colors = DarkTheme.COLORS
-        return f"""
-            QMainWindow, QFrame {{
+        
+        # Aplicar stylesheet solo a widgets específicos usando selectores de clase
+        app.setStyleSheet(f"""
+            /* Aplicar solo a widgets dentro de nuestra ventana principal */
+            ModernMainWindow {{
+                background-color: {colors['window']};
+                color: {colors['text']};
+            }}
+            
+            ModernMainWindow QFrame {{
                 background-color: {colors['window']};
                 color: {colors['text']};
                 border: 1px solid {colors['border']};
@@ -64,14 +66,16 @@ class DarkTheme:
                 padding: 8px;
             }}
             
-            QTabWidget::pane {{
+            ModernMainWindow QTabWidget::pane {{
                 border: 1px solid {colors['border']};
                 background-color: {colors['window']};
             }}
             
-            QTabWidget::tab-bar {{ alignment: center; }}
+            ModernMainWindow QTabWidget::tab-bar {{ 
+                alignment: center; 
+            }}
             
-            QTabBar::tab {{
+            ModernMainWindow QTabBar::tab {{
                 background-color: {colors['border']};
                 color: {colors['text']};
                 padding: 8px 16px;
@@ -80,10 +84,16 @@ class DarkTheme:
                 border-radius: 4px;
             }}
             
-            QTabBar::tab:selected {{ background-color: {colors['highlight']}; color: white; }}
-            QTabBar::tab:hover:!selected {{ background-color: #505050; }}
+            ModernMainWindow QTabBar::tab:selected {{ 
+                background-color: {colors['highlight']}; 
+                color: white; 
+            }}
             
-            QListWidget {{
+            ModernMainWindow QTabBar::tab:hover:!selected {{ 
+                background-color: #505050; 
+            }}
+            
+            ModernMainWindow QListWidget {{
                 background-color: {colors['base']};
                 color: {colors['text']};
                 border: 1px solid {colors['border']};
@@ -92,16 +102,23 @@ class DarkTheme:
                 outline: none;
             }}
             
-            QListWidget::item {{
+            ModernMainWindow QListWidget::item {{
                 padding: 8px;
                 border-bottom: 1px solid {colors['border']};
                 background-color: #252526;
             }}
             
-            QListWidget::item:selected {{ background-color: {colors['highlight']}; color: white; border-radius: 3px; }}
-            QListWidget::item:hover {{ background-color: #2a2d2e; }}
+            ModernMainWindow QListWidget::item:selected {{
+                background-color: {colors['highlight']}; 
+                color: white; 
+                border-radius: 3px; 
+            }}
             
-            QPushButton {{
+            ModernMainWindow QListWidget::item:hover {{ 
+                background-color: #2a2d2e; 
+            }}
+            
+            ModernMainWindow QPushButton {{
                 background-color: {colors['highlight']};
                 color: white;
                 border: none;
@@ -111,19 +128,41 @@ class DarkTheme:
                 min-height: 20px;
             }}
             
-            QPushButton:hover {{ background-color: #1177bb; }}
-            QPushButton:pressed {{ background-color: #0c547d; }}
-            QPushButton:disabled {{ background-color: {colors['disabled']}; color: #a0a0a0; }}
+            ModernMainWindow QPushButton:hover {{ 
+                background-color: #1177bb; 
+            }}
             
-            QPushButton.warning {{ background-color: {colors['warning']}; }}
-            QPushButton.warning:hover {{ background-color: #e56541; }}
+            ModernMainWindow QPushButton:pressed {{ 
+                background-color: #0c547d; 
+            }}
             
-            QPushButton.success {{ background-color: {colors['success']}; }}
-            QPushButton.success:hover {{ background-color: #138a13; }}
+            ModernMainWindow QPushButton:disabled {{ 
+                background-color: {colors['disabled']}; 
+                color: #a0a0a0; 
+            }}
             
-            QLabel {{ color: {colors['text']}; background: transparent; }}
+            ModernMainWindow QPushButton.warning {{ 
+                background-color: {colors['warning']}; 
+            }}
             
-            QProgressBar {{
+            ModernMainWindow QPushButton.warning:hover {{ 
+                background-color: #e56541; 
+            }}
+            
+            ModernMainWindow QPushButton.success {{ 
+                background-color: {colors['success']}; 
+            }}
+            
+            ModernMainWindow QPushButton.success:hover {{ 
+                background-color: #138a13; 
+            }}
+            
+            ModernMainWindow QLabel {{ 
+                color: {colors['text']}; 
+                background: transparent; 
+            }}
+            
+            ModernMainWindow QProgressBar {{
                 border: 1px solid {colors['border']};
                 border-radius: 4px;
                 text-align: center;
@@ -132,14 +171,17 @@ class DarkTheme:
                 font-size: 11px;
             }}
             
-            QProgressBar::chunk {{ background-color: {colors['highlight']}; border-radius: 3px; }}
+            ModernMainWindow QProgressBar::chunk {{ 
+                background-color: {colors['highlight']}; 
+                border-radius: 3px; 
+            }}
             
-            QCheckBox {{
+            ModernMainWindow QCheckBox {{
                 color: {colors['text']};
                 spacing: 8px;
             }}
             
-            QCheckBox::indicator {{
+            ModernMainWindow QCheckBox::indicator {{
                 width: 16px;
                 height: 16px;
                 border: 1px solid {colors['border']};
@@ -147,18 +189,39 @@ class DarkTheme:
                 background-color: {colors['base']};
             }}
             
-            QCheckBox::indicator:checked {{
+            ModernMainWindow QCheckBox::indicator:checked {{
                 background-color: {colors['highlight']};
                 border: 1px solid {colors['highlight']};
             }}
             
-            QCheckBox::indicator:checked:hover {{ background-color: #1177bb; }}
+            ModernMainWindow QCheckBox::indicator:checked:hover {{ 
+                background-color: #1177bb; 
+            }}
             
-            QMessageBox, QMessageBox QLabel {{
+            /* QMessageBox dentro de nuestra aplicación */
+            ModernMainWindow QMessageBox {{
                 background-color: {colors['window']};
+            }}
+            
+            ModernMainWindow QMessageBox QLabel {{
                 color: {colors['text']};
             }}
-        """
+            
+            /* Estilos para el widget apilado */
+            ModernMainWindow QStackedWidget {{
+                background-color: {colors['window']};
+                border: none;
+            }}
+            
+            /* Estilos para los botones de navegación */
+            ModernMainWindow QPushButton[class="nav-button"] {{
+                font-weight: bold;
+                font-size: 11px;
+                padding: 10px 15px;
+                border-radius: 8px;
+                border: 2px solid;
+            }}
+        """)
 
     @staticmethod
     def _get_common_style(base_style, **kwargs):

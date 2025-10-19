@@ -66,16 +66,19 @@ class ModernMainWindow(QMainWindow):
         self.install_btn_nav.setCheckable(True)
         self.install_btn_nav.setChecked(True)
         self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
+        self.install_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.install_btn_nav)
         
         self.apps_btn_nav = QPushButton("📱 Aplicaciones")
         self.apps_btn_nav.setCheckable(True)
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
+        self.apps_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.apps_btn_nav)
         
         self.config_btn_nav = QPushButton("⚙️ Configuración")
         self.config_btn_nav.setCheckable(True)
         self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
+        self.config_btn_nav.setProperty("class", "nav-button")
         nav_buttons_layout.addWidget(self.config_btn_nav)
         
         right_layout.addLayout(nav_buttons_layout)
