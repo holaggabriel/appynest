@@ -1,201 +1,19 @@
+# main_window.py
 import os
 import sys
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
-                             QProgressBar, QTabWidget, QFrame, QCheckBox, QListWidgetItem)
+                             QProgressBar, QFrame, QCheckBox, QListWidgetItem, QStackedWidget)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QFontDatabase, QPalette, QColor
+from PyQt6.QtGui import QFont
 from src.device_manager import DeviceManager
 from src.config_manager import ConfigManager
 from src.app_manager import AppManager
 from src.installation_thread import InstallationThread
 from src.apps_loading_thread import AppsLoadingThread
-from src.apk_installer import APKInstaller  # Importación agregada
-
-class DarkTheme:
-    """Clase para gestionar el tema oscuro de la aplicación"""
-    
-    @staticmethod
-    def setup_dark_theme(app):
-        """Configura el tema oscuro para toda la aplicación"""
-        # Establecer estilo fusion que es más moderno
-        app.setStyle("Fusion")
-        
-        # Crear paleta de colores oscuros
-        dark_palette = QPalette()
-        
-        # Colores base
-        dark_palette.setColor(QPalette.ColorRole.Window, QColor(45, 45, 48))
-        dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(240, 240, 240))
-        dark_palette.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
-        dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 48))
-        dark_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(240, 240, 240))
-        dark_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(240, 240, 240))
-        dark_palette.setColor(QPalette.ColorRole.Text, QColor(240, 240, 240))
-        dark_palette.setColor(QPalette.ColorRole.Button, QColor(60, 60, 60))
-        dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(240, 240, 240))
-        dark_palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
-        dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
-        dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
-        dark_palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        
-        # Establecer la paleta
-        app.setPalette(dark_palette)
-        
-        # Estilos CSS personalizados
-        app.setStyleSheet("""
-            QMainWindow {
-                background-color: #2d2d30;
-                color: #f0f0f0;
-            }
-            
-            QTabWidget::pane {
-                border: 1px solid #3e3e42;
-                background-color: #2d2d30;
-            }
-            
-            QTabWidget::tab-bar {
-                alignment: center;
-            }
-            
-            QTabBar::tab {
-                background-color: #3e3e42;
-                color: #f0f0f0;
-                padding: 8px 16px;
-                margin: 2px;
-                border: none;
-                border-radius: 4px;
-            }
-            
-            QTabBar::tab:selected {
-                background-color: #007acc;
-                color: white;
-            }
-            
-            QTabBar::tab:hover:!selected {
-                background-color: #505050;
-            }
-            
-            QFrame {
-                background-color: #2d2d30;
-                color: #f0f0f0;
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 8px;
-            }
-            
-            QListWidget {
-                background-color: #1e1e1e;
-                color: #f0f0f0;
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                padding: 4px;
-                outline: none;
-            }
-            
-            QListWidget::item {
-                padding: 8px;
-                border-bottom: 1px solid #3e3e42;
-                background-color: #252526;
-            }
-            
-            QListWidget::item:selected {
-                background-color: #007acc;
-                color: white;
-                border-radius: 3px;
-            }
-            
-            QListWidget::item:hover {
-                background-color: #2a2d2e;
-            }
-            
-            QPushButton {
-                background-color: #0e639c;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: 500;
-                min-height: 20px;
-            }
-            
-            QPushButton:hover {
-                background-color: #1177bb;
-            }
-            
-            QPushButton:pressed {
-                background-color: #0c547d;
-            }
-            
-            QPushButton:disabled {
-                background-color: #5a5a5a;
-                color: #a0a0a0;
-            }
-            
-            QPushButton.warning {
-                background-color: #da532c;
-            }
-            
-            QPushButton.warning:hover {
-                background-color: #e56541;
-            }
-            
-            QPushButton.success {
-                background-color: #107c10;
-            }
-            
-            QPushButton.success:hover {
-                background-color: #138a13;
-            }
-            
-            QLabel {
-                color: #f0f0f0;
-                background: transparent;
-            }
-            
-            QProgressBar {
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                text-align: center;
-                color: #f0f0f0;
-            }
-            
-            QProgressBar::chunk {
-                background-color: #007acc;
-                border-radius: 3px;
-            }
-            
-            QCheckBox {
-                color: #f0f0f0;
-                spacing: 8px;
-            }
-            
-            QCheckBox::indicator {
-                width: 16px;
-                height: 16px;
-                border: 1px solid #3e3e42;
-                border-radius: 3px;
-                background-color: #1e1e1e;
-            }
-            
-            QCheckBox::indicator:checked {
-                background-color: #007acc;
-                border: 1px solid #007acc;
-            }
-            
-            QCheckBox::indicator:checked:hover {
-                background-color: #1177bb;
-            }
-            
-            QMessageBox {
-                background-color: #2d2d30;
-            }
-            
-            QMessageBox QLabel {
-                color: #f0f0f0;
-            }
-        """)
+from src.apk_installer import APKInstaller
+from .styles import DarkTheme
 
 class ModernMainWindow(QMainWindow):
     
@@ -218,6 +36,9 @@ class ModernMainWindow(QMainWindow):
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         
+        # Configurar tema oscuro
+        DarkTheme.setup_dark_theme(self)
+        
         # Widget central
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -231,136 +52,86 @@ class ModernMainWindow(QMainWindow):
         left_panel = self.setup_devices_panel()
         main_layout.addWidget(left_panel)
         
-        # Panel derecho - Tabs
+        # Panel derecho - Contenido principal con botones
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
         right_layout.setSpacing(10)
         right_layout.setContentsMargins(0, 0, 0, 0)
         
-        tabs = QTabWidget()
-        tabs.setDocumentMode(True)
+        # Botones de navegación
+        nav_buttons_layout = QHBoxLayout()
+        nav_buttons_layout.setSpacing(8)
         
-        # Tabs
-        install_tab = QWidget()
-        apps_tab = QWidget()
-        config_tab = QWidget()
+        self.install_btn_nav = QPushButton("📦 Instalación")
+        self.install_btn_nav.setCheckable(True)
+        self.install_btn_nav.setChecked(True)
+        self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
+        nav_buttons_layout.addWidget(self.install_btn_nav)
         
-        tabs.addTab(install_tab, "📦 Instalación")
-        tabs.addTab(apps_tab, "📱 Aplicaciones")
-        tabs.addTab(config_tab, "⚙️ Configuración")
+        self.apps_btn_nav = QPushButton("📱 Aplicaciones")
+        self.apps_btn_nav.setCheckable(True)
+        self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
+        nav_buttons_layout.addWidget(self.apps_btn_nav)
         
-        self.setup_install_tab(install_tab)
-        self.setup_apps_tab(apps_tab)  
-        self.setup_config_tab(config_tab)
+        self.config_btn_nav = QPushButton("⚙️ Configuración")
+        self.config_btn_nav.setCheckable(True)
+        self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
+        nav_buttons_layout.addWidget(self.config_btn_nav)
         
-        right_layout.addWidget(tabs)
+        right_layout.addLayout(nav_buttons_layout)
+        
+        # Widget apilado para las secciones
+        self.stacked_widget = QStackedWidget()
+        
+        # Crear las secciones
+        self.install_section = self.setup_install_section()
+        self.apps_section = self.setup_apps_section()
+        self.config_section = self.setup_config_section()
+        
+        # Agregar secciones al widget apilado
+        self.stacked_widget.addWidget(self.install_section)
+        self.stacked_widget.addWidget(self.apps_section)
+        self.stacked_widget.addWidget(self.config_section)
+        
+        right_layout.addWidget(self.stacked_widget)
         main_layout.addWidget(right_panel)
         
         # Ajustar proporciones
         main_layout.setStretchFactor(left_panel, 1)
         main_layout.setStretchFactor(right_panel, 2)
-   
-    def setup_devices_panel(self):
-        """Crea el panel lateral de dispositivos con diseño moderno"""
-        panel = QFrame()
-        panel.setFrameStyle(QFrame.Shape.StyledPanel)
-        layout = QVBoxLayout(panel)
-        layout.setSpacing(12)
-        layout.setContentsMargins(12, 12, 12, 12)
         
-        # Título de sección
-        section_title = QLabel("DISPOSITIVOS")
-        section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        section_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 8px;
-            }
-        """)
-        layout.addWidget(section_title)
+        # Aplicar estilos a los botones de navegación
+        self.update_nav_buttons_style()
+    
+    def show_section(self, index):
+        """Muestra la sección seleccionada y actualiza los estilos de los botones"""
+        self.stacked_widget.setCurrentIndex(index)
         
-        # Banner de dispositivo seleccionado
-        banner_frame = QFrame()
-        banner_frame.setFrameStyle(QFrame.Shape.StyledPanel)
-        self.banner_layout = QHBoxLayout(banner_frame)  # Guardar referencia como atributo
-        self.banner_layout.setContentsMargins(8, 8, 8, 8)
-        self.banner_layout.setSpacing(8)
+        # Actualizar estado de los botones
+        self.install_btn_nav.setChecked(index == 0)
+        self.apps_btn_nav.setChecked(index == 1)
+        self.config_btn_nav.setChecked(index == 2)
         
-        self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
-        self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setStyleSheet("""
-            QLabel {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #007acc, stop:1 #005a9e);
-                color: white;
-                font-weight: bold;
-                padding: 10px;
-                border-radius: 6px;
-                border: 1px solid #005a9e;
-                font-size: 11px;
-            }
-        """)
-        self.selected_device_banner.setMinimumHeight(40)
+        self.update_nav_buttons_style()
         
-        # Emoji de estado - inicialmente oculto
-        self.device_status_emoji = QLabel("")
-        self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.device_status_emoji.setStyleSheet("""
-            QLabel {
-                font-size: 18px;
-                padding: 5px;
-                background-color: #323233;
-                border-radius: 4px;
-                min-width: 30px;
-            }
-        """)
-        self.device_status_emoji.setVisible(False)  # Inicialmente oculto
+        # Si se selecciona la sección de aplicaciones y hay dispositivo, cargar apps
+        if index == 1 and self.selected_device:
+            self.load_installed_apps()
+    
+    def update_nav_buttons_style(self):
+        """Actualiza los estilos de los botones de navegación según su estado"""
+        buttons = [self.install_btn_nav, self.apps_btn_nav, self.config_btn_nav]
         
-        # Agregar widgets al layout con factores de stretch iniciales
-        self.banner_layout.addWidget(self.selected_device_banner, 1)  # Factor 1 para expandirse
-        self.banner_layout.addWidget(self.device_status_emoji, 0)     # Factor 0 para no expandirse
-        
-        layout.addWidget(banner_frame)
-        
-        # Lista de dispositivos
-        device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
-        layout.addWidget(device_label)
-        
-        self.device_list = QListWidget()
-        self.device_list.itemSelectionChanged.connect(self.on_device_preselected)
-        layout.addWidget(self.device_list)
-        
-        # Botones de dispositivos
-        device_buttons_layout = QHBoxLayout()
-        device_buttons_layout.setSpacing(8)
-        
-        self.refresh_devices_btn = QPushButton("🔄 Actualizar")
-        self.refresh_devices_btn.clicked.connect(self.load_devices)
-        self.refresh_devices_btn.setStyleSheet("font-size: 11px;")
-        device_buttons_layout.addWidget(self.refresh_devices_btn)
-        
-        self.confirm_device_btn = QPushButton("✅ Seleccionar")
-        self.confirm_device_btn.setEnabled(False)
-        self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
-        self.confirm_device_btn.setStyleSheet("font-size: 11px;")
-        device_buttons_layout.addWidget(self.confirm_device_btn)
-        
-        layout.addLayout(device_buttons_layout)
-        
-        # Variables de estado
-        self.preselected_device = None
-        self.active_device = None
-        
-        return panel
-        
-    def setup_install_tab(self, parent):
-        layout = QVBoxLayout(parent)
+        for button in buttons:
+            if button.isChecked():
+                button.setStyleSheet(DarkTheme.get_nav_button_style(True))
+            else:
+                button.setStyleSheet(DarkTheme.get_nav_button_style(False))
+    
+    def setup_install_section(self):
+        """Crea la sección de instalación"""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
         layout.setSpacing(12)
         layout.setContentsMargins(15, 15, 15, 15)
         
@@ -371,24 +142,14 @@ class ModernMainWindow(QMainWindow):
         
         # Título de sección
         apk_title = QLabel("ARCHIVOS APK")
-        apk_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-        """)
+        apk_title.setStyleSheet(DarkTheme.get_section_title_style())
         apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         apk_layout.addWidget(apk_title)
         
         # Contador de APKs
         self.apk_count_label = QLabel("0 APKs seleccionados")
         self.apk_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apk_count_label.setStyleSheet("color: #cccccc; font-size: 11px; margin-bottom: 5px;")
+        self.apk_count_label.setStyleSheet(DarkTheme.get_apk_count_style())
         apk_layout.addWidget(self.apk_count_label)
         
         self.apk_list = QListWidget()
@@ -420,12 +181,6 @@ class ModernMainWindow(QMainWindow):
         # Barra de progreso
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        self.progress_bar.setStyleSheet("""
-            QProgressBar {
-                height: 20px;
-                font-size: 11px;
-            }
-        """)
         layout.addWidget(self.progress_bar)
         
         # Estado
@@ -433,14 +188,7 @@ class ModernMainWindow(QMainWindow):
         status_layout = QVBoxLayout(status_frame)
         self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet("""
-            QLabel {
-                background-color: #323233;
-                padding: 10px;
-                border-radius: 4px;
-                font-size: 11px;
-            }
-        """)
+        self.status_label.setStyleSheet(DarkTheme.get_status_style('default'))
         status_layout.addWidget(self.status_label)
         layout.addWidget(status_frame)
         
@@ -449,11 +197,76 @@ class ModernMainWindow(QMainWindow):
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
         self.install_btn.setProperty("class", "success")
-        self.install_btn.setStyleSheet("font-size: 12px; font-weight: bold; padding: 12px;")
+        self.install_btn.setStyleSheet(DarkTheme.get_large_button_style())
         layout.addWidget(self.install_btn)
+        
+        return widget
     
-    def setup_config_tab(self, parent):
-        layout = QVBoxLayout(parent)
+    def setup_apps_section(self):
+        """Crea la sección de aplicaciones instaladas"""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setSpacing(12)
+        layout.setContentsMargins(15, 15, 15, 15)
+        
+        # Controles superiores
+        controls_frame = QFrame()
+        controls_layout = QHBoxLayout(controls_frame)
+        controls_layout.setSpacing(8)
+        
+        self.refresh_apps_btn = QPushButton("🔄 Actualizar")
+        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
+        controls_layout.addWidget(self.refresh_apps_btn)
+        
+        self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
+        self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
+        controls_layout.addWidget(self.include_system_apps_cb)
+        
+        self.uninstall_btn = QPushButton("🗑️ Desinstalar")
+        self.uninstall_btn.clicked.connect(self.uninstall_app)
+        self.uninstall_btn.setEnabled(False)
+        self.uninstall_btn.setProperty("class", "warning")
+        controls_layout.addWidget(self.uninstall_btn)
+        
+        layout.addWidget(controls_frame)
+        
+        # Lista de aplicaciones
+        apps_frame = QFrame()
+        apps_layout = QVBoxLayout(apps_frame)
+        
+        apps_title = QLabel("APLICACIONES INSTALADAS")
+        apps_title.setStyleSheet(DarkTheme.get_section_title_style())
+        apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        apps_layout.addWidget(apps_title)
+        
+        self.apps_list = QListWidget()
+        self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
+        apps_layout.addWidget(self.apps_list)
+        
+        layout.addWidget(apps_frame)
+        
+        # Información de la aplicación
+        info_frame = QFrame()
+        info_layout = QVBoxLayout(info_frame)
+        
+        info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
+        info_title.setStyleSheet(DarkTheme.get_section_title_style())
+        info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        info_layout.addWidget(info_title)
+        
+        self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
+        self.app_info_label.setWordWrap(True)
+        self.app_info_label.setStyleSheet(DarkTheme.get_info_label_style())
+        info_layout.addWidget(self.app_info_label)
+        
+        layout.addWidget(info_frame)
+        
+        return widget
+    
+    def setup_config_section(self):
+        """Crea la sección de configuración"""
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
         layout.setSpacing(15)
         layout.setContentsMargins(15, 15, 15, 15)
         
@@ -463,17 +276,7 @@ class ModernMainWindow(QMainWindow):
         adb_layout.setSpacing(10)
         
         adb_title = QLabel("ESTADO ADB")
-        adb_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-        """)
+        adb_title.setStyleSheet(DarkTheme.get_section_title_style())
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         adb_layout.addWidget(adb_title)
         
@@ -481,7 +284,7 @@ class ModernMainWindow(QMainWindow):
         self.adb_path_label = QLabel("Ruta ADB: No detectada")
         
         for label in [self.adb_status_label, self.adb_path_label]:
-            label.setStyleSheet("padding: 5px; background-color: #323233; border-radius: 4px;")
+            label.setStyleSheet(DarkTheme.get_adb_status_style())
             adb_layout.addWidget(label)
         
         layout.addWidget(adb_section)
@@ -492,17 +295,7 @@ class ModernMainWindow(QMainWindow):
         path_layout.setSpacing(10)
         
         path_title = QLabel("CONFIGURACIÓN")
-        path_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-        """)
+        path_title.setStyleSheet(DarkTheme.get_section_title_style())
         path_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         path_layout.addWidget(path_title)
         
@@ -514,7 +307,79 @@ class ModernMainWindow(QMainWindow):
         
         # Espacio flexible
         layout.addStretch()
-    
+        
+        return widget
+
+    def setup_devices_panel(self):
+        """Crea el panel lateral de dispositivos con diseño moderno"""
+        panel = QFrame()
+        panel.setFrameStyle(QFrame.Shape.StyledPanel)
+        layout = QVBoxLayout(panel)
+        layout.setSpacing(12)
+        layout.setContentsMargins(12, 12, 12, 12)
+        
+        # Título de sección
+        section_title = QLabel("DISPOSITIVOS")
+        section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        section_title.setStyleSheet(DarkTheme.get_section_title_style())
+        layout.addWidget(section_title)
+        
+        # Banner de dispositivo seleccionado
+        banner_frame = QFrame()
+        banner_frame.setFrameStyle(QFrame.Shape.StyledPanel)
+        self.banner_layout = QHBoxLayout(banner_frame)
+        self.banner_layout.setContentsMargins(8, 8, 8, 8)
+        self.banner_layout.setSpacing(8)
+        
+        self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
+        self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.selected_device_banner.setStyleSheet(DarkTheme.get_device_banner_style())
+        self.selected_device_banner.setMinimumHeight(40)
+        
+        # Emoji de estado - inicialmente oculto
+        self.device_status_emoji = QLabel("")
+        self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.device_status_emoji.setStyleSheet(DarkTheme.get_device_status_emoji_style())
+        self.device_status_emoji.setVisible(False)
+        
+        # Agregar widgets al layout con factores de stretch iniciales
+        self.banner_layout.addWidget(self.selected_device_banner, 1)
+        self.banner_layout.addWidget(self.device_status_emoji, 0)
+        
+        layout.addWidget(banner_frame)
+        
+        # Lista de dispositivos
+        device_label = QLabel("Dispositivos Conectados:")
+        device_label.setStyleSheet(DarkTheme.get_device_label_style())
+        layout.addWidget(device_label)
+        
+        self.device_list = QListWidget()
+        self.device_list.itemSelectionChanged.connect(self.on_device_preselected)
+        layout.addWidget(self.device_list)
+        
+        # Botones de dispositivos
+        device_buttons_layout = QHBoxLayout()
+        device_buttons_layout.setSpacing(8)
+        
+        self.refresh_devices_btn = QPushButton("🔄 Actualizar")
+        self.refresh_devices_btn.clicked.connect(self.load_devices)
+        self.refresh_devices_btn.setStyleSheet(DarkTheme.get_small_button_style())
+        device_buttons_layout.addWidget(self.refresh_devices_btn)
+        
+        self.confirm_device_btn = QPushButton("✅ Seleccionar")
+        self.confirm_device_btn.setEnabled(False)
+        self.confirm_device_btn.clicked.connect(self.on_device_confirmed)
+        self.confirm_device_btn.setStyleSheet(DarkTheme.get_small_button_style())
+        device_buttons_layout.addWidget(self.confirm_device_btn)
+        
+        layout.addLayout(device_buttons_layout)
+        
+        # Variables de estado
+        self.preselected_device = None
+        self.active_device = None
+        
+        return panel
+
     def check_adb(self):
         adb_path = self.config_manager.get_adb_path()
         if self.device_manager.check_adb_availability():
@@ -523,7 +388,7 @@ class ModernMainWindow(QMainWindow):
         else:
             self.adb_status_label.setText("Estado ADB: ❌ No disponible")
             self.adb_path_label.setText("Ruta ADB: No encontrada")
-    
+
     def select_apk(self):
         file_paths, _ = QFileDialog.getOpenFileNames(
             self, 
@@ -542,7 +407,7 @@ class ModernMainWindow(QMainWindow):
             
             self.update_apk_list_display()
             self.update_install_button()
-    
+
     def clear_apk(self):
         self.selected_apks = []
         self.update_apk_list_display()
@@ -584,28 +449,13 @@ class ModernMainWindow(QMainWindow):
         if enabled:
             apk_count = len(self.selected_apks)
             self.status_label.setText(f"✅ Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
-            self.status_label.setStyleSheet("""
-                QLabel {
-                    background-color: #107c10;
-                    color: white;
-                    padding: 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                }
-            """)
+            self.status_label.setStyleSheet(DarkTheme.get_status_style('success'))
         else:
             if not has_apks or len(self.selected_apks) == 0:
                 self.status_label.setText("Selecciona al menos un APK")
             else:
                 self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setStyleSheet("""
-                QLabel {
-                    background-color: #323233;
-                    padding: 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                }
-            """)
+            self.status_label.setStyleSheet(DarkTheme.get_status_style('default'))
     
     def install_apk(self):
         if not hasattr(self, 'selected_apks') or len(self.selected_apks) == 0 or not self.selected_device:
@@ -630,27 +480,11 @@ class ModernMainWindow(QMainWindow):
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
             self.status_label.setText("🎉 Instalación completada exitosamente")
-            self.status_label.setStyleSheet("""
-                QLabel {
-                    background-color: #107c10;
-                    color: white;
-                    padding: 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                }
-            """)
+            self.status_label.setStyleSheet(DarkTheme.get_status_style('success'))
         else:
             QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
             self.status_label.setText("❌ Error en la instalación")
-            self.status_label.setStyleSheet("""
-                QLabel {
-                    background-color: #da532c;
-                    color: white;
-                    padding: 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                }
-            """)
+            self.status_label.setStyleSheet(DarkTheme.get_status_style('error'))
     
     def select_custom_adb(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -664,92 +498,6 @@ class ModernMainWindow(QMainWindow):
             self.config_manager.set_adb_path(file_path)
             self.check_adb()
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
-
-    def setup_apps_tab(self, parent):
-        """Configura la pestaña de aplicaciones instaladas con diseño moderno"""
-        layout = QVBoxLayout(parent)
-        layout.setSpacing(12)
-        layout.setContentsMargins(15, 15, 15, 15)
-        
-        # Controles superiores
-        controls_frame = QFrame()
-        controls_layout = QHBoxLayout(controls_frame)
-        controls_layout.setSpacing(8)
-        
-        self.refresh_apps_btn = QPushButton("🔄 Actualizar")
-        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
-        controls_layout.addWidget(self.refresh_apps_btn)
-        
-        self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
-        controls_layout.addWidget(self.include_system_apps_cb)
-        
-        self.uninstall_btn = QPushButton("🗑️ Desinstalar")
-        self.uninstall_btn.clicked.connect(self.uninstall_app)
-        self.uninstall_btn.setEnabled(False)
-        self.uninstall_btn.setProperty("class", "warning")
-        controls_layout.addWidget(self.uninstall_btn)
-        
-        layout.addWidget(controls_frame)
-        
-        # Lista de aplicaciones
-        apps_frame = QFrame()
-        apps_layout = QVBoxLayout(apps_frame)
-        
-        apps_title = QLabel("APLICACIONES INSTALADAS")
-        apps_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-        """)
-        apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        apps_layout.addWidget(apps_title)
-        
-        self.apps_list = QListWidget()
-        self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
-        apps_layout.addWidget(self.apps_list)
-        
-        layout.addWidget(apps_frame)
-        
-        # Información de la aplicación
-        info_frame = QFrame()
-        info_layout = QVBoxLayout(info_frame)
-        
-        info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
-        info_title.setStyleSheet("""
-            QLabel {
-                color: #cccccc;
-                font-weight: bold;
-                font-size: 12px;
-                padding: 5px;
-                background-color: #3e3e42;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-        """)
-        info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_layout.addWidget(info_title)
-        
-        self.app_info_label = QLabel("Selecciona una aplicación para ver detalles")
-        self.app_info_label.setWordWrap(True)
-        self.app_info_label.setStyleSheet("""
-            QLabel {
-                background-color: #323233;
-                padding: 12px;
-                border-radius: 4px;
-                font-size: 11px;
-                line-height: 1.4;
-            }
-        """)
-        info_layout.addWidget(self.app_info_label)
-        
-        layout.addWidget(info_frame)
 
     def on_apps_loaded(self, apps):
         """Callback cuando se cargan las aplicaciones"""
@@ -863,7 +611,7 @@ class ModernMainWindow(QMainWindow):
             self.selected_device_banner.setText(self.preselected_device)
             self.confirm_device_btn.setEnabled(False)
 
-            self.update_device_status_emoji()  # Asegurar que se actualice la visibilidad
+            self.update_device_status_emoji()
             self.update_install_button()
 
     def update_device_status_emoji(self):
