@@ -115,10 +115,6 @@ class MainWindow(QMainWindow):
         self.config_btn_nav.setChecked(index == 2)
         
         self.update_nav_buttons_style()
-        
-        # Si se selecciona la sección de aplicaciones y hay dispositivo, cargar apps
-        if index == 1 and self.selected_device:
-            self.load_installed_apps()
     
     def update_nav_buttons_style(self):
         """Actualiza los estilos de los botones de navegación según su estado"""
