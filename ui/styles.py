@@ -389,7 +389,19 @@ class DarkTheme:
                     font-size: 11px;
                     font-weight: bold;
                 }}
-            """
+            """,
+            
+            'copy_feedback_style': """
+                QLabel {
+                    background-color: #2e3630;   /* verde grisáceo muy oscuro, se integra con #323233 */
+                    color: #a4d4a0;              /* verde claro desaturado para el texto */
+                    padding: 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    border: 1px solid #5c946e;   /* verde oliva medio, sutil pero legible */
+                }
+            """,
+
         }
 
     @staticmethod

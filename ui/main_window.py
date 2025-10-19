@@ -237,7 +237,6 @@ class MainWindow(QMainWindow):
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(info_title)
         
-        
         # Mensaje inicial (cuando no hay app seleccionada)
         self.initial_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.initial_info_label.setWordWrap(True)
@@ -247,15 +246,20 @@ class MainWindow(QMainWindow):
         
         # Widget para información cuando hay app seleccionada (inicialmente oculto)
         self.app_details_widget = QWidget()
-        app_details_layout = QVBoxLayout(self.app_details_widget)  # Cambiado a VERTICAL
+        app_details_layout = QVBoxLayout(self.app_details_widget)
         app_details_layout.setSpacing(12)
         app_details_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Información de la app
+        # Etiqueta para mostrar la información de la aplicación
         self.app_info_label = QLabel()
+        # Eliminar al label la funcion de seleccion
+       
         self.app_info_label.setWordWrap(True)
-        self.app_info_label.setStyleSheet(self.styles['status_info_message'])
         self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.app_info_label.setStyleSheet(self.styles['status_info_message'])
+        # Hacer el texto seleccionable y conectar el doble clic
+
+        self.app_info_label.mouseDoubleClickEvent = self.on_app_info_double_click
         app_details_layout.addWidget(self.app_info_label)
         
         # Botón de desinstalar DENTRO del mismo app_details_layout
@@ -513,7 +517,7 @@ class MainWindow(QMainWindow):
         
         for app in apps:
             item = QListWidgetItem()
-            item_text = f"{app['name']}\n📦 {app['package_name']}\n🔢 {app['version']}"
+            item_text = f"{app['name']}\n📦 {app['package_name']}\n🧩 {app['version']}"
             item.setText(item_text)
             item.setData(Qt.ItemDataRole.UserRole, app)
             self.apps_list.addItem(item)
@@ -535,10 +539,11 @@ class MainWindow(QMainWindow):
         item = selected_items[0]
         app_data = item.data(Qt.ItemDataRole.UserRole)
         
+        # Actualizar la información en el cuadro especial
         info_text = f"""
-        <b>📱 Aplicación:</b> {app_data['name']}<br><br>
-        <b>📦 Paquete:</b> {app_data['package_name']}<br><br>
-        <b>🔢 Versión:</b> {app_data['version']}<br><br>
+        <b>📱 Aplicación:</b> {app_data['name']}<br>
+        <b>📦 Paquete:</b> {app_data['package_name']}<br>
+        <b>🧩 Versión:</b> {app_data['version']}<br>
         <b>📁 Ruta APK:</b> {app_data['apk_path']}
         """
         self.app_info_label.setText(info_text)
@@ -676,3 +681,29 @@ class MainWindow(QMainWindow):
         
         # Actualizar contador
         apk_count = len(self.selected_apks)
+
+    def on_app_info_double_click(self, event):
+        """Copia la información de la aplicación en formato limpio"""
+        selected_items = self.apps_list.selectedItems()
+        if not selected_items:
+            return
+        
+        item = selected_items[0]
+        app_data = item.data(Qt.ItemDataRole.UserRole)
+        
+        # Formatear en texto limpio (sin HTML)
+        app_info_text = f"""📱 Aplicación: {app_data['name']}\n📦 Paquete: {app_data['package_name']}\n🧩 Versión: {app_data['version']}\n📁 Ruta APK: {app_data['apk_path']}"""
+        
+        # Copiar al portapapeles
+        from PyQt6.QtWidgets import QApplication
+        clipboard = QApplication.clipboard()
+        clipboard.setText(app_info_text)
+        
+        # Feedback visual discreto
+        original_style = self.app_info_label.styleSheet()
+        self.app_info_label.setStyleSheet(self.styles['copy_feedback_style'])
+        
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(800, lambda: self.app_info_label.setStyleSheet(original_style))
+        
+        super(QLabel, self.app_info_label).mouseDoubleClickEvent(event)
