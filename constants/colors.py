@@ -31,6 +31,6 @@ COLORS = {
     'disabled': '#666666',
     'accent': '#BB86FC',
     'secondary_accent': '#03DAC6',
-    'selected_item': '#2E7D32',         # item seleccionado
-    'selected_item_hover': '#388E3C',   # hover sobre item seleccionado
+    'selected_item':'#2E7D32',         # item seleccionado
+    'selected_item_hover': "#678F69",   # hover sobre item seleccionado
 }

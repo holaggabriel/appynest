@@ -439,7 +439,7 @@ class MainWindow(QMainWindow):
                 text = f"{device['model']} - {device['device']}"
                 self.device_list.addItem(text)
         else:
-            self.device_list.addItem("No se encontraron dispositivos")
+            pass  # Lista vacía cuando no hay dispositivos
 
         if self.selected_device not in device_ids:
             self.selected_device = None
@@ -528,8 +528,7 @@ class MainWindow(QMainWindow):
         self.apps_list.clear()
         
         if not apps:
-            self.apps_list.addItem("No se encontraron aplicaciones")
-            return
+            return  # Lista vacía cuando no hay aplicaciones
         
         for app in apps:
             item = QListWidgetItem()
@@ -552,7 +551,8 @@ class MainWindow(QMainWindow):
         item = selected_items[0]
         app_data = item.data(Qt.ItemDataRole.UserRole)
         
-        if app_data is None or "No se encontraron aplicaciones" in item.text():
+        # Si la lista está vacía, app_data será None
+        if app_data is None:
             self.initial_info_label.setVisible(True)
             self.app_details_widget.setVisible(False)
             self.uninstall_btn.setEnabled(False)
@@ -625,7 +625,7 @@ class MainWindow(QMainWindow):
 
     def on_device_preselected(self):
         selected_items = self.device_list.selectedItems()
-        if selected_items:
+        if selected_items and self.device_list.count() > 0:  # Verificar que la lista no esté vacía
             self.preselected_device = selected_items[0].text()
 
             if " - " in self.preselected_device:
