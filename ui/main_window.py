@@ -535,7 +535,7 @@ class MainWindow(QMainWindow):
             item = QListWidgetItem()
             item_text = f"{app['name']}\n📦 {app['package_name']}\n🧩 {app['version']}"
             item.setText(item_text)
-            item.setData(Qt.ItemDataRole.UserRole, app)
+            item.setData(Qt.ItemDataRole.UserRole, app)  # Solo items válidos tienen datos
             self.apps_list.addItem(item)
 
     def on_app_selected(self):
@@ -546,14 +546,21 @@ class MainWindow(QMainWindow):
             # No hay app seleccionada - mostrar mensaje inicial
             self.initial_info_label.setVisible(True)
             self.app_details_widget.setVisible(False)
+            self.uninstall_btn.setEnabled(False)
             return
-        
-        # Hay app seleccionada - mostrar detalles con botón
-        self.initial_info_label.setVisible(False)
-        self.app_details_widget.setVisible(True)
         
         item = selected_items[0]
         app_data = item.data(Qt.ItemDataRole.UserRole)
+        
+        if app_data is None or "No se encontraron aplicaciones" in item.text():
+            self.initial_info_label.setVisible(True)
+            self.app_details_widget.setVisible(False)
+            self.uninstall_btn.setEnabled(False)
+            return
+        
+        # Hay app seleccionada válida - mostrar detalles con botón
+        self.initial_info_label.setVisible(False)
+        self.app_details_widget.setVisible(True)
         
         # Actualizar la información en el cuadro especial
         info_text = f"""
