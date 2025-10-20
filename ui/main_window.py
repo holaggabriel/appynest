@@ -171,12 +171,6 @@ class MainWindow(QMainWindow):
         
         layout.addLayout(apk_buttons_layout)
         
-        # Barra de progreso
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setStyleSheet(self.styles['progress_bar_default'])
-        self.progress_bar.setVisible(False)
-        layout.addWidget(self.progress_bar)
-        
         # Estado
         status_frame = QFrame()
         status_frame.setStyleSheet(self.styles['sidebar_section_frame'])
@@ -484,7 +478,6 @@ class MainWindow(QMainWindow):
             return
         
         self.install_btn.setEnabled(False)
-        self.progress_bar.setVisible(True)
         self.status_label.setText(f"⏳ Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(self.selected_apks, self.selected_device)
@@ -496,7 +489,6 @@ class MainWindow(QMainWindow):
         self.status_label.setText(message)
     
     def installation_finished(self, success, message):
-        self.progress_bar.setVisible(False)
         self.install_btn.setEnabled(True)
         
         if success:
