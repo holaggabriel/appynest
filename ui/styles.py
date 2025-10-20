@@ -37,7 +37,9 @@ class DarkTheme:
         'danger_disabled_text': '#D0A0A0',
         'disabled': '#666666',
         'accent': '#BB86FC',
-        'secondary_accent': '#03DAC6'
+        'secondary_accent': '#03DAC6',
+        'selected_item': '#2E7D32',         # item seleccionado
+        'selected_item_hover': '#388E3C',   # hover sobre item seleccionado
     }
 
     @staticmethod
@@ -165,13 +167,13 @@ class DarkTheme:
                     background-color: transparent;
                 }}
                 QListWidget::item:selected {{
-                    background-color: {colors['highlight']};
+                    background-color: {colors['selected_item']};
                     color: white;
                     border-radius: 3px;
                     border: none;
                 }}
                 QListWidget::item:hover {{
-                    background-color: #2a2d2e;
+                    background-color: {colors['selected_item_hover']};
                     border-radius: 3px;
                 }}
             """,
@@ -392,7 +394,6 @@ class DarkTheme:
 
     @staticmethod
     def get_status_styles():
-        """Estilos específicos para estados"""
         colors = DarkTheme.COLORS
         
         return {
@@ -454,19 +455,19 @@ class DarkTheme:
 
     @staticmethod
     def get_special_styles():
-        """Estilos para componentes especializados"""
+        colors = DarkTheme.COLORS
         return {
-            'device_banner_label': """
-                QLabel {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #007acc, stop:1 #005a9e);
-                    color: white;
-                    font-weight: bold;
-                    padding: 10px;
-                    border-radius: 6px;
-                    border: 1px solid #005a9e;
-                    font-size: 11px;
-                }
-            """,
+        'device_banner_label': f"""
+            QLabel {{
+                background-color: {colors['selected_item']};
+                color: white;
+                font-weight: bold;
+                padding: 10px;
+                border-radius: 6px;
+                font-size: 11px;
+            }}
+        """,
+
             
             'nav_button_active_state': """
                 QPushButton {
