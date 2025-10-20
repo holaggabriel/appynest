@@ -471,7 +471,7 @@ class MainWindow(QMainWindow):
         if enabled:
             apk_count = len(self.selected_apks)
             self.status_label.setText(f"Listo para instalar {apk_count} APK(s) en el dispositivo seleccionado")
-            self.status_label.setStyleSheet(self.styles['status_success_message'])
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
         else:
             if not has_apks or len(self.selected_apks) == 0:
                 self.status_label.setText("Selecciona al menos un APK")
@@ -501,8 +501,8 @@ class MainWindow(QMainWindow):
         
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
-            self.status_label.setText("🎉 Instalación completada exitosamente")
-            self.status_label.setStyleSheet(self.styles['status_success_message'])
+            self.status_label.setText("Instalación completada exitosamente")
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
         else:
             QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
             self.status_label.setText("❌ Error en la instalación")
