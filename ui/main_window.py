@@ -209,7 +209,6 @@ class MainWindow(QMainWindow):
         controls_layout.addWidget(self.refresh_apps_btn)
         
         self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        self.include_system_apps_cb.stateChanged.connect(self.load_installed_apps)
         controls_layout.addWidget(self.include_system_apps_cb)
         
         layout.addWidget(controls_frame)
@@ -525,6 +524,7 @@ class MainWindow(QMainWindow):
     def on_apps_loaded(self, apps):
         """Callback cuando se cargan las aplicaciones"""
         self.refresh_apps_btn.setEnabled(True)
+        self.include_system_apps_cb.setEnabled(True)
         self.apps_list.clear()
         
         if not apps:
@@ -594,6 +594,7 @@ class MainWindow(QMainWindow):
         self.apps_loading_thread.start()
         
         self.refresh_apps_btn.setEnabled(False)
+        self.include_system_apps_cb.setEnabled(False) 
 
     def uninstall_app(self):
         """Desinstala la aplicación seleccionada"""
