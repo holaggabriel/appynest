@@ -356,7 +356,36 @@ class DarkTheme:
                     padding: 0 5px 0 5px;
                     background-color: {colors['window']};
                 }}
-            """
+            """,
+            
+            # ===== RADIO BUTTONS =====
+            'radio_button_default': f"""
+                QRadioButton {{
+                    color: {colors['text']};
+                    background-color: transparent;
+                    spacing: 8px;
+                    font-size: 11px;
+                    padding: 4px;
+                }}
+                QRadioButton::indicator {{
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 8px;
+                    border: 2px solid {colors['border']};
+                    background-color: {colors['window']};
+                }}
+                QRadioButton::indicator:hover {{
+                    border: 2px solid {colors['highlight']};
+                }}
+                QRadioButton::indicator:checked {{
+                    border: 2px solid {colors['highlight']};
+                    background-color: {colors['highlight']};
+                }}
+                QRadioButton::indicator:checked:hover {{
+                    border: 2px solid {colors['highlight_hover']};
+                    background-color: {colors['highlight_hover']};
+                }}
+            """,
         }
 
     @staticmethod

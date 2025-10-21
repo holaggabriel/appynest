@@ -225,13 +225,16 @@ class MainWindow(QMainWindow):
         radio_layout = QHBoxLayout()
         
         self.all_apps_radio = QRadioButton("Todas")
+        self.all_apps_radio.setStyleSheet(self.styles['radio_button_default'])
         radio_layout.addWidget(self.all_apps_radio)
         
         self.user_apps_radio = QRadioButton("Usuario")
         self.user_apps_radio.setChecked(True)
+        self.user_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
         radio_layout.addWidget(self.user_apps_radio)
         
         self.system_apps_radio = QRadioButton("Sistema")
+        self.system_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
         radio_layout.addWidget(self.system_apps_radio)
         
         controls_layout.addLayout(radio_layout)
