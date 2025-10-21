@@ -197,22 +197,6 @@ class MainWindow(QMainWindow):
         layout.setSpacing(12)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        # Controles superiores
-        controls_frame = QFrame()
-        controls_frame.setStyleSheet(self.styles['sidebar_section_frame'])
-        controls_layout = QHBoxLayout(controls_frame)
-        controls_layout.setSpacing(8)
-        
-        self.refresh_apps_btn = QPushButton("Actualizar")
-        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
-        controls_layout.addWidget(self.refresh_apps_btn)
-        
-        self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        controls_layout.addWidget(self.include_system_apps_cb)
-        
-        layout.addWidget(controls_frame)
-        
         # Lista de aplicaciones
         apps_title = QLabel("APLICACIONES INSTALADAS")
         apps_title.setStyleSheet(self.styles['label_section_header'])
@@ -223,6 +207,26 @@ class MainWindow(QMainWindow):
         self.apps_list.setStyleSheet(self.styles['list_main_widget'])
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         layout.addWidget(self.apps_list)
+        
+        # Controles en una sola línea horizontal sin padding
+        controls_layout = QHBoxLayout()
+        controls_layout.setContentsMargins(0, 0, 0, 0)  # Sin márgenes
+        controls_layout.setSpacing(0)                   # Sin espacio entre widgets
+
+        # Botón "Actualizar"
+        self.refresh_apps_btn = QPushButton("Actualizar")
+        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
+        controls_layout.addWidget(self.refresh_apps_btn)
+        
+        controls_layout.addSpacing(15)
+
+        # Checkbox "Incluir apps del sistema"
+        self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
+        controls_layout.addWidget(self.include_system_apps_cb)
+
+        # Agregar el layout horizontal al layout principal
+        layout.addLayout(controls_layout)
         
         # Información de la aplicación
         info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
