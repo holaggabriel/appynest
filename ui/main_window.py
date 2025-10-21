@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
-                             QFrame, QRadioButton, QListWidgetItem, QStackedWidget)
+                             QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from src.device_manager import DeviceManager
@@ -191,39 +191,39 @@ class MainWindow(QMainWindow):
         return widget
     
     def setup_apps_section(self):
-        """Crea la sección de aplicaciones instaladas"""
+        """Crea la sección de aplicaciones instaladas con diseño horizontal"""
         widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setSpacing(12)
-        layout.setContentsMargins(0, 0, 0, 0)
         
-        # Lista de aplicaciones
+        # Layout horizontal
+        main_horizontal_layout = QHBoxLayout(widget)
+        main_horizontal_layout.setSpacing(15)
+        main_horizontal_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # --- PANEL IZQUIERDO: Lista de aplicaciones ---
+        left_panel = QWidget()
+        left_layout = QVBoxLayout(left_panel)
+        left_layout.setSpacing(10)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Título
         apps_title = QLabel("APLICACIONES INSTALADAS")
         apps_title.setStyleSheet(self.styles['label_section_header'])
         apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(apps_title)
+        left_layout.addWidget(apps_title)
         
-        self.apps_list = QListWidget()
-        self.apps_list.setStyleSheet(self.styles['list_main_widget'])
-        self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
-        layout.addWidget(self.apps_list)
-        
-        # Controles en una sola línea horizontal sin padding
+        # Controles (radio buttons + actualizar)
         controls_layout = QHBoxLayout()
-        controls_layout.setContentsMargins(0, 0, 0, 0)  # Sin márgenes
-        controls_layout.setSpacing(0)                   # Sin espacio entre widgets
-
+        controls_layout.setContentsMargins(0, 0, 0, 0)
+        controls_layout.setSpacing(8)
+        
         # Botón "Actualizar"
         self.refresh_apps_btn = QPushButton("Actualizar")
         self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
         self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
         controls_layout.addWidget(self.refresh_apps_btn)
         
-        controls_layout.addSpacing(15)
-
-        # Grupo de radio buttons para tipo de aplicaciones
+        # Radio buttons
         radio_layout = QHBoxLayout()
-        
         self.all_apps_radio = QRadioButton("Todas")
         self.all_apps_radio.setStyleSheet(self.styles['radio_button_default'])
         radio_layout.addWidget(self.all_apps_radio)
@@ -238,51 +238,73 @@ class MainWindow(QMainWindow):
         radio_layout.addWidget(self.system_apps_radio)
         
         controls_layout.addLayout(radio_layout)
-        controls_layout.addStretch()  # Empuja los elementos hacia la izquierda
+        controls_layout.addStretch()
         
-        layout.addLayout(controls_layout)
+        left_layout.addLayout(controls_layout)
         
-        # Información de la aplicación
-        info_title = QLabel("INFORMACIÓN DE LA APLICACIÓN")
+        # Lista de aplicaciones
+        self.apps_list = QListWidget()
+        self.apps_list.setStyleSheet(self.styles['list_main_widget'])
+        self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
+        left_layout.addWidget(self.apps_list)
+        
+        # --- PANEL DERECHO: Detalles de la aplicación ---
+        right_panel = QWidget()
+        right_layout = QVBoxLayout(right_panel)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Título - CON ALTURA FIJA
+        info_title = QLabel("DETALLES")
         info_title.setStyleSheet(self.styles['label_section_header'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(info_title)
+        info_title.setFixedHeight(30)  # ✅ Altura fija
+        info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # ✅ Política fija
+        right_layout.addWidget(info_title)
         
-        # Mensaje inicial (cuando no hay app seleccionada)
+        # Mensaje inicial - CON ALTURA FIJA
         self.initial_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.initial_info_label.setWordWrap(True)
         self.initial_info_label.setStyleSheet(self.styles['status_info_message'])
         self.initial_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.initial_info_label)
+        self.initial_info_label.setFixedHeight(60)  # ✅ Altura fija
+        self.initial_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # ✅ Política fija
+        right_layout.addWidget(self.initial_info_label)
         
-        # Widget para información cuando hay app seleccionada (inicialmente oculto)
+        # Widget de detalles (inicialmente oculto) - ESTE SÍ SE EXPANDE
         self.app_details_widget = QWidget()
         app_details_layout = QVBoxLayout(self.app_details_widget)
         app_details_layout.setSpacing(12)
         app_details_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Etiqueta para mostrar la información de la aplicación
         self.app_info_label = QLabel()
-        # Eliminar al label la funcion de seleccion
-       
         self.app_info_label.setWordWrap(True)
         self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.app_info_label.setStyleSheet(self.styles['status_info_message'])
-        # Hacer el texto seleccionable y conectar el doble clic
-
         self.app_info_label.mouseDoubleClickEvent = self.on_app_info_double_click
+        # ✅ ESTE SÍ puede expandirse
+        self.app_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         app_details_layout.addWidget(self.app_info_label)
         
-        # Botón de desinstalar DENTRO del mismo app_details_layout
         self.uninstall_btn = QPushButton("Desinstalar Aplicación")
         self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
+        self.uninstall_btn.setFixedHeight(35)  # ✅ Altura fija para el botón
         app_details_layout.addWidget(self.uninstall_btn)
         
-        # Agregar el widget de detalles al layout principal (inicialmente oculto)
-        layout.addWidget(self.app_details_widget)
+        right_layout.addWidget(self.app_details_widget)
         self.app_details_widget.setVisible(False)
+        
+        # ✅ ESPACIO FLEXIBLE para empujar todo hacia arriba
+        right_layout.addStretch(1)
+        
+        # Agregar ambos paneles al layout horizontal
+        main_horizontal_layout.addWidget(left_panel)
+        main_horizontal_layout.addWidget(right_panel)
+        
+        # Ajustar proporciones
+        main_horizontal_layout.setStretchFactor(left_panel, 3)
+        main_horizontal_layout.setStretchFactor(right_panel, 2)
         
         return widget
     
