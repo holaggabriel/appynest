@@ -583,7 +583,7 @@ class MainWindow(QMainWindow):
         
         # Actualizar la información en el cuadro especial
         info_text = f"""
-        <b>📱 Aplicación:</b> {app_data['name']}<br>
+        <b>🧩 Aplicación:</b> {app_data['name']}<br>
         <b>📦 Paquete:</b> {app_data['package_name']}<br>
         <b>🏷️ Versión:</b> {app_data['version']}<br>
         <b>📁 Ruta APK:</b> {app_data['apk_path']}
@@ -746,7 +746,7 @@ class MainWindow(QMainWindow):
         app_data = item.data(Qt.ItemDataRole.UserRole)
         
         # Formatear en texto limpio (sin HTML)
-        app_info_text = f"""📱 Aplicación: {app_data['name']}\n📦 Paquete: {app_data['package_name']}\n🏷️ Versión: {app_data['version']}\n📁 Ruta APK: {app_data['apk_path']}"""
+        app_info_text = f"""🧩 Aplicación: {app_data['name']}\n📦 Paquete: {app_data['package_name']}\n🏷️ Versión: {app_data['version']}\n📁 Ruta APK: {app_data['apk_path']}"""
         
         # Copiar al portapapeles
         from PyQt6.QtWidgets import QApplication
