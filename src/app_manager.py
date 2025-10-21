@@ -9,28 +9,29 @@ class AppManager:
     
     def extract_app_name_from_package(self, package_name):
         """Intenta extraer un nombre legible del nombre del paquete"""
-        # Ejemplo: com.example.myapp -> MyApp
-        # Ejemplo: com.example.emovie -> Emovie
         parts = package_name.split('.')
         if len(parts) >= 2:
             last_part = parts[-1]
-            # Convertir a formato título: myapp -> MyApp
             return last_part.title()
         return package_name
     
-    def get_installed_apps(self, device_id, include_system=False):
-        """Obtiene la lista de aplicaciones instaladas en el dispositivo"""
-        print_in_debug_mode(f"Obteniendo aplicaciones para dispositivo {device_id}, incluir sistema: {include_system}")
+    def get_installed_apps_by_type(self, device_id, app_type="all"):
+        """Obtiene aplicaciones según el tipo especificado"""
+        print_in_debug_mode(f"Obteniendo aplicaciones tipo '{app_type}' para dispositivo {device_id}")
         
         try:
             adb_path = self.config_manager.get_adb_path()
             print_in_debug_mode(f"Ruta de ADB: {adb_path}")
 
-            # Comando para listar paquetes
-            if include_system:
+            # Determinar comando según tipo
+            if app_type == "all":
                 cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f"]
+            elif app_type == "user":
+                cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f", "-3"]
+            elif app_type == "system":
+                cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f", "-s"]
             else:
-                cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f", "-3"]  # Solo apps de usuario
+                cmd = [adb_path, "-s", device_id, "shell", "pm", "list", "packages", "-f"]
             
             print_in_debug_mode(f"Ejecutando comando: {' '.join(cmd)}")
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -49,11 +50,7 @@ class AppManager:
             
             for line in lines:
                 if line.startswith('package:'):
-                    # Formato: package:/path/to/base.apk=package.name
-                    # Dividir solo en el último "=" porque la ruta puede contener "="
                     line_clean = line.replace('package:', '')
-                    
-                    # Encontrar la última ocurrencia de "="
                     last_equal_index = line_clean.rfind('=')
                     
                     if last_equal_index != -1:
@@ -62,7 +59,6 @@ class AppManager:
 
                         print_in_debug_mode(f"Procesando paquete: {package_name}, ruta: {apk_path}")
 
-                        # Obtener información adicional de la app
                         app_info = self.get_app_info(device_id, package_name, apk_path)
                         if app_info:
                             apps.append(app_info)
@@ -70,8 +66,6 @@ class AppManager:
                         print_in_debug_mode(f"Línea sin '=': {line}")
             
             print_in_debug_mode(f"Se procesaron {len(apps)} aplicaciones correctamente")
-            
-            # Ordenar por nombre de aplicación
             apps.sort(key=lambda x: x['name'].lower())
             return apps
             
@@ -82,6 +76,13 @@ class AppManager:
             print_in_debug_mode(f"Error inesperado al obtener aplicaciones: {e}")
             return []
     
+    # Mantener el método original para compatibilidad (opcional)
+    def get_installed_apps(self, device_id, include_system=False):
+        """Método legacy - mantener para compatibilidad"""
+        app_type = "all" if include_system else "user"
+        return self.get_installed_apps_by_type(device_id, app_type)
+    
+    # El resto de los métodos (get_app_info, uninstall_app) se mantienen igual
     def get_app_info(self, device_id, package_name, apk_path):
         """Obtiene información detallada de una aplicación"""
         print_in_debug_mode(f"Obteniendo información para: {package_name}")
@@ -89,11 +90,9 @@ class AppManager:
         try:
             adb_path = self.config_manager.get_adb_path()
             
-            # USAR MÉTODO RÁPIDO para obtener nombre legible
             app_name = self.extract_app_name_from_package(package_name)
             print_in_debug_mode(f"Nombre generado desde paquete: {app_name}")
             
-            # Obtener versión
             version = "Desconocida"
             try:
                 cmd = f"{adb_path} -s {device_id} shell dumpsys package {package_name} | grep versionName"

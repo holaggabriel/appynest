@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
-                             QProgressBar, QFrame, QCheckBox, QListWidgetItem, QStackedWidget)
+                             QFrame, QRadioButton, QListWidgetItem, QStackedWidget)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from src.device_manager import DeviceManager
@@ -221,11 +221,22 @@ class MainWindow(QMainWindow):
         
         controls_layout.addSpacing(15)
 
-        # Checkbox "Incluir apps del sistema"
-        self.include_system_apps_cb = QCheckBox("Incluir apps del sistema")
-        controls_layout.addWidget(self.include_system_apps_cb)
-
-        # Agregar el layout horizontal al layout principal
+        # Grupo de radio buttons para tipo de aplicaciones
+        radio_layout = QHBoxLayout()
+        
+        self.all_apps_radio = QRadioButton("Todas")
+        radio_layout.addWidget(self.all_apps_radio)
+        
+        self.user_apps_radio = QRadioButton("Usuario")
+        self.user_apps_radio.setChecked(True)
+        radio_layout.addWidget(self.user_apps_radio)
+        
+        self.system_apps_radio = QRadioButton("Sistema")
+        radio_layout.addWidget(self.system_apps_radio)
+        
+        controls_layout.addLayout(radio_layout)
+        controls_layout.addStretch()  # Empuja los elementos hacia la izquierda
+        
         layout.addLayout(controls_layout)
         
         # Información de la aplicación
@@ -528,17 +539,21 @@ class MainWindow(QMainWindow):
     def on_apps_loaded(self, apps):
         """Callback cuando se cargan las aplicaciones"""
         self.refresh_apps_btn.setEnabled(True)
-        self.include_system_apps_cb.setEnabled(True)
+        # Rehabilitar los radio buttons
+        self.all_apps_radio.setEnabled(True)
+        self.user_apps_radio.setEnabled(True)
+        self.system_apps_radio.setEnabled(True)
+        
         self.apps_list.clear()
         
         if not apps:
-            return  # Lista vacía cuando no hay aplicaciones
+            return
         
         for app in apps:
             item = QListWidgetItem()
             item_text = f"{app['name']}\n📦 {app['package_name']}\n🧩 {app['version']}"
             item.setText(item_text)
-            item.setData(Qt.ItemDataRole.UserRole, app)  # Solo items válidos tienen datos
+            item.setData(Qt.ItemDataRole.UserRole, app)
             self.apps_list.addItem(item)
 
     def on_app_selected(self):
@@ -587,18 +602,29 @@ class MainWindow(QMainWindow):
         self.apps_list.clear()
         self.app_info_label.setText("⏳ Cargando aplicaciones...")
         
-        include_system = self.include_system_apps_cb.isChecked()
+        # Determinar qué tipo de aplicaciones cargar según el radio button seleccionado
+        if self.all_apps_radio.isChecked():
+            app_type = "all"
+        elif self.user_apps_radio.isChecked():
+            app_type = "user"
+        elif self.system_apps_radio.isChecked():
+            app_type = "system"
+        else:
+            app_type = "user"  # Por defecto
         
         self.apps_loading_thread = AppsLoadingThread(
             self.app_manager, 
             self.selected_device, 
-            include_system
+            app_type  # Cambiar este parámetro
         )
         self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
         self.apps_loading_thread.start()
         
         self.refresh_apps_btn.setEnabled(False)
-        self.include_system_apps_cb.setEnabled(False) 
+        # Deshabilitar los radio buttons durante la carga
+        self.all_apps_radio.setEnabled(False)
+        self.user_apps_radio.setEnabled(False)
+        self.system_apps_radio.setEnabled(False)
 
     def uninstall_app(self):
         """Desinstala la aplicación seleccionada"""
