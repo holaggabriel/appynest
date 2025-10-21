@@ -160,3 +160,34 @@ class AppManager:
         except Exception as e:
             print_in_debug_mode(f"Error inesperado al desinstalar {package_name}: {e}")
             return False, str(e)
+
+    def extract_app_apk(self, device_id, apk_path, output_path):
+        """Extrae el APK de una aplicación instalada usando la ruta ya conocida"""
+        print_in_debug_mode(f"Extrayendo APK desde {apk_path} a {output_path}")
+        
+        try:
+            adb_path = self.config_manager.get_adb_path()
+            
+            # Extraer el APK del dispositivo usando la ruta que ya tenemos
+            cmd_pull = [adb_path, "-s", device_id, "pull", apk_path, output_path]
+            print_in_debug_mode(f"Ejecutando comando pull: {' '.join(cmd_pull)}")
+            
+            pull_result = subprocess.run(cmd_pull, capture_output=True, text=True, timeout=60)
+            
+            print_in_debug_mode(f"Return code pull: {pull_result.returncode}")
+            print_in_debug_mode(f"STDOUT pull: {pull_result.stdout}")
+            print_in_debug_mode(f"STDERR pull: {pull_result.stderr}")
+            
+            if pull_result.returncode == 0:
+                return True, f"APK guardado en: {output_path}"
+            else:
+                return False, f"Error al extraer APK: {pull_result.stderr}"
+                
+        except subprocess.TimeoutExpired:
+            error_msg = "Tiempo de espera agotado al extraer APK"
+            print_in_debug_mode(error_msg)
+            return False, error_msg
+        except Exception as e:
+            error_msg = f"Error inesperado: {str(e)}"
+            print_in_debug_mode(error_msg)
+            return False, error_msg

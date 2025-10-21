@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
                              QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont
 from src.device_manager import DeviceManager
 from src.config_manager import ConfigManager
@@ -12,6 +12,42 @@ from src.app_manager import AppManager
 from src.installation_thread import InstallationThread
 from src.apps_loading_thread import AppsLoadingThread
 from .styles import DarkTheme
+
+# Agrega estas clases al inicio de la clase MainWindow, después del __init__
+
+class UninstallThread(QThread):
+    finished_signal = pyqtSignal(bool, str)
+    
+    def __init__(self, app_manager, device_id, package_name):
+        super().__init__()
+        self.app_manager = app_manager
+        self.device_id = device_id
+        self.package_name = package_name
+    
+    def run(self):
+        success, message = self.app_manager.uninstall_app(
+            self.device_id, 
+            self.package_name
+        )
+        self.finished_signal.emit(success, message)
+
+class ExtractThread(QThread):
+    finished_signal = pyqtSignal(bool, str)
+    
+    def __init__(self, app_manager, device_id, apk_path, output_path):
+        super().__init__()
+        self.app_manager = app_manager
+        self.device_id = device_id
+        self.apk_path = apk_path
+        self.output_path = output_path
+    
+    def run(self):
+        success, message = self.app_manager.extract_app_apk(
+            self.device_id,
+            self.apk_path,
+            self.output_path
+        )
+        self.finished_signal.emit(success, message)
 
 class MainWindow(QMainWindow):
     
@@ -257,8 +293,8 @@ class MainWindow(QMainWindow):
         info_title = QLabel("DETALLES")
         info_title.setStyleSheet(self.styles['label_section_header'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_title.setFixedHeight(30)  # ✅ Altura fija
-        info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # ✅ Política fija
+        info_title.setFixedHeight(30)
+        info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         right_layout.addWidget(info_title)
         
         # Mensaje inicial - CON ALTURA FIJA
@@ -266,8 +302,8 @@ class MainWindow(QMainWindow):
         self.initial_info_label.setWordWrap(True)
         self.initial_info_label.setStyleSheet(self.styles['status_info_message'])
         self.initial_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.initial_info_label.setFixedHeight(60)  # ✅ Altura fija
-        self.initial_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)  # ✅ Política fija
+        self.initial_info_label.setFixedHeight(60)
+        self.initial_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         right_layout.addWidget(self.initial_info_label)
         
         # Widget de detalles (inicialmente oculto) - ESTE SÍ SE EXPANDE
@@ -281,16 +317,31 @@ class MainWindow(QMainWindow):
         self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.app_info_label.setStyleSheet(self.styles['status_info_message'])
         self.app_info_label.mouseDoubleClickEvent = self.on_app_info_double_click
-        # ✅ ESTE SÍ puede expandirse
         self.app_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         app_details_layout.addWidget(self.app_info_label)
         
+        # BOTÓN DE DESINSTALAR
         self.uninstall_btn = QPushButton("Desinstalar Aplicación")
         self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
-        self.uninstall_btn.setFixedHeight(35)  # ✅ Altura fija para el botón
+        self.uninstall_btn.setFixedHeight(35)
         app_details_layout.addWidget(self.uninstall_btn)
+        
+        # NUEVO BOTÓN DE EXTRAER APK
+        self.extract_apk_btn = QPushButton("Extraer APK")
+        self.extract_apk_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.extract_apk_btn.clicked.connect(self.extract_app_apk)
+        self.extract_apk_btn.setEnabled(False)
+        self.extract_apk_btn.setFixedHeight(35)
+        app_details_layout.addWidget(self.extract_apk_btn)
+        
+        # INDICADOR DE ESTADO (inicialmente oculto)
+        self.operation_status_label = QLabel()
+        self.operation_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.operation_status_label.setStyleSheet(self.styles['status_info_message'])
+        self.operation_status_label.setVisible(False)
+        app_details_layout.addWidget(self.operation_status_label)
         
         right_layout.addWidget(self.app_details_widget)
         self.app_details_widget.setVisible(False)
@@ -590,6 +641,7 @@ class MainWindow(QMainWindow):
             self.initial_info_label.setVisible(True)
             self.app_details_widget.setVisible(False)
             self.uninstall_btn.setEnabled(False)
+            self.extract_apk_btn.setEnabled(False)
             return
         
         item = selected_items[0]
@@ -600,9 +652,10 @@ class MainWindow(QMainWindow):
             self.initial_info_label.setVisible(True)
             self.app_details_widget.setVisible(False)
             self.uninstall_btn.setEnabled(False)
+            self.extract_apk_btn.setEnabled(False)
             return
         
-        # Hay app seleccionada válida - mostrar detalles con botón
+        # Hay app seleccionada válida - mostrar detalles con botones
         self.initial_info_label.setVisible(False)
         self.app_details_widget.setVisible(True)
         
@@ -615,8 +668,9 @@ class MainWindow(QMainWindow):
         """
         self.app_info_label.setText(info_text)
         
-        # Habilitar el botón de desinstalar
+        # Habilitar los botones
         self.uninstall_btn.setEnabled(True)
+        self.extract_apk_btn.setEnabled(True)
 
     def load_installed_apps(self):
         """Carga las aplicaciones instaladas en el dispositivo seleccionado"""
@@ -668,16 +722,17 @@ class MainWindow(QMainWindow):
         )
         
         if reply == QMessageBox.StandardButton.Yes:
-            success, message = self.app_manager.uninstall_app(
+            # Mostrar indicador y deshabilitar botones
+            self.show_operation_status("⏳ Desinstalando aplicación...")
+            self.set_operation_buttons_enabled(False)
+            
+            self.uninstall_thread = UninstallThread(
+                self.app_manager, 
                 self.selected_device, 
                 app_data['package_name']
             )
-            
-            if success:
-                QMessageBox.information(self, "✅ Éxito", f"Aplicación desinstalada: {message}")
-                self.load_installed_apps()
-            else:
-                QMessageBox.critical(self, "❌ Error", f"Error al desinstalar: {message}")
+            self.uninstall_thread.finished_signal.connect(self.uninstall_finished)
+            self.uninstall_thread.start()
 
     def on_device_preselected(self):
         selected_items = self.device_list.selectedItems()
@@ -786,3 +841,76 @@ class MainWindow(QMainWindow):
         QTimer.singleShot(800, lambda: self.app_info_label.setStyleSheet(original_style))
         
         super(QLabel, self.app_info_label).mouseDoubleClickEvent(event)
+
+    def extract_app_apk(self):
+        """Extrae el APK de la aplicación seleccionada"""
+        selected_items = self.apps_list.selectedItems()
+        if not selected_items or not self.selected_device:
+            return
+        
+        item = selected_items[0]
+        app_data = item.data(Qt.ItemDataRole.UserRole)
+        
+        # Solicitar ubicación para guardar el APK
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Guardar APK",
+            f"{app_data['package_name']}.apk",
+            "APK Files (*.apk)"
+        )
+        
+        if not file_path:
+            return  # Usuario canceló
+        
+        # Mostrar indicador y deshabilitar botones
+        self.show_operation_status("⏳ Extrayendo APK...")
+        self.set_operation_buttons_enabled(False)
+        
+        self.extract_thread = ExtractThread(
+            self.app_manager,
+            self.selected_device,
+            app_data['apk_path'],
+            file_path
+        )
+        self.extract_thread.finished_signal.connect(self.extract_finished)
+        self.extract_thread.start()
+        
+    def uninstall_finished(self, success, message):
+        """Callback cuando termina la desinstalación"""
+        # Ocultar indicador y habilitar botones
+        self.hide_operation_status()
+        self.set_operation_buttons_enabled(True)
+        
+        if success:
+            QMessageBox.information(self, "✅ Éxito", f"Aplicación desinstalada: {message}")
+            self.load_installed_apps()
+        else:
+            QMessageBox.critical(self, "❌ Error", f"Error al desinstalar: {message}")
+    
+    def extract_finished(self, success, message):
+        """Callback cuando termina la extracción"""
+        # Ocultar indicador y habilitar botones
+        self.hide_operation_status()
+        self.set_operation_buttons_enabled(True)
+        
+        if success:
+            QMessageBox.information(self, "✅ Éxito", f"APK extraído exitosamente:\n{message}")
+        else:
+            QMessageBox.critical(self, "❌ Error", f"Error al extraer APK:\n{message}")
+
+    def show_operation_status(self, message):
+        """Muestra el indicador de estado de operación"""
+        self.operation_status_label.setText(message)
+        self.operation_status_label.setVisible(True)
+
+    def hide_operation_status(self):
+        """Oculta el indicador de estado de operación"""
+        self.operation_status_label.setVisible(False)
+
+    def set_operation_buttons_enabled(self, enabled):
+        """Habilita o deshabilita los botones de operación"""
+        self.uninstall_btn.setEnabled(enabled)
+        self.extract_apk_btn.setEnabled(enabled)
+        
+        # También deshabilitar la lista de aplicaciones durante la operación
+        self.apps_list.setEnabled(enabled)
