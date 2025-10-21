@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         self.check_adb()
     
     def init_ui(self):
-        self.setWindowTitle("Easy APK")
+        self.setWindowTitle("Easy ADB")
         self.setGeometry(100, 100, 1000, 750)
         
         # Configurar fuente moderna
