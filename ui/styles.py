@@ -154,8 +154,26 @@ class DarkTheme:
                     padding: 8px 16px;
                     border-radius: 4px;
                     font-weight: 500;
-                    min-height: 20px;
                     font-size: 11px;
+                }}
+                QPushButton:hover {{
+                    background-color: {colors['highlight_hover']};
+                }}
+                QPushButton:pressed {{
+                    background-color: {colors['highlight_pressed']};
+                }}
+                QPushButton:disabled {{
+                    background-color: {colors['highlight_disabled']};
+                    color: {colors['highlight_disabled_text']};
+                }}
+            """,
+            
+            'emoji_button': f"""
+                QPushButton {{
+                    background-color: {colors['highlight']};
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
                 }}
                 QPushButton:hover {{
                     background-color: {colors['highlight_hover']};
@@ -406,7 +424,7 @@ class DarkTheme:
             
             'status_error_message': f"""
                 QLabel {{
-                    background-color: {colors['warning']};
+                    background-color: {colors['danger']};
                     color: white;
                     padding: 10px;
                     border-radius: 4px;

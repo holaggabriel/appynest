@@ -336,6 +336,10 @@ class MainWindow(QMainWindow):
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
         
+        # Estado ADB
+        self.adb_status_label = QLabel("Estado ADB: Verificando...")
+        self.adb_status_label.setStyleSheet(self.styles['status_info_message'])
+        
         # Contenedor para la ruta ADB con botón
         adb_path_layout = QHBoxLayout()
         adb_path_layout.setSpacing(8)
@@ -347,16 +351,13 @@ class MainWindow(QMainWindow):
         
         # Botón con icono de carpeta
         self.folder_adb_btn = QPushButton("📁")
+        self.folder_adb_btn.setStyleSheet(self.styles['emoji_button'])
         self.folder_adb_btn.setFixedSize(40, 30)  # Tamaño fijo para que sea cuadrado
         self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
         self.folder_adb_btn.clicked.connect(self.select_custom_adb)
         
         adb_path_layout.addWidget(self.adb_path_label, 1)  # El 1 hace que ocupe más espacio
         adb_path_layout.addWidget(self.folder_adb_btn, 0)  # El 0 hace que ocupe espacio mínimo
-        
-        # Estado ADB
-        self.adb_status_label = QLabel("Estado ADB: Verificando...")
-        self.adb_status_label.setStyleSheet(self.styles['status_info_message'])
         
         layout.addWidget(self.adb_status_label)
         layout.addLayout(adb_path_layout)
@@ -455,7 +456,7 @@ class MainWindow(QMainWindow):
                 
             self.adb_status_label.setStyleSheet(self.styles['status_success_message'])
         else:
-            self.adb_status_label.setText("Estado ADB: ❌ No disponible")
+            self.adb_status_label.setText("Estado ADB: No disponible")
             self.adb_path_label.setText("Ruta: No encontrada")
             self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
 
