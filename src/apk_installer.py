@@ -39,18 +39,3 @@ class APKInstaller:
             return False, "Tiempo de espera agotado durante la instalación"
         except Exception as e:
             return False, f"Error inesperado: {str(e)}"
-    
-    def uninstall_apk(self, package_name, device_id):
-        """Desinstala una aplicación del dispositivo"""
-        try:
-            adb_path = self.config_manager.get_adb_path()
-            
-            result = subprocess.run(
-                [adb_path, "-s", device_id, "uninstall", package_name],
-                capture_output=True, text=True, timeout=30
-            )
-            
-            return result.returncode == 0, result.stdout + result.stderr
-            
-        except Exception as e:
-            return False, str(e)
