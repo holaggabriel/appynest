@@ -61,28 +61,28 @@ class InstallationThread(QThread):
                 
                 if success:
                     success_count += 1
-                    self.progress_update.emit(f"✅ {apk_name} instalado correctamente")
+                    self.progress_update.emit(f"{apk_name} instalado correctamente")
                 else:
                     # Guardar el error detallado
                     error_msg = f"{apk_name}: {message}"
                     failed_apks.append(error_msg)
-                    self.progress_update.emit(f"❌ Error en {apk_name}")
+                    self.progress_update.emit(f"Error en {apk_name}")
                     # Continuar con el siguiente APK
                     continue
             
             # Reportar resultados finales CON DETALLES
             if success_count == total_apks:
-                self.finished_signal.emit(True, f"✅ Todos los {total_apks} APKs instalados correctamente")
+                self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente")
             elif success_count > 0:
                 # Algunos éxitos, algunos fallos
-                result_message = f"✅ {success_count} de {total_apks} APKs instalados correctamente"
+                result_message = f"{success_count} de {total_apks} APKs instalados correctamente"
                 if failed_apks:
-                    result_message += f"\n\n❌ Errores:\n" + "\n".join(failed_apks)
+                    result_message += f"\n\nErrores:\n" + "\n".join(failed_apks)
                 self.finished_signal.emit(False, result_message)
             else:
                 # Todos fallaron
-                result_message = f"❌ Todos los APKs fallaron:\n" + "\n".join(failed_apks)
+                result_message = f"Todos los APKs fallaron:\n" + "\n".join(failed_apks)
                 self.finished_signal.emit(False, result_message)
                 
         except Exception as e:
-            self.finished_signal.emit(False, f"❌ Error general en la instalación: {str(e)}")
+            self.finished_signal.emit(False, f"Error general en la instalación: {str(e)}")
