@@ -311,7 +311,7 @@ class MainWindow(QMainWindow):
         right_layout.addWidget(self.app_details_widget)
         self.app_details_widget.setVisible(False)
         
-        # ✅ ESPACIO FLEXIBLE para empujar todo hacia arriba
+        # ESPACIO FLEXIBLE para empujar todo hacia arriba
         right_layout.addStretch(1)
         
         # Agregar ambos paneles al layout horizontal
@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
     def check_adb(self):
         adb_path = self.config_manager.get_adb_path()
         if self.device_manager.check_adb_availability():
-            self.adb_status_label.setText("Estado ADB: ✅ Disponible")
+            self.adb_status_label.setText("Estado ADB: Disponible")
             
             # Mostrar solo el nombre del archivo o ruta abreviada para ahorrar espacio
             if adb_path:
@@ -533,7 +533,7 @@ class MainWindow(QMainWindow):
             return
         
         self.install_btn.setEnabled(False)
-        self.status_label.setText(f"⏳ Instalando {len(self.selected_apks)} APK(s)...")
+        self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(self.selected_apks, self.selected_device)
         self.installation_thread.progress_update.connect(self.update_progress)
@@ -644,7 +644,7 @@ class MainWindow(QMainWindow):
             return
         
         self.apps_list.clear()
-        self.app_info_label.setText("⏳ Cargando aplicaciones...")
+        self.app_info_label.setText("Cargando aplicaciones...")
         
         # Determinar qué tipo de aplicaciones cargar según el radio button seleccionado
         if self.all_apps_radio.isChecked():
@@ -688,7 +688,7 @@ class MainWindow(QMainWindow):
         
         if reply == QMessageBox.StandardButton.Yes:
             # Mostrar indicador y deshabilitar botones
-            self.show_operation_status("⏳ Desinstalando aplicación...")
+            self.show_operation_status("Desinstalando aplicación...")
             self.set_operation_buttons_enabled(False)
             
             self.uninstall_thread = UninstallThread(
@@ -828,7 +828,7 @@ class MainWindow(QMainWindow):
             return  # Usuario canceló
         
         # Mostrar indicador y deshabilitar botones
-        self.show_operation_status("⏳ Extrayendo APK...")
+        self.show_operation_status("Extrayendo APK...")
         self.set_operation_buttons_enabled(False)
         
         self.extract_thread = ExtractThread(
