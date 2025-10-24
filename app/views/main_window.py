@@ -473,29 +473,34 @@ class MainWindow(QMainWindow):
     def load_devices(self):
         # Mostrar mensaje de actualización inmediatamente
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
+        self.refresh_devices_btn.setEnabled(False)
         
         # Usar el método helper para el delay
         self.execute_after_delay(self._perform_devices_scan, 500)
 
     def _perform_devices_scan(self):
         """Realiza el escaneo de dispositivos después del delay"""
-        self.device_list.clear()
-        devices = self.device_manager.get_connected_devices()
-        
-        for device in devices:
-            self.device_list.addItem(f"{device['model']} - {device['device']}")
-        
-        if self.selected_device not in [d['device'] for d in devices]:
-            self.selected_device = None
+        try:
+            self.device_list.clear()
+            devices = self.device_manager.get_connected_devices()
+            
+            for device in devices:
+                self.device_list.addItem(f"{device['model']} - {device['device']}")
+            
+            if self.selected_device not in [d['device'] for d in devices]:
+                self.selected_device = None
 
-        # Ocultar mensaje si hay dispositivos, mostrar si no hay
-        if devices:
-            self.hide_devices_message()
-        else:
-            self.show_devices_message("No se encontraron dispositivos conectados", "info")
-        
-        self.update_device_status_emoji()
-        self.update_install_button()
+            # Ocultar mensaje si hay dispositivos, mostrar si no hay
+            if devices:
+                self.hide_devices_message()
+            else:
+                self.show_devices_message("No se encontraron dispositivos conectados", "info")
+            
+            self.update_device_status_emoji()
+            self.update_install_button()
+            
+        finally:
+            self.refresh_devices_btn.setEnabled(True)
 
     def update_device_status_emoji(self):
         connected_devices = [d['device'] for d in self.device_manager.get_connected_devices()]
