@@ -703,24 +703,33 @@ class MainWindow(QMainWindow):
 
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""
-        adb_path = self.adb_manager.get_adb_path()
-        
-        if self.adb_manager.is_available():
-            self.adb_status_label.setText("Estado ADB: Disponible")
-            display_path = f"Ruta: {self._shorten_path(adb_path) if adb_path else 'Predeterminada'}"
-            self.adb_path_label.setText(display_path)
-            self.adb_status_label.setStyleSheet(self.styles['status_success_message'])  
-            self.enable_all_sections()
+        try:
+            adb_path = self.adb_manager.get_adb_path()
             
-        else:
+            if self.adb_manager.is_available():
+                self.adb_status_label.setText("Estado ADB: Disponible")
+                display_path = f"Ruta: {self._shorten_path(adb_path)}"
+                self.adb_path_label.setText(display_path)
+                self.adb_status_label.setStyleSheet(self.styles['status_success_message'])  
+                self.enable_all_sections()
+                
+            else:
+                self.adb_status_label.setText("Estado ADB: No disponible")
+                self.adb_path_label.setText("Ruta: No encontrada")
+                self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
+                self.disable_sections_and_show_config()
+        
+        except Exception as e:
+            # Captura cualquier error inesperado
             self.adb_status_label.setText("Estado ADB: No disponible")
             self.adb_path_label.setText("Ruta: No encontrada")
             self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
             self.disable_sections_and_show_config()
         
-        # Restaurar estado del botón y ocultar label de verificación
-        self.update_adb_btn.setEnabled(True)
-        self.verifying_label.setVisible(False)
+        finally:
+            # Restaurar estado del botón y ocultar label de verificación
+            self.update_adb_btn.setEnabled(True)
+            self.verifying_label.setVisible(False)
 
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
