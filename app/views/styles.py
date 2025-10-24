@@ -261,7 +261,6 @@ class DarkTheme:
                     padding: 8px 16px;
                     border-radius: 4px;
                     font-weight: 500;
-                    min-height: 20px;
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
