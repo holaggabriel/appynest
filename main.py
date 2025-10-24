@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt6.QtWidgets import QApplication
-from ui.main_window import MainWindow
+from app.views.main_window import MainWindow
 
 def main():
     # Agregar el directorio src al path

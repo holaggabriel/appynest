@@ -1,7 +1,7 @@
 # styles.py
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette, QColor
-from constants.colors import COLORS
+from app.constants.colors import COLORS
 
 class DarkTheme:
     """Clase para gestionar el tema oscuro de manera modular sin sobrescribir estilos nativos"""

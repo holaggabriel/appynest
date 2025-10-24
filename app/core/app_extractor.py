@@ -1,5 +1,5 @@
 from .base_app_manager import BaseAppManager
-from utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class AppExtractor(BaseAppManager):
     def extract_app_apk(self, device_id, apk_path, output_path):

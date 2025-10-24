@@ -1,6 +1,6 @@
 import subprocess
 from .config_manager import ConfigManager
-from utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class BaseAppManager:
     def __init__(self):

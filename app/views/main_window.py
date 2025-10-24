@@ -6,11 +6,11 @@ from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
-from src.device_manager import DeviceManager
-from src.config_manager import ConfigManager
-from src.app_manager import AppManager
+from app.core.device_manager import DeviceManager
+from app.core.config_manager import ConfigManager
+from app.core.app_manager import AppManager
 from .styles import DarkTheme
-from src.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
+from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
 
 class MainWindow(QMainWindow):
     
