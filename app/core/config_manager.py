@@ -1,16 +1,15 @@
 import json
 import os
 import shutil
+import platform
 from pathlib import Path
 
 class ConfigManager:
     def __init__(self):
-        self.config_dir = Path.home() / ".apk_installer"
+        self.config_dir = Path.home() / ".easy-adb"
         self.config_file = self.config_dir / "config.json"
         self.default_config = {
-            "adb_path": "",
-            "theme": "default",
-            "recent_apks": []
+            "adb_path": ""
         }
         self.ensure_config()
     
@@ -61,44 +60,33 @@ class ConfigManager:
         return self.save_config(config)
     
     def find_adb_in_system(self):
-        """Busca ADB en las rutas comunes del sistema"""
-        # Rutas comunes donde podría estar ADB
-        common_paths = [
-            "/usr/bin/adb",
-            "/bin/adb",
-            "/usr/local/bin/adb",
-            "/opt/android-sdk/platform-tools/adb",
-            str(Path.home() / "Android/Sdk/platform-tools/adb")
-        ]
+        """Busca ADB en rutas comunes del sistema según el OS"""
+        system = platform.system().lower()
+
+        if system == "windows":
+            common_paths = [
+                "C:\\Program Files\\Android\\platform-tools\\adb.exe",
+                "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",
+                str(Path.home() / "AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"),
+                str(Path.home() / "AppData\\Roaming\\Android\\Sdk\\platform-tools\\adb.exe")
+            ]
+        else:
+            # Linux
+            common_paths = [
+                "/usr/bin/adb",
+                "/bin/adb",
+                "/usr/local/bin/adb",
+                "/opt/android-sdk/platform-tools/adb",
+                str(Path.home() / "Android/Sdk/platform-tools/adb")
+            ]
         
         for path in common_paths:
             if os.path.exists(path) and os.access(path, os.X_OK):
                 return path
         
-        # Buscar en PATH
+        # Buscar en el PATH del sistema
         adb_from_path = shutil.which("adb")
         if adb_from_path:
             return adb_from_path
         
         return None
-    
-    def add_recent_apk(self, apk_path):
-        """Agrega un APK a la lista de recientes"""
-        config = self.load_config()
-        recent_apks = config.get("recent_apks", [])
-        
-        # Remover si ya existe
-        if apk_path in recent_apks:
-            recent_apks.remove(apk_path)
-        
-        # Agregar al inicio
-        recent_apks.insert(0, apk_path)
-        
-        # Mantener solo los últimos 10
-        config["recent_apks"] = recent_apks[:10]
-        self.save_config(config)
-    
-    def get_recent_apks(self):
-        """Obtiene la lista de APKs recientes"""
-        config = self.load_config()
-        return config.get("recent_apks", [])
