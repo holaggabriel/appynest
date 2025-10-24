@@ -797,7 +797,7 @@ class MainWindow(QMainWindow):
         
         if file_path:
             self.config_manager.set_adb_path(file_path)
-            self.device_manager = DeviceManager()
+            self.device_manager = DeviceManager(self.adb_manager)
             self.update_adb_status()
             self.load_devices()
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
