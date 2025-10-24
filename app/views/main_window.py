@@ -30,6 +30,9 @@ class MainWindow(QMainWindow):
         self.init_ui()
         self.load_devices()
         self.check_adb()
+        
+        if not self.device_manager.check_adb_availability():
+            self.disable_sections_and_show_config()
     
     def init_ui(self):
         self.setWindowTitle("Easy ADB")
@@ -98,6 +101,12 @@ class MainWindow(QMainWindow):
         self.update_nav_buttons_style()
     
     def show_section(self, index):
+        # Prevenir cambiar de sección si ADB no está disponible
+        if not self.device_manager.check_adb_availability() and index != 2:
+            QMessageBox.warning(self, "ADB no disponible", 
+                            "ADB no está configurado. Configura ADB primero en la sección de Configuración.")
+            return
+        
         self.stacked_widget.setCurrentIndex(index)
         
         # Si el ultimo indice es el mismo no hacer nada
@@ -490,7 +499,13 @@ class MainWindow(QMainWindow):
         self.execute_after_delay(self._perform_devices_scan, 500)
 
     def _perform_devices_scan(self):
-        """Realiza el escaneo de dispositivos después del delay"""
+        # Verificar si ADB no está disponible
+        if not self.device_manager.check_adb_availability():
+            self.show_devices_message("ADB no está configurado", "error")
+            self.device_list.clear()
+            self.refresh_devices_btn.setEnabled(True)
+            return
+        
         try:
             self.device_list.clear()
             devices = self.device_manager.get_connected_devices()
@@ -658,11 +673,14 @@ class MainWindow(QMainWindow):
             self.adb_status_label.setText("Estado ADB: Disponible")
             display_path = f"Ruta: {self._shorten_path(adb_path) if adb_path else 'Predeterminada'}"
             self.adb_path_label.setText(display_path)
-            self.adb_status_label.setStyleSheet(self.styles['status_success_message'])
+            self.adb_status_label.setStyleSheet(self.styles['status_success_message'])  
+            self.enable_all_sections()
+            
         else:
             self.adb_status_label.setText("Estado ADB: No disponible")
             self.adb_path_label.setText("Ruta: No encontrada")
             self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
+            self.disable_sections_and_show_config()
 
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
@@ -887,3 +905,34 @@ class MainWindow(QMainWindow):
     def hide_devices_message(self):
         """Oculta el mensaje de dispositivos (cuando hay dispositivos en la lista)"""
         self.devices_message_label.setVisible(False)
+
+    def enable_all_sections(self):
+        """Habilita todas las secciones cuando ADB está disponible"""
+        self.install_btn_nav.setEnabled(True)
+        self.apps_btn_nav.setEnabled(True)
+        self.config_btn_nav.setEnabled(True)
+        
+        # Restaurar el estado anterior si existe, sino mostrar instalación
+        if self.last_section_index is not None:
+            self.show_section(self.last_section_index)
+        else:
+            self.show_section(0)  # Sección de instalación
+
+    def disable_sections_and_show_config(self):
+        """Deshabilita secciones y muestra configuración cuando ADB no está disponible"""
+        # Deshabilitar botones de navegación
+        self.install_btn_nav.setEnabled(False)
+        self.apps_btn_nav.setEnabled(False)
+        self.config_btn_nav.setEnabled(True)  # Configuración siempre habilitada
+        
+        # Forzar mostrar sección de configuración
+        self.stacked_widget.setCurrentIndex(2)
+        self.config_btn_nav.setChecked(True)
+        self.install_btn_nav.setChecked(False)
+        self.apps_btn_nav.setChecked(False)
+        
+        # Actualizar estilos de botones
+        self.update_nav_buttons_style()
+        
+        # Mostrar mensaje en panel de dispositivos
+        self.show_devices_message("ADB no está configurado", "error")
