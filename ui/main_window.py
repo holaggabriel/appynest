@@ -9,9 +9,8 @@ from PyQt6.QtGui import QFont
 from src.device_manager import DeviceManager
 from src.config_manager import ConfigManager
 from src.app_manager import AppManager
-from src.apps_loading_thread import AppsLoadingThread
 from .styles import DarkTheme
-from src.threads import UninstallThread, ExtractThread, InstallationThread
+from src.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
 
 class MainWindow(QMainWindow):
     
