@@ -137,7 +137,7 @@ class DarkTheme:
                     background-color: {colors['selected_item']};
                     color: white;
                     border-radius: 3px;
-                    border: none;
+                    border-bottom: 1px solid {colors['selected_item_hover']};
                 }}
                 QListWidget::item:hover {{
                     background-color: {colors['selected_item_hover']};
