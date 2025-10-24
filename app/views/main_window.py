@@ -25,6 +25,7 @@ class MainWindow(QMainWindow):
         self.active_device = None
         self.styles = DarkTheme.get_all_styles()
         self.last_device_selected = None
+        self.last_section_index = None
         self.init_ui()
         self.load_devices()
         self.check_adb()
@@ -97,6 +98,12 @@ class MainWindow(QMainWindow):
     
     def show_section(self, index):
         self.stacked_widget.setCurrentIndex(index)
+        
+        # Si el ultimo indice es el mismo no hacer nada
+        if self.last_section_index == index:
+            return
+        
+        self.last_section_index = index
         
         self.install_btn_nav.setChecked(index == 0)
         self.apps_btn_nav.setChecked(index == 1)
