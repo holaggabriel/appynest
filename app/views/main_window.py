@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.preselected_device = None
         self.active_device = None
         self.styles = DarkTheme.get_all_styles()
+        self.last_device_selected = None
         self.init_ui()
         self.load_devices()
         self.check_adb()
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
         self.config_btn_nav.setChecked(index == 2)
         
         self.update_nav_buttons_style()
+        if index == 1:
+            self.handle_app_operations('load')
     
     def update_nav_buttons_style(self):
         buttons = [
@@ -193,7 +196,7 @@ class MainWindow(QMainWindow):
         
         self.refresh_apps_btn = QPushButton("Actualizar")
         self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.refresh_apps_btn.clicked.connect(self.load_installed_apps)
+        self.refresh_apps_btn.clicked.connect(lambda:self.handle_app_operations('load',force_load=True))
         controls_layout.addWidget(self.refresh_apps_btn)
         
         radio_layout = QHBoxLayout()
@@ -516,18 +519,27 @@ class MainWindow(QMainWindow):
         self.banner_layout.setStretchFactor(self.selected_device_banner, banner_stretch)
         self.banner_layout.setStretchFactor(self.device_status_emoji, emoji_stretch)
 
-    def handle_app_operations(self, operation, app_data=None):
+    def handle_app_operations(self, operation, app_data=None, force_load=False):
         operations = {
-            'load': self._load_apps,
+            'load': lambda: self._load_apps(force_load),
             'uninstall': lambda: self._uninstall_app(app_data),
             'extract': lambda: self._extract_app(app_data)
         }
         operations.get(operation, lambda: None)()
 
-    def _load_apps(self):
-        if not self.selected_device:
-            QMessageBox.warning(self, "⚠️ Advertencia", "Selecciona un dispositivo primero")
-            return
+    def _load_apps(self, force_load):
+        
+        # Si NO es una carga forzada Y el dispositivo es el mismo que el último Y no son ambos None
+        if not force_load:
+            if self.selected_device is None:
+                pass
+            else:
+                if self.last_device_selected == self.selected_device:
+                        self._set_apps_controls_enabled(True)
+                        return
+                    
+        # Asignamos el dispsotivo seleccionado actual como ultimo seleccionado
+        self.last_device_selected = self.selected_device
         
         # Limpiar lista y mostrar mensaje inmediatamente
         self.apps_list.clear()
@@ -539,6 +551,11 @@ class MainWindow(QMainWindow):
 
     def _perform_apps_loading(self):
         """Realiza la carga de aplicaciones después del delay"""
+        if not self.selected_device:
+            self.show_apps_message("Selecciona un dispositivo primero", "warning")
+            self._set_apps_controls_enabled(True)
+            return
+        
         try:
             app_type = next((
                 key for key, radio in {
@@ -556,7 +573,7 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             self._set_apps_controls_enabled(True)
-            self.show_apps_message(f"Error al iniciar carga: {str(e)}", "error")
+            self.show_apps_message("Error al obtener aplicaciones", "error")
 
     def _uninstall_app(self, app_data):
         if not self._confirm_operation("desinstalar", app_data['name']):
@@ -660,9 +677,6 @@ class MainWindow(QMainWindow):
 
     def on_device_confirmed(self):
         self.handle_device_selection('confirm')
-
-    def load_installed_apps(self):
-        self.handle_app_operations('load')
 
     def uninstall_app(self):
         selected_items = self.apps_list.selectedItems()
