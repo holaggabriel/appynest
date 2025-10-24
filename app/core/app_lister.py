@@ -5,11 +5,13 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class AppLister(BaseAppManager):
     """Clase especializada en listar aplicaciones instaladas"""
+    def __init__(self, adb_manager):
+        super().__init__(adb_manager)
     
     def is_device_connected(self, device_id):
         """Verifica si el dispositivo está conectado y disponible"""
         try:
-            adb_path = self.config_manager.get_adb_path()
+            adb_path = self.adb_manager.get_adb_path()
             
             # Verificar estado del dispositivo
             check_result = subprocess.run(

@@ -1,6 +1,5 @@
 import os
 from PyQt6.QtCore import QThread, pyqtSignal
-from .apk_installer import APKInstaller
 
 class UninstallThread(QThread):
     finished_signal = pyqtSignal(bool, str)
@@ -40,14 +39,14 @@ class InstallationThread(QThread):
     progress_update = pyqtSignal(str)
     finished_signal = pyqtSignal(bool, str)
     
-    def __init__(self, apk_paths, device_id):
+    def __init__(self, apk_installer, apk_paths, device_id):
         super().__init__()
+        self.apk_installer = apk_installer
         self.apk_paths = apk_paths
         self.device_id = device_id
     
     def run(self):
         try:
-            installer = APKInstaller()
             total_apks = len(self.apk_paths)
             success_count = 0
             failed_apks = []  # Lista para guardar los errores detallados
@@ -56,7 +55,7 @@ class InstallationThread(QThread):
                 apk_name = os.path.basename(apk_path)
                 self.progress_update.emit(f"Instalando {i}/{total_apks}: {apk_name}...")
                 
-                success, message = installer.install_apk(apk_path, self.device_id)
+                success, message = self.apk_installer.install_apk(apk_path, self.device_id)
                 
                 if success:
                     success_count += 1

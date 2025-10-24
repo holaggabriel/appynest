@@ -1,10 +1,10 @@
 import subprocess
 import os
-from .config_manager import ConfigManager
+from .adb_manager import ADBManager
 
 class APKInstaller:
-    def __init__(self):
-        self.config_manager = ConfigManager()
+    def __init__(self, adb_manager: ADBManager):
+        self.adb_manager = adb_manager
     
     def install_apk(self, apk_path, device_id):
         """Instala un APK en el dispositivo especificado"""
@@ -12,7 +12,7 @@ class APKInstaller:
             if not os.path.exists(apk_path):
                 return False, f"El archivo APK no existe: {apk_path}"
             
-            adb_path = self.config_manager.get_adb_path()
+            adb_path = self.adb_manager.get_adb_path()
             
             # Verificar que el dispositivo sigue conectado
             check_result = subprocess.run(

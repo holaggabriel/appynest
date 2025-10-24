@@ -2,6 +2,8 @@ from .base_app_manager import BaseAppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class AppExtractor(BaseAppManager):
+    def __init__(self, adb_manager):
+        super().__init__(adb_manager)
     def extract_app_apk(self, device_id, apk_path, output_path):
         """Extrae el APK de una aplicación instalada"""
         print_in_debug_mode(f"Extrayendo APK desde {apk_path} a {output_path}")

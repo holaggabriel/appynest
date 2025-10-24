@@ -1,10 +1,10 @@
 import subprocess
-from .config_manager import ConfigManager
+from .adb_manager import ADBManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class BaseAppManager:
-    def __init__(self):
-        self.config_manager = ConfigManager()
+    def __init__(self, adb_manager: ADBManager):
+        self.adb_manager = adb_manager
     
     def extract_app_name_from_package(self, package_name):
         """Extrae un nombre legible de un nombre de paquete Android."""
@@ -27,7 +27,7 @@ class BaseAppManager:
     def execute_adb_command(self, device_id, command_args, timeout=30):
         """Ejecuta comandos ADB de forma segura"""
         try:
-            adb_path = self.config_manager.get_adb_path()
+            adb_path = self.adb_manager.get_adb_path()
             cmd = [adb_path, "-s", device_id] + command_args
             
             print_in_debug_mode(f"Ejecutando: {' '.join(cmd)}")

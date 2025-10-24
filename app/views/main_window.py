@@ -6,7 +6,9 @@ from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
+from app.core.apk_installer import APKInstaller
 from app.core.device_manager import DeviceManager
+from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
 from .styles import DarkTheme
@@ -16,9 +18,11 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.device_manager = DeviceManager()
         self.config_manager = ConfigManager()
-        self.app_manager = AppManager() 
+        self.adb_manager = ADBManager(self.config_manager)
+        self.device_manager = DeviceManager(self.adb_manager)
+        self.app_manager = AppManager(self.adb_manager) 
+        self.apk_installer = APKInstaller(self.adb_manager)
         self.selected_apks = []
         self.selected_device = None
         self.preselected_device = None
@@ -31,7 +35,7 @@ class MainWindow(QMainWindow):
         self.load_devices()
         self.check_adb()
         
-        if not self.device_manager.check_adb_availability():
+        if not self.adb_manager.is_available():
             self.disable_sections_and_show_config()
     
     def init_ui(self):
@@ -102,7 +106,7 @@ class MainWindow(QMainWindow):
     
     def show_section(self, index):
         # Prevenir cambiar de sección si ADB no está disponible
-        if not self.device_manager.check_adb_availability() and index != 2:
+        if not self.adb_manager.is_available() and index != 2:
             QMessageBox.warning(self, "ADB no disponible", 
                             "ADB no está configurado. Configura ADB primero en la sección de Configuración.")
             return
@@ -500,7 +504,7 @@ class MainWindow(QMainWindow):
 
     def _perform_devices_scan(self):
         # Verificar si ADB no está disponible
-        if not self.device_manager.check_adb_availability():
+        if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "error")
             self.device_list.clear()
             self.refresh_devices_btn.setEnabled(True)
@@ -649,7 +653,7 @@ class MainWindow(QMainWindow):
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
             if operation_type == 'uninstall':
-                self.load_installed_apps()
+                self.handle_app_operations('load', force_load=True)
         else:
             QMessageBox.critical(self, "❌ Error", f"Error al {operation_type}:\n{message}")
 
@@ -667,9 +671,9 @@ class MainWindow(QMainWindow):
             self.status_label.setText(status_text)
 
     def check_adb(self):
-        adb_path = self.config_manager.get_adb_path()
+        adb_path = self.adb_manager.get_adb_path()
         
-        if self.device_manager.check_adb_availability():
+        if self.adb_manager.is_available():
             self.adb_status_label.setText("Estado ADB: Disponible")
             display_path = f"Ruta: {self._shorten_path(adb_path) if adb_path else 'Predeterminada'}"
             self.adb_path_label.setText(display_path)
@@ -730,7 +734,7 @@ class MainWindow(QMainWindow):
         self.install_btn.setEnabled(False)
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
-        self.installation_thread = InstallationThread(self.selected_apks, self.selected_device)
+        self.installation_thread = InstallationThread(self.apk_installer, self.selected_apks, self.selected_device)
         self.installation_thread.progress_update.connect(self.update_progress)
         self.installation_thread.finished_signal.connect(self.installation_finished)
         self.installation_thread.start()

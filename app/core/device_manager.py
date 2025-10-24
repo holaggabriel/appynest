@@ -1,26 +1,16 @@
 import subprocess
-from .config_manager import ConfigManager
+from .adb_manager import ADBManager
 
 class DeviceManager:
-    def __init__(self):
-        self.config_manager = ConfigManager()
-    
-    def check_adb_availability(self):
-        """Verifica si ADB está disponible en el sistema"""
-        try:
-            adb_path = self.config_manager.get_adb_path()
-            result = subprocess.run([adb_path, "version"], 
-                                  capture_output=True, text=True, timeout=10)
-            return result.returncode == 0
-        except:
-            return False
+    def __init__(self, adb_manager: ADBManager):
+        self.adb_manager = adb_manager
     
     def get_connected_devices(self):
         """Obtiene la lista de dispositivos conectados"""
         devices = []
         
         try:
-            adb_path = self.config_manager.get_adb_path()
+            adb_path = self.adb_manager.get_adb_path()
             result = subprocess.run([adb_path, "devices", "-l"], 
                                   capture_output=True, text=True, timeout=10)
             
@@ -53,7 +43,7 @@ class DeviceManager:
     def get_device_info(self, device_id):
         """Obtiene información detallada de un dispositivo"""
         try:
-            adb_path = self.config_manager.get_adb_path()
+            adb_path = self.adb_manager.get_adb_path()
             # Obtener modelo
             model_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.model"],
