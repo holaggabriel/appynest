@@ -187,11 +187,6 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(10)
         left_layout.setContentsMargins(0, 0, 0, 0)
         
-        apps_title = QLabel("APLICACIONES INSTALADAS")
-        apps_title.setStyleSheet(self.styles['label_section_header'])
-        apps_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        left_layout.addWidget(apps_title)
-        
         controls_layout = QHBoxLayout()
         controls_layout.setContentsMargins(0, 0, 0, 0)
         controls_layout.setSpacing(8)
@@ -257,7 +252,7 @@ class MainWindow(QMainWindow):
         self.app_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         app_details_layout.addWidget(self.app_info_label)
         
-        self.uninstall_btn = QPushButton("Desinstalar Aplicación")
+        self.uninstall_btn = QPushButton("Desinstalar")
         self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
