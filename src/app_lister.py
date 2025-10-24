@@ -6,9 +6,59 @@ from utils.print_in_debug_mode import print_in_debug_mode
 class AppLister(BaseAppManager):
     """Clase especializada en listar aplicaciones instaladas"""
     
+    def is_device_connected(self, device_id):
+        """Verifica si el dispositivo está conectado y disponible"""
+        try:
+            adb_path = self.config_manager.get_adb_path()
+            
+            # Verificar estado del dispositivo
+            check_result = subprocess.run(
+                [adb_path, "-s", device_id, "get-state"],
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            
+            # También podemos verificar con devices para mayor seguridad
+            devices_result = subprocess.run(
+                [adb_path, "devices"],
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            
+            # Verificar si el dispositivo está en la lista de dispositivos conectados
+            if devices_result.returncode == 0:
+                devices_list = devices_result.stdout.strip().split('\n')[1:]  # Saltar la línea de encabezado
+                connected_devices = [line.split('\t')[0] for line in devices_list if line.strip() and 'device' in line]
+                
+                if device_id in connected_devices and check_result.returncode == 0:
+                    return True
+            
+            return False
+            
+        except subprocess.TimeoutExpired:
+            print_in_debug_mode(f"Timeout al verificar conexión del dispositivo {device_id}")
+            return False
+        except Exception as e:
+            print_in_debug_mode(f"Error al verificar conexión del dispositivo {device_id}: {e}")
+            return False
+
     def get_installed_apps_by_type(self, device_id, app_type="all"):
         """Obtiene aplicaciones según el tipo especificado"""
         print_in_debug_mode(f"Obteniendo aplicaciones tipo '{app_type}' para dispositivo {device_id}")
+        
+        # Verificar si el dispositivo está conectado antes de proceder
+        if not self.is_device_connected(device_id):
+            error_msg = f"El dispositivo {device_id} no está conectado o disponible"
+            print_in_debug_mode(f"Error: {error_msg}")
+            return {
+                'success': False,
+                'message': error_msg,
+                'data': {
+                    'apps': []
+                }
+            }
         
         try:
             # Determinar comando según tipo
@@ -24,8 +74,15 @@ class AppLister(BaseAppManager):
             result = self.execute_adb_command(device_id, cmd_args)
             
             if not result['success']:
-                print_in_debug_mode(f"Error en comando ADB: {result.get('error')}")
-                return []
+                error_msg = f"Error en comando ADB: {result.get('error')}"
+                print_in_debug_mode(error_msg)
+                return {
+                    'success': False,
+                    'message': error_msg,
+                    'data': {
+                        'apps': []
+                    }
+                }
             
             apps = []
             lines = result['stdout'].strip().split('\n')
@@ -50,11 +107,26 @@ class AppLister(BaseAppManager):
             
             print_in_debug_mode(f"Se procesaron {len(apps)} aplicaciones correctamente")
             apps.sort(key=lambda x: x['name'].lower())
-            return apps
+            
+            success_msg = f"Se obtuvieron {len(apps)} aplicaciones tipo '{app_type}' correctamente"
+            return {
+                'success': True,
+                'message': success_msg,
+                'data': {
+                    'apps': apps
+                }
+            }
             
         except Exception as e:
-            print_in_debug_mode(f"Error inesperado al obtener aplicaciones: {e}")
-            return []
+            error_msg = f"Error inesperado al obtener aplicaciones: {e}"
+            print_in_debug_mode(error_msg)
+            return {
+                'success': False,
+                'message': error_msg,
+                'data': {
+                    'apps': []
+                }
+            }
     
     def get_installed_apps(self, device_id, include_system=False):
         """Método legacy - mantener para compatibilidad"""
@@ -108,12 +180,31 @@ class AppLister(BaseAppManager):
     
     def get_apps_by_name(self, device_id, app_name, app_type="all"):
         """Busca aplicaciones por nombre"""
-        all_apps = self.get_installed_apps_by_type(device_id, app_type)
+        result = self.get_installed_apps_by_type(device_id, app_type)
+        
+        # Si hubo error al obtener las apps, retornar el mismo error
+        if not result['success']:
+            return result
+        
+        # Filtrar aplicaciones por nombre
+        all_apps = result['data']['apps']
         matching_apps = [
             app for app in all_apps 
             if app_name.lower() in app['name'].lower() or app_name.lower() in app['package_name'].lower()
         ]
-        return matching_apps
+        
+        if matching_apps:
+            message = f"Se encontraron {len(matching_apps)} aplicaciones que coinciden con '{app_name}'"
+        else:
+            message = f"No se encontraron aplicaciones que coincidan con '{app_name}'"
+        
+        return {
+            'success': True,
+            'message': message,
+            'data': {
+                'apps': matching_apps
+            }
+        }
     
     def get_system_apps(self, device_id):
         """Obtiene solo aplicaciones del sistema"""

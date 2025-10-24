@@ -670,14 +670,23 @@ class MainWindow(QMainWindow):
             self.load_devices()
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
-    def on_apps_loaded(self, apps):
+    def on_apps_loaded(self, result):
         self.refresh_apps_btn.setEnabled(True)
         self.all_apps_radio.setEnabled(True)
         self.user_apps_radio.setEnabled(True)
         self.system_apps_radio.setEnabled(True)
         
         self.apps_list.clear()
-        if not apps: return
+        
+        # Verificar si fue exitoso
+        if not result['success']:
+            QMessageBox.warning(self, "Advertencia", result['message'])
+            return
+        
+        apps = result['data']['apps']
+        if not apps: 
+            QMessageBox.information(self, "Información", "No se encontraron aplicaciones")
+            return
         
         for app in apps:
             item = QListWidgetItem()
