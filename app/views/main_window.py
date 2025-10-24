@@ -4,8 +4,8 @@ from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
                              QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QMimeData
+from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
 from app.core.device_manager import DeviceManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
@@ -118,6 +118,10 @@ class MainWindow(QMainWindow):
     
     def setup_install_section(self):
         widget = QWidget()
+        widget.setAcceptDrops(True)  # ✅ Habilitar drag & drop en todo el widget
+        widget.dragEnterEvent = self.install_section_drag_enter_event  # ✅ Asignar evento
+        widget.dropEvent = self.install_section_drop_event  # ✅ Asignar evento
+        
         layout = QVBoxLayout(widget)
         layout.setSpacing(12)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -131,6 +135,7 @@ class MainWindow(QMainWindow):
         self.apk_list.setStyleSheet(self.styles['list_main_widget'])
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
+        # ❌ QUITAR la configuración de drag & drop de la lista individual
         layout.addWidget(self.apk_list)
         
         apk_buttons_layout = QHBoxLayout()
@@ -759,3 +764,27 @@ class MainWindow(QMainWindow):
         self.uninstall_btn.setEnabled(enabled)
         self.extract_apk_btn.setEnabled(enabled)
         self.apps_list.setEnabled(enabled)
+
+    def install_section_drag_enter_event(self, event: QDragEnterEvent):
+        """Manejar drag sobre toda la sección de instalación"""
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            # Verificar que al menos un archivo sea APK
+            if any(url.toLocalFile().lower().endswith('.apk') for url in urls):
+                event.acceptProposedAction()
+
+    def install_section_drop_event(self, event: QDropEvent):
+        """Manejar drop sobre toda la sección de instalación"""
+        if event.mimeData().hasUrls():
+            apk_files = []
+            for url in event.mimeData().urls():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith('.apk'):
+                    apk_files.append(file_path)
+            
+            if apk_files:
+                self.selected_apks = list(set(self.selected_apks + apk_files))
+                self.update_apk_list_display()
+                self.update_install_button()
+            
+            event.acceptProposedAction()
