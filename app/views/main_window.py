@@ -215,6 +215,14 @@ class MainWindow(QMainWindow):
         
         left_layout.addLayout(controls_layout)
         
+        # Indicador de carga y mensajes
+        self.apps_message_label = QLabel()
+        self.apps_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.apps_message_label.setStyleSheet(self.styles['status_info_message'])
+        self.apps_message_label.setVisible(False)
+        self.apps_message_label.setWordWrap(True)
+        left_layout.addWidget(self.apps_message_label)
+        
         self.apps_list = QListWidget()
         self.apps_list.setStyleSheet(self.styles['list_main_widget'])
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
@@ -488,10 +496,11 @@ class MainWindow(QMainWindow):
 
     def _load_apps(self):
         if not self.selected_device:
-            QMessageBox.warning(self, "⚠️ Advertencia", "Selecciona un dispositivo primero")
+            self.show_apps_message("Selecciona un dispositivo primero", "warning")
             return
         
         self.apps_list.clear()
+        self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         
         app_type = next((
             key for key, radio in {
@@ -670,29 +679,24 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def on_apps_loaded(self, result):
-        self.refresh_apps_btn.setEnabled(True)
-        self.all_apps_radio.setEnabled(True)
-        self.user_apps_radio.setEnabled(True)
-        self.system_apps_radio.setEnabled(True)
-        
+        self._set_apps_controls_enabled(True)
         self.apps_list.clear()
         
-        # Verificar si fue exitoso
-        if not result['success']:
-            QMessageBox.warning(self, "Advertencia", result['message'])
-            return
-        
-        apps = result['data']['apps']
-        if not apps: 
-            QMessageBox.information(self, "Información", "No se encontraron aplicaciones")
-            return
-        
-        for app in apps:
-            item = QListWidgetItem()
-            item_text = f"{app['name']}\n📦 {app['package_name']}\n🏷️ {app['version']}"
-            item.setText(item_text)
-            item.setData(Qt.ItemDataRole.UserRole, app)
-            self.apps_list.addItem(item)
+        # Ocultar mensaje si la carga fue exitosa y hay aplicaciones
+        if result['success']:
+            apps = result['data']['apps']
+            if apps:
+                self.hide_apps_message()  # Ocultar mensaje cuando hay apps
+                for app in apps:
+                    item = QListWidgetItem()
+                    item_text = f"{app['name']}\n📦 {app['package_name']}\n🏷️ {app['version']}"
+                    item.setText(item_text)
+                    item.setData(Qt.ItemDataRole.UserRole, app)
+                    self.apps_list.addItem(item)
+            else:
+                self.show_apps_message("No se encontraron aplicaciones", "info")
+        else:
+            self.show_apps_message(f"{result['message']}", "error")
 
     def on_app_selected(self):
         selected_items = self.apps_list.selectedItems()
@@ -783,3 +787,20 @@ class MainWindow(QMainWindow):
                 self.update_install_button()
             
             event.acceptProposedAction()
+
+    def show_apps_message(self, message, message_type="info"):
+        """Muestra mensajes en el label entre radio buttons y lista"""
+        style_map = {
+            "info": self.styles['status_info_message'],
+            "warning": self.styles['status_warning_message'], 
+            "error": self.styles['status_error_message'],
+            "success": self.styles['status_success_message']
+        }
+        
+        self.apps_message_label.setText(message)
+        self.apps_message_label.setStyleSheet(style_map.get(message_type, self.styles['status_info_message']))
+        self.apps_message_label.setVisible(True)
+
+    def hide_apps_message(self):
+        """Oculta el mensaje (cuando hay aplicaciones en la lista)"""
+        self.apps_message_label.setVisible(False)
