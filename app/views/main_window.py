@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.styles = DarkTheme.get_all_styles()
         self.last_device_selected = None
         self.last_section_index = None
+        self.app_list_update_attempts = 0
         self.init_ui()
         self.load_devices()
         self.check_adb()
@@ -538,7 +539,11 @@ class MainWindow(QMainWindow):
         
         # Si NO es una carga forzada Y el dispositivo es el mismo que el último Y no son ambos None
         if not force_load:
-            if self.selected_device is None:
+            if self.selected_device is None and self.app_list_update_attempts == 0:
+                # Esto es para evitar que cada vez que se cambie de seccion 
+                # se actualice la lista solo porque el dipositivo seleccionado es none
+                # así solo una vez se va a actualizar
+                self.app_list_update_attempts += 1
                 pass
             else:
                 if self.last_device_selected == self.selected_device:
