@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
                              QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
-from PyQt6.QtCore import Qt, QMimeData
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
 from app.core.device_manager import DeviceManager
 from app.core.config_manager import ConfigManager
@@ -329,7 +329,7 @@ class MainWindow(QMainWindow):
         layout.addStretch()
         
         return widget
-
+    
     def setup_devices_panel(self):
         panel = QFrame()
         panel.setStyleSheet(self.styles['sidebar_main_panel'])
@@ -366,6 +366,13 @@ class MainWindow(QMainWindow):
         device_label = QLabel("Dispositivos Conectados:")
         device_label.setStyleSheet(self.styles['label_title_text'])
         layout.addWidget(device_label)
+        
+        self.devices_message_label = QLabel()
+        self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.devices_message_label.setStyleSheet(self.styles['status_info_message'])
+        self.devices_message_label.setVisible(False)
+        self.devices_message_label.setWordWrap(True)
+        layout.addWidget(self.devices_message_label)
         
         self.device_list = QListWidget()
         self.device_list.setStyleSheet(self.styles['list_main_widget'])
@@ -459,7 +466,19 @@ class MainWindow(QMainWindow):
     def _extract_device_id(self, device_text):
         return device_text.split(" - ")[1] if " - " in device_text else device_text
 
+    def execute_after_delay(self, callback, delay_ms=500):
+        """Ejecuta un callback después de un delay especificado"""
+        QTimer.singleShot(delay_ms, callback)
+
     def load_devices(self):
+        # Mostrar mensaje de actualización inmediatamente
+        self.show_devices_message("Actualizando lista de dispositivos...", "info")
+        
+        # Usar el método helper para el delay
+        self.execute_after_delay(self._perform_devices_scan, 500)
+
+    def _perform_devices_scan(self):
+        """Realiza el escaneo de dispositivos después del delay"""
         self.device_list.clear()
         devices = self.device_manager.get_connected_devices()
         
@@ -469,6 +488,12 @@ class MainWindow(QMainWindow):
         if self.selected_device not in [d['device'] for d in devices]:
             self.selected_device = None
 
+        # Ocultar mensaje si hay dispositivos, mostrar si no hay
+        if devices:
+            self.hide_devices_message()
+        else:
+            self.show_devices_message("No se encontraron dispositivos conectados", "info")
+        
         self.update_device_status_emoji()
         self.update_install_button()
 
@@ -804,3 +829,20 @@ class MainWindow(QMainWindow):
     def hide_apps_message(self):
         """Oculta el mensaje (cuando hay aplicaciones en la lista)"""
         self.apps_message_label.setVisible(False)
+
+    def show_devices_message(self, message, message_type="info"):
+        """Muestra mensajes en el label entre el título y la lista de dispositivos"""
+        style_map = {
+            "info": self.styles['status_info_message'],
+            "warning": self.styles['status_warning_message'], 
+            "error": self.styles['status_error_message'],
+            "success": self.styles['status_success_message']
+        }
+        
+        self.devices_message_label.setText(message)
+        self.devices_message_label.setStyleSheet(style_map.get(message_type, self.styles['status_info_message']))
+        self.devices_message_label.setVisible(True)
+
+    def hide_devices_message(self):
+        """Oculta el mensaje de dispositivos (cuando hay dispositivos en la lista)"""
+        self.devices_message_label.setVisible(False)
