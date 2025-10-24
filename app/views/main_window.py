@@ -526,27 +526,37 @@ class MainWindow(QMainWindow):
 
     def _load_apps(self):
         if not self.selected_device:
-            self.show_apps_message("Selecciona un dispositivo primero", "warning")
+            QMessageBox.warning(self, "⚠️ Advertencia", "Selecciona un dispositivo primero")
             return
         
+        # Limpiar lista y mostrar mensaje inmediatamente
         self.apps_list.clear()
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
-        
-        app_type = next((
-            key for key, radio in {
-                "all": self.all_apps_radio,
-                "user": self.user_apps_radio, 
-                "system": self.system_apps_radio
-            }.items() if radio.isChecked()
-        ), "user")
-        
-        self.apps_loading_thread = AppsLoadingThread(
-            self.app_manager, self.selected_device, app_type
-        )
-        self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
-        self.apps_loading_thread.start()
-        
         self._set_apps_controls_enabled(False)
+        
+        # Usar el método helper para el delay antes de iniciar el thread
+        self.execute_after_delay(self._perform_apps_loading, 500)
+
+    def _perform_apps_loading(self):
+        """Realiza la carga de aplicaciones después del delay"""
+        try:
+            app_type = next((
+                key for key, radio in {
+                    "all": self.all_apps_radio,
+                    "user": self.user_apps_radio, 
+                    "system": self.system_apps_radio
+                }.items() if radio.isChecked()
+            ), "user")
+            
+            self.apps_loading_thread = AppsLoadingThread(
+                self.app_manager, self.selected_device, app_type
+            )
+            self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
+            self.apps_loading_thread.start()
+            
+        except Exception as e:
+            self._set_apps_controls_enabled(True)
+            self.show_apps_message(f"Error al iniciar carga: {str(e)}", "error")
 
     def _uninstall_app(self, app_data):
         if not self._confirm_operation("desinstalar", app_data['name']):
