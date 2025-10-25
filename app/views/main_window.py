@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
-                             QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy)
+                             QFrame, QRadioButton, QListWidgetItem, QStackedWidget, QSizePolicy, QLineEdit)
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont, QDragEnterEvent, QDropEvent
 from app.core.apk_installer import APKInstaller
@@ -31,6 +31,8 @@ class MainWindow(QMainWindow):
         self.last_device_selected = None
         self.last_section_index = None
         self.app_list_update_attempts = 0
+        self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
+        self.filtered_apps_data = []  # Aplicaciones filtradas
         self.init_ui()
         self.load_devices()
         self.update_adb_status()
@@ -223,21 +225,40 @@ class MainWindow(QMainWindow):
         radio_layout = QHBoxLayout()
         self.all_apps_radio = QRadioButton("Todas")
         self.all_apps_radio.setStyleSheet(self.styles['radio_button_default'])
+        self.all_apps_radio.toggled.connect(self.filter_apps_list)
         radio_layout.addWidget(self.all_apps_radio)
         
         self.user_apps_radio = QRadioButton("Usuario")
         self.user_apps_radio.setChecked(True)
         self.user_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
+        self.user_apps_radio.toggled.connect(self.filter_apps_list)
         radio_layout.addWidget(self.user_apps_radio)
         
         self.system_apps_radio = QRadioButton("Sistema")
         self.system_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
+        self.system_apps_radio.toggled.connect(self.filter_apps_list)
         radio_layout.addWidget(self.system_apps_radio)
         
         controls_layout.addLayout(radio_layout)
         controls_layout.addStretch()
         
         left_layout.addLayout(controls_layout)
+        
+        # SECCIÓN DE BÚSQUEDA
+        search_layout = QHBoxLayout()
+        search_layout.setSpacing(8)
+        
+        self.search_label = QLabel("Buscar:")
+        self.search_label.setStyleSheet(self.styles['label_section_header'])
+        search_layout.addWidget(self.search_label)
+        
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Buscar por nombre o paquete...")
+        self.search_input.setStyleSheet(self.styles['label_title_text'])
+        self.search_input.textChanged.connect(self.filter_apps_list)
+        search_layout.addWidget(self.search_input)
+        
+        left_layout.addLayout(search_layout)
         
         # Indicador de carga y mensajes
         self.apps_message_label = QLabel()
@@ -314,7 +335,7 @@ class MainWindow(QMainWindow):
         
         main_horizontal_layout.setStretchFactor(left_panel, 3)
         main_horizontal_layout.setStretchFactor(right_panel, 2)
-        
+          
         return widget
     
     def setup_config_section(self):
@@ -597,6 +618,8 @@ class MainWindow(QMainWindow):
         
         # Limpiar lista y mostrar mensaje inmediatamente
         self.apps_list.clear()
+        self.search_input.setEnabled(False)
+        self.search_label.setEnabled(False)
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         self._set_apps_controls_enabled(False)
         
@@ -736,9 +759,15 @@ class MainWindow(QMainWindow):
 
     def _set_apps_controls_enabled(self, enabled):
         controls = [self.refresh_apps_btn, self.all_apps_radio, 
-                   self.user_apps_radio, self.system_apps_radio]
+                self.user_apps_radio, self.system_apps_radio]
         for control in controls:
             control.setEnabled(enabled)
+        
+        has_apps = hasattr(self, 'all_apps_data') and len(self.all_apps_data) > 0
+        search_enabled = enabled and has_apps
+        
+        self.search_input.setEnabled(search_enabled)
+        self.search_label.setEnabled(search_enabled)
 
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
 
@@ -812,25 +841,30 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def on_apps_loaded(self, result):
-        self._set_apps_controls_enabled(True)
+        self._set_apps_controls_enabled(True)  # ✅ Esto ahora maneja automáticamente la búsqueda
         self.apps_list.clear()
         
-        # Ocultar mensaje si la carga fue exitosa y hay aplicaciones
         if result['success']:
             apps = result['data']['apps']
-            if apps:
-                self.hide_apps_message()  # Ocultar mensaje cuando hay apps
-                for app in apps:
-                    item = QListWidgetItem()
-                    item_text = f"{app['name']}\n📦 {app['package_name']}\n🏷️ {app['version']}"
-                    item.setText(item_text)
-                    item.setData(Qt.ItemDataRole.UserRole, app)
-                    self.apps_list.addItem(item)
-            else:
-                self.show_apps_message("No se encontraron aplicaciones", "info")
+            # Guardar todas las aplicaciones cargadas
+            self.all_apps_data = apps
+            
+            # Aplicar filtros iniciales
+            self.filter_apps_list()
+            
+            # ✅ HABILITAR BÚSQUEDA EXPLÍCITAMENTE CUANDO HAY APLICACIONES
+            has_apps = len(self.all_apps_data) > 0
+            self.search_input.setEnabled(has_apps)
+            self.search_label.setEnabled(has_apps)
+            
         else:
+            self.all_apps_data = []
+            self.filtered_apps_data = []
             self.show_apps_message(f"{result['message']}", "error")
-
+            # ✅ DESHABILITAR BÚSQUEDA CUANDO NO HAY APLICACIONES
+            self.search_input.setEnabled(False)
+            self.search_label.setEnabled(False)
+            
     def on_app_selected(self):
         selected_items = self.apps_list.selectedItems()
         
@@ -985,3 +1019,68 @@ class MainWindow(QMainWindow):
         
         # Mostrar mensaje en panel de dispositivos
         self.show_devices_message("ADB no está configurado", "error")
+
+    def filter_apps_list(self):
+        """Filtra la lista de aplicaciones según el texto de búsqueda y tipo seleccionado"""
+        if not hasattr(self, 'all_apps_data') or not self.all_apps_data:
+            # Si no hay aplicaciones, deshabilitar búsqueda
+            self.search_input.setEnabled(False)
+            self.search_label.setEnabled(False)
+            return
+        
+        # Habilitar búsqueda si hay aplicaciones
+        self.search_input.setEnabled(True)
+        self.search_label.setEnabled(True)
+        
+        # Obtener texto de búsqueda y convertirlo a minúsculas
+        search_text = self.search_input.text().lower().strip()
+        
+        # Determinar el tipo de aplicaciones a mostrar
+        if self.all_apps_radio.isChecked():
+            app_type = "all"
+        elif self.system_apps_radio.isChecked():
+            app_type = "system" 
+        else:  # user_apps_radio por defecto
+            app_type = "user"
+        
+        # Filtrar aplicaciones
+        self.filtered_apps_data = []
+        for app in self.all_apps_data:
+            # Filtrar por tipo primero
+            type_match = (
+                app_type == "all" or
+                (app_type == "user" and not app.get('is_system', False)) or
+                (app_type == "system" and app.get('is_system', False))
+            )
+            
+            # Luego filtrar por texto de búsqueda
+            search_match = (
+                not search_text or
+                search_text in app['name'].lower() or
+                search_text in app['package_name'].lower()
+            )
+            
+            if type_match and search_match:
+                self.filtered_apps_data.append(app)
+        
+        # Actualizar la lista visual
+        self.update_apps_list_display()
+
+    def update_apps_list_display(self):
+        """Actualiza la visualización de la lista de aplicaciones"""
+        self.apps_list.clear()
+        
+        for app in self.filtered_apps_data:
+            item = QListWidgetItem()
+            item_text = f"{app['name']}\n📦 {app['package_name']}\n🏷️ {app['version']}"
+            item.setText(item_text)
+            item.setData(Qt.ItemDataRole.UserRole, app)
+            self.apps_list.addItem(item)
+        
+        # Mostrar mensaje si no hay resultados
+        if not self.filtered_apps_data and self.all_apps_data:
+            self.show_apps_message("No se encontró alguna coincidencia", "info")
+        elif not self.filtered_apps_data:
+            self.show_apps_message("No hay aplicaciones para mostrar", "info")
+        else:
+            self.hide_apps_message()

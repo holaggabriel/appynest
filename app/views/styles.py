@@ -340,11 +340,11 @@ class DarkTheme:
                 }}
             """,
             
-            'text_edit_default': f"""
+            'text_input_default': f"""
                 QTextEdit {{
                     background-color: {colors['window']};
                     color: {colors['text']};
-                    border: 1px solid {colors['border']};
+                    border: 1px solid {colors['highlight']};
                     border-radius: 4px;
                     padding: 6px 8px;
                     font-size: 11px;
