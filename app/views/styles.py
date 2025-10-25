@@ -350,6 +350,7 @@ class DarkTheme:
                     border-radius: 4px;
                     font-size: 11px;
                     font-weight: bold;
+                    border: none;
                 }}
             """,
             
@@ -361,6 +362,7 @@ class DarkTheme:
                     border-radius: 4px;
                     font-size: 11px;
                     font-weight: bold;
+                    border: none;
                 }}
             """,
             
@@ -371,6 +373,7 @@ class DarkTheme:
                     padding: 10px;
                     border-radius: 4px;
                     font-size: 11px;
+                    border: none;
                 }}
             """,
             
@@ -382,6 +385,7 @@ class DarkTheme:
                     border-radius: 4px;
                     font-size: 11px;
                     font-weight: bold;
+                    border: none;
                 }}
             """,
             
