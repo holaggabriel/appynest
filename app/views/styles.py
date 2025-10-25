@@ -58,17 +58,6 @@ class DarkTheme:
                 }}
             """,
             
-            # ===== SIDEBAR - ESTILOS ESPECÍFICOS =====
-            'sidebar_main_panel': f"""
-                QFrame {{
-                    background-color: {colors['window']};
-                    color: {colors['text']};
-                    border: none;
-                    border-radius: 6px;
-                    padding: 8px;
-                }}
-            """,
-            
             # ===== LISTAS =====
             'list_main_widget': f"""
                 QListWidget {{
@@ -205,25 +194,6 @@ class DarkTheme:
                 QPushButton:disabled {{
                     background-color: {colors['success_disabled']};
                     color: {colors['success_disabled_text']};
-                }}
-            """,
-            
-            # ===== ETIQUETAS =====
-            'label_default_text': f"""
-                QLabel {{
-                    color: {colors['text']};
-                    background: transparent;
-                    font-size: 11px;
-                }}
-            """,
-            
-            'label_title_text': f"""
-                QLabel {{
-                    color: #cccccc;
-                    font-weight: bold;
-                    font-size: 12px;
-                    background: transparent;
-                    border: 1px solid {colors['border']};
                 }}
             """,
             
