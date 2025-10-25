@@ -704,11 +704,10 @@ class MainWindow(QMainWindow):
             self.status_label.setText(status_text)
 
     def update_adb_status(self):
-        # Deshabilitar botón y mostrar label de verificación
         self.update_adb_btn.setEnabled(False)
+        self.verifying_label.setText("Verificando disponibilidad del ADB...")
+        self.verifying_label.setStyleSheet(self.styles['status_info_message'])
         self.verifying_label.setVisible(True)
-        
-        # Usar el método helper para el delay
         self.execute_after_delay(self._perform_adb_check, 500)
 
     def _perform_adb_check(self):
@@ -721,22 +720,29 @@ class MainWindow(QMainWindow):
                 display_path = f"Ruta: {self._shorten_path(adb_path)}"
                 self.adb_path_label.setText(display_path)
                 self.enable_all_sections()
+                self.verifying_label.setStyleSheet(self.styles['status_success_message'])
+                self.verifying_label.setVisible(False)
                 
             else:
                 self.adb_status_label.setText("Estado ADB: No disponible")
                 self.adb_path_label.setText("Ruta: No encontrada")
                 self.disable_sections_and_show_config()
+                self.verifying_label.setText("ADB no disponible - Verifica la configuración")
+                self.verifying_label.setStyleSheet(self.styles['status_warning_message'])
+                self.verifying_label.setVisible(True)
         
         except Exception as e:
             # Captura cualquier error inesperado
             self.adb_status_label.setText("Estado ADB: No disponible")
             self.adb_path_label.setText("Ruta: No encontrada")
             self.disable_sections_and_show_config()
+            self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
+            self.verifying_label.setStyleSheet(self.styles['status_error_message']) 
+            self.verifying_label.setVisible(True)
         
         finally:
-            # Restaurar estado del botón y ocultar label de verificación
+            # Restaurar estado del botón (siempre habilitar el botón de verificar)
             self.update_adb_btn.setEnabled(True)
-            self.verifying_label.setVisible(False)
 
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
@@ -831,6 +837,10 @@ class MainWindow(QMainWindow):
         if file_path:
             self.config_manager.set_adb_path(file_path)
             self.device_manager = DeviceManager(self.adb_manager)
+            self.verifying_label.setText("Verificando nueva ruta de ADB...")
+            self.verifying_label.setStyleSheet(self.styles['status_info_message'])
+            self.verifying_label.setVisible(True)
+            
             self.update_adb_status()
             self.load_devices()
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
