@@ -69,44 +69,6 @@ class DarkTheme:
                 }}
             """,
             
-            'sidebar_section_frame': f"""
-                QFrame {{
-                    background-color: {colors['window']};
-                    color: {colors['text']};
-                    border: 1px solid {colors['border']};
-                    border-radius: 6px;
-                    padding: 12px;
-                }}
-            """,
-            
-            # ===== PESTAÑAS =====
-            'tab_main_widget': f"""
-                QTabWidget::pane {{
-                    border: 1px solid {colors['border']};
-                    background-color: {colors['window']};
-                    border-radius: 4px;
-                }}
-                QTabWidget::tab-bar {{
-                    alignment: center;
-                }}
-                QTabBar::tab {{
-                    background-color: {colors['button']};
-                    color: {colors['button_text']};
-                    padding: 8px 16px;
-                    margin: 2px;
-                    border: none;
-                    border-radius: 4px;
-                    min-width: 80px;
-                }}
-                QTabBar::tab:selected {{
-                    background-color: {colors['highlight']};
-                    color: white;
-                }}
-                QTabBar::tab:hover:!selected {{
-                    background-color: #505050;
-                }}
-            """,
-            
             # ===== LISTAS =====
             'list_main_widget': f"""
                 QListWidget {{
@@ -145,25 +107,6 @@ class DarkTheme:
                     border-radius: 4px;
                     font-weight: 500;
                     font-size: 11px;
-                }}
-                QPushButton:hover {{
-                    background-color: {colors['highlight_hover']};
-                }}
-                QPushButton:pressed {{
-                    background-color: {colors['highlight_pressed']};
-                }}
-                QPushButton:disabled {{
-                    background-color: {colors['highlight_disabled']};
-                    color: {colors['highlight_disabled_text']};
-                }}
-            """,
-            
-            'emoji_button': f"""
-                QPushButton {{
-                    background-color: {colors['highlight']};
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
                 }}
                 QPushButton:hover {{
                     background-color: {colors['highlight_hover']};
@@ -297,38 +240,7 @@ class DarkTheme:
                 }}
             """,
             
-            # ===== BARRAS DE PROGRESO =====
-            'progress_bar_default': f"""
-                QProgressBar {{
-                    border: 1px solid {colors['border']};
-                    border-radius: 4px;
-                    text-align: center;
-                    color: {colors['text']};
-                    height: 20px;
-                    font-size: 11px;
-                    background-color: {colors['window']};
-                }}
-                QProgressBar::chunk {{
-                    background-color: {colors['highlight']};
-                    border-radius: 3px;
-                }}
-            """,
-            
             # ===== CAMPOS DE TEXTO =====
-            'line_edit_default': f"""
-                QLineEdit {{
-                    background-color: {colors['window']};
-                    color: {colors['text']};
-                    border: 1px solid {colors['border']};
-                    border-radius: 4px;
-                    padding: 6px 8px;
-                    font-size: 11px;
-                    selection-background-color: {colors['highlight']};
-                }}
-                QLineEdit:focus {{
-                    border: 1px solid {colors['highlight']};
-                }}
-            """,
             
             'text_input_default': f"""
                 QLineEdit {{
@@ -348,26 +260,6 @@ class DarkTheme:
                 QLineEdit:disabled {{
                     color: {colors['placeholder_text_disabled']};
                     border: 1px solid {colors['border_disabled']};
-                }}
-            """,
-            
-            # ===== GRUPOS =====
-            'group_box_default': f"""
-                QGroupBox {{
-                    color: {colors['text']};
-                    font-weight: bold;
-                    border: 1px solid {colors['border']};
-                    border-radius: 6px;
-                    margin-top: 10px;
-                    padding-top: 10px;
-                    font-size: 11px;
-                    background-color: {colors['window']};
-                }}
-                QGroupBox::title {{
-                    subcontrol-origin: margin;
-                    left: 10px;
-                    padding: 0 5px 0 5px;
-                    background-color: {colors['window']};
                 }}
             """,
             
