@@ -61,10 +61,9 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(left_panel)
         
         right_panel = QWidget()
-        right_panel.setStyleSheet(self.styles['content_main_frame'])
         right_layout = QVBoxLayout(right_panel)
         right_layout.setSpacing(10)
-        right_layout.setContentsMargins(15, 15, 15, 15)
+        right_layout.setContentsMargins(0, 0, 0, 0)
         
         nav_buttons_layout = QHBoxLayout()
         nav_buttons_layout.setSpacing(8)
@@ -390,10 +389,9 @@ class MainWindow(QMainWindow):
     
     def setup_devices_panel(self):
         panel = QFrame()
-        panel.setStyleSheet(self.styles['sidebar_main_panel'])
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
-        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         section_title = QLabel("DISPOSITIVOS")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -420,7 +418,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(self.banner_layout)
         
         device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(self.styles['label_title_text'])
+        device_label.setStyleSheet(self.styles['label_section_header'])
         layout.addWidget(device_label)
         
         self.devices_message_label = QLabel()

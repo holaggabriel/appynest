@@ -413,6 +413,7 @@ class DarkTheme:
                     padding: 10px;
                     border-radius: 4px;
                     font-size: 11px;
+                    border: none;
                 }}
             """,
                 
