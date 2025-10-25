@@ -225,18 +225,18 @@ class MainWindow(QMainWindow):
         radio_layout = QHBoxLayout()
         self.all_apps_radio = QRadioButton("Todas")
         self.all_apps_radio.setStyleSheet(self.styles['radio_button_default'])
-        self.all_apps_radio.toggled.connect(self.filter_apps_list)
+        self.all_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.all_apps_radio)
         
         self.user_apps_radio = QRadioButton("Usuario")
         self.user_apps_radio.setChecked(True)
         self.user_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
-        self.user_apps_radio.toggled.connect(self.filter_apps_list)
+        self.user_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.user_apps_radio)
         
         self.system_apps_radio = QRadioButton("Sistema")
         self.system_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
-        self.system_apps_radio.toggled.connect(self.filter_apps_list)
+        self.system_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.system_apps_radio)
         
         controls_layout.addLayout(radio_layout)
@@ -753,15 +753,27 @@ class MainWindow(QMainWindow):
         return f"...{path[-47:]}" if len(path) > max_length else path
 
     def _set_apps_controls_enabled(self, enabled):
-        controls = [self.refresh_apps_btn, self.all_apps_radio, 
-                self.user_apps_radio, self.system_apps_radio]
-        for control in controls:
-            control.setEnabled(enabled)
+        # Si se deshabilitan, hacerlo inmediatamente
+        if not enabled:
+            self.refresh_apps_btn.setEnabled(False)
+            self.all_apps_radio.setEnabled(False)
+            self.user_apps_radio.setEnabled(False)
+            self.system_apps_radio.setEnabled(False)
+        else:
+            # Si se habilitan, tanto el botón como los radio buttons se habilitan después del delay
+            self.execute_after_delay(lambda: self._enable_apps_controls(), 2500)
         
         has_apps = hasattr(self, 'all_apps_data') and len(self.all_apps_data) > 0
         search_enabled = enabled and has_apps
         
         self.search_input.setEnabled(search_enabled)
+
+    def _enable_apps_controls(self):
+        """Habilita todos los controles de aplicaciones (método auxiliar para el delay)"""
+        self.refresh_apps_btn.setEnabled(True)
+        self.all_apps_radio.setEnabled(True)
+        self.user_apps_radio.setEnabled(True)
+        self.system_apps_radio.setEnabled(True)
 
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
 
@@ -1025,32 +1037,17 @@ class MainWindow(QMainWindow):
         # Obtener texto de búsqueda y convertirlo a minúsculas
         search_text = self.search_input.text().lower().strip()
         
-        # Determinar el tipo de aplicaciones a mostrar
-        if self.all_apps_radio.isChecked():
-            app_type = "all"
-        elif self.system_apps_radio.isChecked():
-            app_type = "system" 
-        else:  # user_apps_radio por defecto
-            app_type = "user"
-        
-        # Filtrar aplicaciones
+        # SIMPLIFICAR: Ya no verificar is_system, solo aplicar búsqueda
         self.filtered_apps_data = []
         for app in self.all_apps_data:
-            # Filtrar por tipo primero
-            type_match = (
-                app_type == "all" or
-                (app_type == "user" and not app.get('is_system', False)) or
-                (app_type == "system" and app.get('is_system', False))
-            )
-            
-            # Luego filtrar por texto de búsqueda
+            # Solo filtrar por texto de búsqueda
             search_match = (
                 not search_text or
                 search_text in app['name'].lower() or
                 search_text in app['package_name'].lower()
             )
             
-            if type_match and search_match:
+            if search_match:
                 self.filtered_apps_data.append(app)
         
         # Actualizar la lista visual
@@ -1074,3 +1071,20 @@ class MainWindow(QMainWindow):
             self.show_apps_message("No hay aplicaciones para mostrar", "info")
         else:
             self.hide_apps_message()
+
+    def on_radio_button_changed(self):
+        """Maneja el cambio de radio buttons, ejecutando solo cuando se activan"""
+        # Solo ejecutar si algún radio button está checked (evita ejecución durante inicialización)
+        if (self.all_apps_radio.isChecked() or 
+            self.user_apps_radio.isChecked() or 
+            self.system_apps_radio.isChecked()):
+            
+            # Usar un timer para evitar múltiples ejecuciones rápidas
+            if hasattr(self, '_radio_timer'):
+                self._radio_timer.stop()
+            
+            self._radio_timer = QTimer()
+            self._radio_timer.setSingleShot(True)
+            self._radio_timer.timeout.connect(lambda: self.handle_app_operations('load', force_load=True))
+            self._radio_timer.start(100)  # 100ms de delay anti-rebote
+        

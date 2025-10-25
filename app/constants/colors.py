@@ -5,6 +5,7 @@ COLORS = {
     'alternate_base': '#242424',
     'tooltip': '#e0e0e0',
     'text': '#ffffff',
+    'text_disabled': '#777777',
     'placeholder_text': '#606060',
     'placeholder_text_disabled': '#505050',
     'button': '#363636',

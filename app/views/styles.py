@@ -383,6 +383,7 @@ class DarkTheme:
             
             # ===== RADIO BUTTONS =====
             'radio_button_default': f"""
+                /* --- QRadioButton base --- */
                 QRadioButton {{
                     color: {colors['text']};
                     background-color: transparent;
@@ -390,23 +391,66 @@ class DarkTheme:
                     font-size: 11px;
                     padding: 4px;
                 }}
-                QRadioButton::indicator {{
+
+                /* --- Estado habilitado (enabled) --- */
+                QRadioButton:enabled {{
+                    color: {colors['text']};
+                }}
+                QRadioButton::indicator:enabled {{
                     width: 16px;
                     height: 16px;
                     border-radius: 8px;
                     border: 2px solid {colors['border']};
                     background-color: {colors['window']};
                 }}
-                QRadioButton::indicator:hover {{
+                QRadioButton::indicator:enabled:hover {{
                     border: 2px solid {colors['highlight']};
+                    background-color: {colors['window']};
+                    border-radius: 8px;
                 }}
-                QRadioButton::indicator:checked {{
+                QRadioButton::indicator:enabled:checked {{
                     border: 2px solid {colors['highlight']};
                     background-color: {colors['highlight']};
+                    border-radius: 8px;
                 }}
-                QRadioButton::indicator:checked:hover {{
+                QRadioButton::indicator:enabled:checked:hover {{
                     border: 2px solid {colors['highlight_hover']};
                     background-color: {colors['highlight_hover']};
+                    border-radius: 8px;
+                }}
+
+                /* --- Estado enfocado (focus) --- */
+                QRadioButton:focus {{
+                    outline: none;
+                    color: {colors['highlight']};
+                }}
+                QRadioButton::indicator:focus {{
+                    border: 2px solid {colors['highlight_hover']};
+                    border-radius: 8px;
+                }}
+
+                /* --- Estado presionado (pressed) --- */
+                QRadioButton::indicator:pressed {{
+                    border: 2px solid {colors['highlight_hover']};
+                    background-color: {colors['highlight_hover']};
+                    border-radius: 8px;
+                }}
+
+                /* --- Estado deshabilitado (disabled) --- */
+                QRadioButton:disabled {{
+                    color: {colors['text_disabled']};
+                }}
+                QRadioButton::indicator:disabled {{
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 8px; /* 🔹 necesario para mantener la forma redonda */
+                    border: 2px solid {colors['border_disabled']};
+                    background-color: {colors['window']};
+                }}
+                QRadioButton::indicator:disabled:checked {{
+                    border-radius: 8px; /* 🔹 también aquí */
+                    border: 2px solid {colors['border_disabled']};
+                    background-color: {colors['highlight_disabled']};
                 }}
             """,
         }
