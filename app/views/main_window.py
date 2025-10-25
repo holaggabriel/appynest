@@ -248,13 +248,9 @@ class MainWindow(QMainWindow):
         search_layout = QHBoxLayout()
         search_layout.setSpacing(8)
         
-        self.search_label = QLabel("Buscar:")
-        self.search_label.setStyleSheet(self.styles['label_section_header'])
-        search_layout.addWidget(self.search_label)
-        
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar por nombre o paquete...")
-        self.search_input.setStyleSheet(self.styles['label_title_text'])
+        self.search_input.setStyleSheet(self.styles['text_input_default'])
         self.search_input.textChanged.connect(self.filter_apps_list)
         search_layout.addWidget(self.search_input)
         
@@ -619,7 +615,6 @@ class MainWindow(QMainWindow):
         # Limpiar lista y mostrar mensaje inmediatamente
         self.apps_list.clear()
         self.search_input.setEnabled(False)
-        self.search_label.setEnabled(False)
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         self._set_apps_controls_enabled(False)
         
@@ -767,7 +762,6 @@ class MainWindow(QMainWindow):
         search_enabled = enabled and has_apps
         
         self.search_input.setEnabled(search_enabled)
-        self.search_label.setEnabled(search_enabled)
 
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
 
@@ -855,7 +849,6 @@ class MainWindow(QMainWindow):
             # ✅ HABILITAR BÚSQUEDA EXPLÍCITAMENTE CUANDO HAY APLICACIONES
             has_apps = len(self.all_apps_data) > 0
             self.search_input.setEnabled(has_apps)
-            self.search_label.setEnabled(has_apps)
             
         else:
             self.all_apps_data = []
@@ -863,7 +856,6 @@ class MainWindow(QMainWindow):
             self.show_apps_message(f"{result['message']}", "error")
             # ✅ DESHABILITAR BÚSQUEDA CUANDO NO HAY APLICACIONES
             self.search_input.setEnabled(False)
-            self.search_label.setEnabled(False)
             
     def on_app_selected(self):
         selected_items = self.apps_list.selectedItems()
@@ -1025,12 +1017,10 @@ class MainWindow(QMainWindow):
         if not hasattr(self, 'all_apps_data') or not self.all_apps_data:
             # Si no hay aplicaciones, deshabilitar búsqueda
             self.search_input.setEnabled(False)
-            self.search_label.setEnabled(False)
             return
         
         # Habilitar búsqueda si hay aplicaciones
         self.search_input.setEnabled(True)
-        self.search_label.setEnabled(True)
         
         # Obtener texto de búsqueda y convertirlo a minúsculas
         search_text = self.search_input.text().lower().strip()

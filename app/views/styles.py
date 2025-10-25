@@ -341,17 +341,23 @@ class DarkTheme:
             """,
             
             'text_input_default': f"""
-                QTextEdit {{
-                    background-color: {colors['window']};
+                QLineEdit {{
                     color: {colors['text']};
-                    border: 1px solid {colors['highlight']};
+                    font-size: 12px;
+                    padding: 5px;
+                    background-color: {colors['window']};
+                    border: 1px solid {colors['border']};
                     border-radius: 4px;
-                    padding: 6px 8px;
-                    font-size: 11px;
-                    selection-background-color: {colors['highlight']};
                 }}
-                QTextEdit:focus {{
+                QLineEdit::placeholder {{
+                    color: {colors['placeholder_text']};
+                }}
+                QLineEdit:focus {{
                     border: 1px solid {colors['highlight']};
+                }}
+                QLineEdit:disabled {{
+                    color: {colors['placeholder_text_disabled']};
+                    border: 1px solid {colors['border_disabled']};
                 }}
             """,
             
