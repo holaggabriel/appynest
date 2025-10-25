@@ -69,16 +69,6 @@ class DarkTheme:
                 }}
             """,
             
-            'sidebar_banner_frame': f"""
-                QFrame {{
-                    background-color: {colors['window']};
-                    color: {colors['text']};
-                    border: 1px solid {colors['border']};
-                    border-radius: 6px;
-                    padding: 8px;
-                }}
-            """,
-            
             'sidebar_section_frame': f"""
                 QFrame {{
                     background-color: {colors['window']};
@@ -462,7 +452,7 @@ class DarkTheme:
         return {
             'status_success_message': f"""
                 QLabel {{
-                    background-color: {colors['success']};
+                    background-color: {colors['status_success_message']};
                     color: white;
                     padding: 10px;
                     border-radius: 4px;
@@ -473,7 +463,7 @@ class DarkTheme:
             
             'status_error_message': f"""
                 QLabel {{
-                    background-color: {colors['danger']};
+                    background-color: {colors['status_error_message']};
                     color: white;
                     padding: 10px;
                     border-radius: 4px;
@@ -484,7 +474,7 @@ class DarkTheme:
             
             'status_info_message': f"""
                 QLabel {{
-                    background-color: #323233;
+                    background-color: {colors['status_info_message']};
                     color: {colors['text']};
                     padding: 10px;
                     border-radius: 4px;
@@ -494,7 +484,7 @@ class DarkTheme:
             
             'status_warning_message': f"""
                 QLabel {{
-                    background-color: #da7c2c;
+                    background-color: {colors['status_warning_message']};
                     color: white;
                     padding: 10px;
                     border-radius: 4px;
@@ -520,18 +510,16 @@ class DarkTheme:
     def get_special_styles():
         colors = DarkTheme.COLORS
         return {
-        'device_banner_label': f"""
-            QLabel {{
-                background-color: {colors['selected_item']};
-                color: white;
-                font-weight: bold;
-                padding: 10px;
-                border-radius: 6px;
-                font-size: 11px;
-            }}
-        """,
-
-            
+            'banner_label': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    color: {colors['text']};
+                    padding: 10px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                }}
+            """,
+                
             'nav_button_active_state': """
                 QPushButton {
                     background-color: #2d6a4f;

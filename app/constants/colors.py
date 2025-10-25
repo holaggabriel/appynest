@@ -37,4 +37,9 @@ COLORS = {
     'secondary_accent': '#03DAC6',
     'selected_item':'#2E7D32',         # item seleccionado
     'selected_item_hover': "#678F69",   # hover sobre item seleccionado
+    'banner':'#323233',
+    'status_info_message': '#262627',  # Info (gris oscuro)
+    'status_success_message': '#1F6F43',  # Verde oscuro - éxito
+    'status_warning_message': '#B8860B',  # Dorado oscuro - advertencia
+    'status_error_message': '#8B0000',    # Rojo oscuro - error
 }

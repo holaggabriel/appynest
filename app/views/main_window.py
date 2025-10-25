@@ -156,12 +156,16 @@ class MainWindow(QMainWindow):
         self.apk_title.setStyleSheet(self.styles['label_section_header'])
         self.apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.apk_title)
+        
+        self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.status_label.setStyleSheet(self.styles['status_info_message'])
+        layout.addWidget(self.status_label)
 
         self.apk_list = QListWidget()
         self.apk_list.setStyleSheet(self.styles['list_main_widget'])
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.apk_list.itemSelectionChanged.connect(self.on_apk_selection_changed)
-        # ❌ QUITAR la configuración de drag & drop de la lista individual
         layout.addWidget(self.apk_list)
         
         apk_buttons_layout = QHBoxLayout()
@@ -184,15 +188,6 @@ class MainWindow(QMainWindow):
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
         layout.addLayout(apk_buttons_layout)
-        
-        status_frame = QFrame()
-        status_frame.setStyleSheet(self.styles['sidebar_section_frame'])
-        status_layout = QVBoxLayout(status_frame)
-        self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
-        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet(self.styles['status_info_message'])
-        status_layout.addWidget(self.status_label)
-        layout.addWidget(status_frame)
         
         self.install_btn = QPushButton("Instalar APKs")
         self.install_btn.setStyleSheet(self.styles['button_success_default'])
@@ -340,7 +335,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(15)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        adb_title = QLabel("ESTADO ADB")
+        adb_title = QLabel("ADB")
         adb_title.setStyleSheet(self.styles['label_section_header'])
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
@@ -358,7 +353,7 @@ class MainWindow(QMainWindow):
         
         # Label de estado ADB
         self.adb_status_label = QLabel("Estado ADB: Verificando...")
-        self.adb_status_label.setStyleSheet(self.styles['status_info_message'])
+        self.adb_status_label.setStyleSheet(self.styles['banner_label'])
         self.adb_status_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         status_container.addWidget(self.adb_status_label)
 
@@ -376,7 +371,7 @@ class MainWindow(QMainWindow):
         adb_path_layout.setSpacing(8)
         
         self.adb_path_label = QLabel("Ruta: No detectada")
-        self.adb_path_label.setStyleSheet(self.styles['status_info_message'])
+        self.adb_path_label.setStyleSheet(self.styles['banner_label'])
         self.adb_path_label.setWordWrap(True)
         adb_path_layout.addWidget(self.adb_path_label)
         
@@ -387,7 +382,6 @@ class MainWindow(QMainWindow):
         self.folder_adb_btn.clicked.connect(self.select_custom_adb)
         adb_path_layout.addWidget(self.folder_adb_btn)
 
-        
         layout.addLayout(adb_path_layout)
         
         layout.addStretch()
@@ -406,26 +400,24 @@ class MainWindow(QMainWindow):
         section_title.setStyleSheet(self.styles['label_section_header'])
         layout.addWidget(section_title)
         
-        banner_frame = QFrame()
-        banner_frame.setStyleSheet(self.styles['sidebar_banner_frame'])
-        self.banner_layout = QHBoxLayout(banner_frame)
-        self.banner_layout.setContentsMargins(8, 8, 8, 8)
+        self.banner_layout = QHBoxLayout()
+        self.banner_layout.setContentsMargins(0, 0, 0, 0)
         self.banner_layout.setSpacing(8)
-        
+
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setStyleSheet(self.styles['device_banner_label'])
+        self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
         self.selected_device_banner.setMinimumHeight(40)
-        
+
         self.device_status_emoji = QLabel("")
         self.device_status_emoji.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.device_status_emoji.setStyleSheet(self.styles['device_status_emoji_label'])
         self.device_status_emoji.setVisible(False)
-        
+
         self.banner_layout.addWidget(self.selected_device_banner, 1)
         self.banner_layout.addWidget(self.device_status_emoji, 0)
-        
-        layout.addWidget(banner_frame)
+
+        layout.addLayout(self.banner_layout)
         
         device_label = QLabel("Dispositivos Conectados:")
         device_label.setStyleSheet(self.styles['label_title_text'])
@@ -728,20 +720,17 @@ class MainWindow(QMainWindow):
                 self.adb_status_label.setText("Estado ADB: Disponible")
                 display_path = f"Ruta: {self._shorten_path(adb_path)}"
                 self.adb_path_label.setText(display_path)
-                self.adb_status_label.setStyleSheet(self.styles['status_success_message'])  
                 self.enable_all_sections()
                 
             else:
                 self.adb_status_label.setText("Estado ADB: No disponible")
                 self.adb_path_label.setText("Ruta: No encontrada")
-                self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
                 self.disable_sections_and_show_config()
         
         except Exception as e:
             # Captura cualquier error inesperado
             self.adb_status_label.setText("Estado ADB: No disponible")
             self.adb_path_label.setText("Ruta: No encontrada")
-            self.adb_status_label.setStyleSheet(self.styles['status_error_message'])
             self.disable_sections_and_show_config()
         
         finally:
@@ -1022,7 +1011,7 @@ class MainWindow(QMainWindow):
         self.update_nav_buttons_style()
         
         # Mostrar mensaje en panel de dispositivos
-        self.show_devices_message("ADB no está configurado", "error")
+        self.show_devices_message("ADB no está configurado", "warning")
 
     def filter_apps_list(self):
         """Filtra la lista de aplicaciones según el texto de búsqueda y tipo seleccionado"""
