@@ -58,6 +58,31 @@ class DarkTheme:
                 }}
             """,
             
+            'my_container': f"""
+                QWidget {{
+                    color: #cccccc;
+                    font-weight: bold;
+                    font-size: 12px;
+                    padding: 5px;
+                    background-color: {colors['window']};
+                    border: 1px solid {colors['border']};
+                    border-radius: 4px; 
+                }}
+            """,
+            
+            'banner_label_container': f"""
+            QFrame#adbFrame {{
+                    background-color: {colors['banner']};
+                    color: {colors['text']};
+                    border-radius: 4px;
+                    font-size: 11px;
+                    border: none;
+                    margin: 0px 0px 0px 0px
+            }}
+            """,
+            
+            
+            
             # ===== LISTAS =====
             'list_main_widget': f"""
                 QListWidget {{
@@ -197,7 +222,7 @@ class DarkTheme:
                 }}
             """,
             
-            'label_section_header': f"""
+            'title_container': f"""
                 QLabel {{
                     color: #cccccc;
                     font-weight: bold;
@@ -205,8 +230,18 @@ class DarkTheme:
                     padding: 5px;
                     background-color: {colors['window']};
                     border: 1px solid {colors['border']};
-                    border-radius: 4px;
-                    
+                    border-radius: 4px;    
+                }}
+            """,
+            
+            'title': f"""
+                QLabel {{
+                    color: #cccccc;
+                    font-weight: bold;
+                    font-size: 12px;
+                    background-color: {colors['window']};
+                    border: none;
+                    padding: 0px, 0px, 0px, 0px;
                 }}
             """,
             
@@ -384,6 +419,17 @@ class DarkTheme:
                     border-radius: 4px;
                     font-size: 11px;
                     border: none;
+                }}
+            """,
+            
+            'normal_label': f"""
+                QLabel {{
+                    background-color: transparent;
+                    color: {colors['text']};
+                    font-size: 11px;
+                    border: none;
+                    margin: 0px 0px 0px 0px;
+                    padding: 0px 0px 0px 0px;
                 }}
             """,
                 

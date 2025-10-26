@@ -11,6 +11,9 @@ from app.core.device_manager import DeviceManager
 from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
+from app.views.dialogs.adb_help_dialog import ADBHelpDialog
+from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
+from app.views.widgets.info_button import InfoButton
 from .styles import DarkTheme
 from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
 
@@ -152,7 +155,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         
         self.apk_title = QLabel("ARCHIVOS APK")
-        self.apk_title.setStyleSheet(self.styles['label_section_header'])
+        self.apk_title.setStyleSheet(self.styles['title_container'])
         self.apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.apk_title)
         
@@ -268,7 +271,7 @@ class MainWindow(QMainWindow):
         right_layout.setContentsMargins(0, 0, 0, 0)
         
         info_title = QLabel("DETALLES")
-        info_title.setStyleSheet(self.styles['label_section_header'])
+        info_title.setStyleSheet(self.styles['title_container'])
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info_title.setFixedHeight(30)
         info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -335,7 +338,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         
         adb_title = QLabel("ADB")
-        adb_title.setStyleSheet(self.styles['label_section_header'])
+        adb_title.setStyleSheet(self.styles['title_container'])
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
         
@@ -359,34 +362,56 @@ class MainWindow(QMainWindow):
         # Botón de actualizar/verificar
         self.update_adb_btn = QPushButton("Verificar")
         self.update_adb_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.update_adb_btn.setFixedWidth(100)  # Solo ancho fijo
+        self.update_adb_btn.setFixedWidth(100)
         self.update_adb_btn.setToolTip("Verificar estado ADB")
         self.update_adb_btn.clicked.connect(self.update_adb_status)
         status_container.addWidget(self.update_adb_btn)
 
         layout.addLayout(status_container)
         
-        adb_path_layout = QHBoxLayout()
-        adb_path_layout.setSpacing(8)
+        # CONTENEDOR 1: Info button y label (con borde)
+        adb_frame = QFrame()
+        adb_frame.setObjectName("adbFrame")
+        adb_frame.setStyleSheet(self.styles['banner_label_container'])
+
+        # Layout interno para el primer contenedor
+        info_label_layout = QHBoxLayout(adb_frame)
+        info_label_layout.setSpacing(0)
+        info_label_layout.setContentsMargins(0,0,0,0)
+
+        # Agregar widgets al primer contenedor
+        info_button = InfoButton(size=15)
+        info_button.clicked.connect(self.show_adb_help_dialog)
+        info_label_layout.addWidget(info_button)
         
+        info_label_layout.addSpacing(10)
+
         self.adb_path_label = QLabel("Ruta: No detectada")
-        self.adb_path_label.setStyleSheet(self.styles['banner_label'])
+        self.adb_path_label.setStyleSheet(self.styles['normal_label'])
         self.adb_path_label.setWordWrap(True)
-        adb_path_layout.addWidget(self.adb_path_label)
+        info_label_layout.addWidget(self.adb_path_label)
+
+        # CONTENEDOR 2: Contenedor principal que incluye el frame anterior + botón seleccionar
+        main_container = QHBoxLayout()
+        main_container.setSpacing(8)
         
+        # Agregar el frame con borde al contenedor principal
+        main_container.addWidget(adb_frame)
+        
+        # Agregar el botón seleccionar al contenedor principal
         self.folder_adb_btn = QPushButton("Seleccionar")
         self.folder_adb_btn.setStyleSheet(self.styles['button_success_default'])
-        self.folder_adb_btn.setFixedWidth(100)  # Solo ancho fijo
+        self.folder_adb_btn.setFixedWidth(100)
         self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
         self.folder_adb_btn.clicked.connect(self.select_custom_adb)
-        adb_path_layout.addWidget(self.folder_adb_btn)
+        main_container.addWidget(self.folder_adb_btn)
 
-        layout.addLayout(adb_path_layout)
+        # Agregar el contenedor principal al layout
+        layout.addLayout(main_container)
         
         layout.addStretch()
         
         return widget
-    
     def setup_devices_panel(self):
         panel = QFrame()
         layout = QVBoxLayout(panel)
@@ -395,7 +420,7 @@ class MainWindow(QMainWindow):
         
         section_title = QLabel("DISPOSITIVOS")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        section_title.setStyleSheet(self.styles['label_section_header'])
+        section_title.setStyleSheet(self.styles['title_container'])
         layout.addWidget(section_title)
         
         self.banner_layout = QHBoxLayout()
@@ -417,9 +442,31 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(self.banner_layout)
         
+        # Crear contenedor horizontal con borde
+        title_widget = QWidget()
+        title_widget.setObjectName("my_container")
+        title_widget.setStyleSheet(self.styles['my_container'])
+
+        title_layout = QHBoxLayout(title_widget)
+        title_layout.setContentsMargins(10, 10, 10, 10)
+        title_layout.setSpacing(0)
+        
+        # Botón de información
+        info_button = InfoButton(size=15)
+        info_button.clicked.connect(self.show_connection_help_dialog)
+
+        # Texto en label separado
         device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(self.styles['label_section_header'])
-        layout.addWidget(device_label)
+        device_label.setStyleSheet(self.styles['title'])
+
+        # Añadir al layout horizontal
+        title_layout.addWidget(info_button)
+        title_layout.addSpacing(10)
+        title_layout.addWidget(device_label)
+        title_layout.addStretch()
+
+        # Añadir al layout principal
+        layout.addWidget(title_widget)
         
         self.devices_message_label = QLabel()
         self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -1084,4 +1131,11 @@ class MainWindow(QMainWindow):
             self._radio_timer.setSingleShot(True)
             self._radio_timer.timeout.connect(lambda: self.handle_app_operations('load', force_load=True))
             self._radio_timer.start(100)  # 100ms de delay anti-rebote
+
+    def show_connection_help_dialog(self):
+        dialog = ConnectionHelpDialog(self)
+        dialog.exec()
         
+    def show_adb_help_dialog(self):
+        dialog = ADBHelpDialog(self)
+        dialog.exec()
