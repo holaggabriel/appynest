@@ -11,6 +11,7 @@ from app.core.device_manager import DeviceManager
 from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
+from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
@@ -38,12 +39,99 @@ class MainWindow(QMainWindow):
         self.app_list_update_attempts = 0
         self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
         self.filtered_apps_data = []  # Aplicaciones filtradas
+        # Lista para trackear threads activos
+        self.active_threads = []
+        self.cleaning_up = False
         self.init_ui()
         self.load_devices()
         self.update_adb_status()
         
         if not self.adb_manager.is_available():
             self.disable_sections_and_show_config()
+        
+    def closeEvent(self, event):
+        """
+        Se ejecuta cuando la ventana se cierra
+        """
+        if self.cleaning_up:
+            event.accept()
+            return
+            
+        # Verificar si hay operaciones en curso
+        has_active_threads = any(thread.isRunning() for thread in self.active_threads)
+        
+        if has_active_threads:
+            reply = QMessageBox.question(
+                self, 'Operaciones en curso',
+                'Hay operaciones en curso. ¿Estás seguro de que quieres salir? Las operaciones se cancelarán.',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+        else:
+            reply = QMessageBox.question(
+                self, 'Confirmar salida',
+                '¿Estás seguro de que quieres salir?',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            self.cleaning_up = True
+            self.cleanup_before_exit()
+            
+            # Esperar un momento para que los threads se detengan
+            QTimer.singleShot(500, event.accept)
+        else:
+            event.ignore()
+    
+    def cleanup_before_exit(self):
+        """
+        Limpia todos los recursos antes de salir - SOLO threads de la aplicación
+        """
+        print_in_debug_mode("Cerrando aplicación... Deteniendo threads activos")
+        
+        # Detener threads de ESTA aplicación
+        self.stop_all_threads()
+    
+    def stop_all_threads(self):
+        """
+        Detiene todos los threads activos de manera segura
+        """
+        # Hacer una copia de la lista para evitar problemas de modificación
+        threads_to_stop = self.active_threads.copy()
+        
+        for thread in threads_to_stop:
+            if thread.isRunning():
+                print_in_debug_mode(f"Deteniendo thread: {thread.__class__.__name__}")
+                if hasattr(thread, 'stop'):
+                    thread.stop()
+                
+                # Esperar un tiempo razonable para que el thread termine
+                if not thread.wait(2000):  # Esperar hasta 2 segundos
+                    print_in_debug_mode(f"Thread {thread.__class__.__name__} no respondió, terminando...")
+                    thread.terminate()  # Último recurso
+                    thread.wait()
+        
+        self.active_threads.clear()
+    
+    def register_thread(self, thread):
+        """
+        Registra un thread para poder gestionarlo al cerrar
+        """
+        if not self.cleaning_up:
+            self.active_threads.append(thread)
+            
+            # Conectar para auto-eliminar cuando termine
+            if hasattr(thread, 'finished_signal'):
+                thread.finished_signal.connect(lambda: self.unregister_thread(thread))
+            thread.finished.connect(lambda: self.unregister_thread(thread))
+    
+    def unregister_thread(self, thread):
+        """
+        Elimina un thread de la lista de activos
+        """
+        if thread in self.active_threads:
+            self.active_threads.remove(thread)
     
     def init_ui(self):
         self.setWindowTitle("Easy ADB")
@@ -684,7 +772,6 @@ class MainWindow(QMainWindow):
         self.execute_after_delay(self._perform_apps_loading, 500)
 
     def _perform_apps_loading(self):
-        """Realiza la carga de aplicaciones después del delay"""
         if not self.selected_device:
             self.show_apps_message("Selecciona un dispositivo primero", "warning")
             self._set_apps_controls_enabled(True)
@@ -702,6 +789,7 @@ class MainWindow(QMainWindow):
             self.apps_loading_thread = AppsLoadingThread(
                 self.app_manager, self.selected_device, app_type
             )
+            self.register_thread(self.apps_loading_thread)  # <- Registrar el thread
             self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
             self.apps_loading_thread.start()
             
@@ -717,6 +805,7 @@ class MainWindow(QMainWindow):
         self.uninstall_thread = UninstallThread(
             self.app_manager, self.selected_device, app_data['package_name']
         )
+        self.register_thread(self.uninstall_thread)  # <- Registrar el thread
         self.uninstall_thread.finished_signal.connect(
             lambda success, msg: self._operation_finished(success, msg, 'uninstall')
         )
@@ -732,6 +821,7 @@ class MainWindow(QMainWindow):
         self.extract_thread = ExtractThread(
             self.app_manager, self.selected_device, app_data['apk_path'], file_path
         )
+        self.register_thread(self.extract_thread)  # <- Registrar el thread
         self.extract_thread.finished_signal.connect(
             lambda success, msg: self._operation_finished(success, msg, 'extract')
         )
@@ -772,6 +862,7 @@ class MainWindow(QMainWindow):
         else:
             status_text = "Selecciona al menos un APK" if not has_apks else "Selecciona un dispositivo"
             self.status_label.setText(status_text)
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
 
     def update_adb_status(self):
         self.update_adb_btn.setEnabled(False)
@@ -881,6 +972,7 @@ class MainWindow(QMainWindow):
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(self.apk_installer, self.selected_apks, self.selected_device)
+        self.register_thread(self.installation_thread)  # <- Registrar el thread
         self.installation_thread.progress_update.connect(self.update_progress)
         self.installation_thread.finished_signal.connect(self.installation_finished)
         self.installation_thread.start()
@@ -917,7 +1009,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def on_apps_loaded(self, result):
-        self._set_apps_controls_enabled(True)  # ✅ Esto ahora maneja automáticamente la búsqueda
+        self._set_apps_controls_enabled(True)
         self.apps_list.clear()
         
         if result['success']:
@@ -928,15 +1020,14 @@ class MainWindow(QMainWindow):
             # Aplicar filtros iniciales
             self.filter_apps_list()
             
-            # ✅ HABILITAR BÚSQUEDA EXPLÍCITAMENTE CUANDO HAY APLICACIONES
             has_apps = len(self.all_apps_data) > 0
             self.search_input.setEnabled(has_apps)
+            self.hide_apps_message()
             
         else:
             self.all_apps_data = []
             self.filtered_apps_data = []
             self.show_apps_message(f"{result['message']}", "error")
-            # ✅ DESHABILITAR BÚSQUEDA CUANDO NO HAY APLICACIONES
             self.search_input.setEnabled(False)
             
     def on_app_selected(self):

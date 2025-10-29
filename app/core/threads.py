@@ -1,7 +1,27 @@
 import os
-from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal, QMutex
 
-class UninstallThread(QThread):
+class BaseThread(QThread):
+    """Clase base para todos los threads con capacidad de interrupción"""
+    def __init__(self):
+        super().__init__()
+        self._is_running = True
+        self._mutex = QMutex()
+    
+    def stop(self):
+        """Solicita la detención del thread"""
+        self._mutex.lock()
+        self._is_running = False
+        self._mutex.unlock()
+    
+    def is_running(self):
+        """Verifica si el thread debe continuar ejecutándose"""
+        self._mutex.lock()
+        running = self._is_running
+        self._mutex.unlock()
+        return running
+
+class UninstallThread(BaseThread):
     finished_signal = pyqtSignal(bool, str)
     
     def __init__(self, app_manager, device_id, package_name):
@@ -11,13 +31,18 @@ class UninstallThread(QThread):
         self.package_name = package_name
     
     def run(self):
+        if not self.is_running():
+            return
+            
         success, message = self.app_manager.uninstall_app(
             self.device_id, 
             self.package_name
         )
-        self.finished_signal.emit(success, message)
+        
+        if self.is_running():
+            self.finished_signal.emit(success, message)
 
-class ExtractThread(QThread):
+class ExtractThread(BaseThread):
     finished_signal = pyqtSignal(bool, str)
     
     def __init__(self, app_manager, device_id, apk_path, output_path):
@@ -28,14 +53,19 @@ class ExtractThread(QThread):
         self.output_path = output_path
     
     def run(self):
+        if not self.is_running():
+            return
+            
         success, message = self.app_manager.extract_app_apk(
             self.device_id,
             self.apk_path,
             self.output_path
         )
-        self.finished_signal.emit(success, message)
+        
+        if self.is_running():
+            self.finished_signal.emit(success, message)
 
-class InstallationThread(QThread):
+class InstallationThread(BaseThread):
     progress_update = pyqtSignal(str)
     finished_signal = pyqtSignal(bool, str)
     
@@ -49,43 +79,53 @@ class InstallationThread(QThread):
         try:
             total_apks = len(self.apk_paths)
             success_count = 0
-            failed_apks = []  # Lista para guardar los errores detallados
+            failed_apks = []
             
             for i, apk_path in enumerate(self.apk_paths, 1):
+                # Verificar si debemos detenernos
+                if not self.is_running():
+                    self.finished_signal.emit(False, "Instalación cancelada")
+                    return
+                    
                 apk_name = os.path.basename(apk_path)
-                self.progress_update.emit(f"Instalando {i}/{total_apks}: {apk_name}...")
+                if self.is_running():  # Verificar antes de emitir
+                    self.progress_update.emit(f"Instalando {i}/{total_apks}: {apk_name}...")
                 
                 success, message = self.apk_installer.install_apk(apk_path, self.device_id)
                 
+                if not self.is_running():
+                    self.finished_signal.emit(False, "Instalación cancelada")
+                    return
+                
                 if success:
                     success_count += 1
-                    self.progress_update.emit(f"{apk_name} instalado correctamente")
+                    if self.is_running():  # Verificar antes de emitir
+                        self.progress_update.emit(f"{apk_name} instalado correctamente")
                 else:
-                    # Guardar el error detallado
                     error_msg = f"{apk_name}: {message}"
                     failed_apks.append(error_msg)
-                    self.progress_update.emit(f"Error en {apk_name}")
-                    # Continuar con el siguiente APK
+                    if self.is_running():  # Verificar antes de emitir
+                        self.progress_update.emit(f"Error en {apk_name}")
                     continue
             
-            # Reportar resultados finales CON DETALLES
-            if success_count == total_apks:
-                self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente")
-            elif success_count > 0:
-                # Algunos éxitos, algunos fallos
-                result_message = f"{success_count} de {total_apks} APKs instalados correctamente"
-                if failed_apks:
-                    result_message += f"\n\nErrores:\n" + "\n".join(failed_apks)
-                self.finished_signal.emit(False, result_message)
-            else:
-                # Todos fallaron
-                result_message = f"Todos los APKs fallaron:\n" + "\n".join(failed_apks)
-                self.finished_signal.emit(False, result_message)
-                
+            # Solo emitir si no hemos sido detenidos
+            if self.is_running():
+                if success_count == total_apks:
+                    self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente")
+                elif success_count > 0:
+                    result_message = f"{success_count} de {total_apks} APKs instalados correctamente"
+                    if failed_apks:
+                        result_message += f"\n\nErrores:\n" + "\n".join(failed_apks)
+                    self.finished_signal.emit(False, result_message)
+                else:
+                    result_message = f"Todos los APKs fallaron:\n" + "\n".join(failed_apks)
+                    self.finished_signal.emit(False, result_message)
+                    
         except Exception as e:
-            self.finished_signal.emit(False, f"Error general en la instalación: {str(e)}")
+            if self.is_running():
+                self.finished_signal.emit(False, f"Error general en la instalación: {str(e)}")
             
-class AppsLoadingThread(QThread):
+class AppsLoadingThread(BaseThread):
     finished_signal = pyqtSignal(dict)
     
     def __init__(self, app_manager, device_id, app_type="all"):
@@ -96,16 +136,20 @@ class AppsLoadingThread(QThread):
     
     def run(self):
         try:
-            # Ahora get_installed_apps_by_type devuelve un dict
+            if not self.is_running():
+                return
+                
             result = self.app_manager.get_installed_apps_by_type(self.device_id, self.app_type)
-            self.finished_signal.emit(result)
+            
+            if self.is_running():
+                self.finished_signal.emit(result)
         except Exception as e:
             print(f"Error cargando aplicaciones: {e}")
-            # Emitir estructura de error consistente
-            self.finished_signal.emit({
-                'success': False,
-                'message': f"Error inesperado: {str(e)}",
-                'data': {
-                    'apps': []
-                }
-            })
+            if self.is_running():
+                self.finished_signal.emit({
+                    'success': False,
+                    'message': f"Error inesperado: {str(e)}",
+                    'data': {
+                        'apps': []
+                    }
+                })
