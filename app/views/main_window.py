@@ -755,7 +755,6 @@ class MainWindow(QMainWindow):
         operations.get(operation, lambda: None)()
 
     def _load_apps(self, force_load):
-        
         # Si NO es una carga forzada Y el dispositivo es el mismo que el último Y no son ambos None
         if not force_load:
             if self.selected_device is None and self.app_list_update_attempts == 0:
@@ -766,17 +765,18 @@ class MainWindow(QMainWindow):
                 pass
             else:
                 if self.last_device_selected == self.selected_device:
-                        self._set_apps_controls_enabled(True)
-                        return
-                    
+                    self.set_apps_section_enabled(True)  # Usar el método principal
+                    return
+                        
         # Asignamos el dispsotivo seleccionado actual como ultimo seleccionado
         self.last_device_selected = self.selected_device
         
         # Limpiar lista y mostrar mensaje inmediatamente
         self.apps_list.clear()
-        self.search_input.setEnabled(False)
+        
+        # Bloquear controles durante la carga
+        self.set_apps_section_enabled(False)  # Usar el método principal
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
-        self._set_apps_controls_enabled(False)
         
         # Usar el método helper para el delay antes de iniciar el thread
         self.execute_after_delay(self._perform_apps_loading, 500)
@@ -784,7 +784,7 @@ class MainWindow(QMainWindow):
     def _perform_apps_loading(self):
         if not self.selected_device:
             self.show_apps_message("Selecciona un dispositivo primero", "warning")
-            self._set_apps_controls_enabled(True)
+            self.set_apps_section_enabled(True)  # Usar el método principal
             return
         
         try:
@@ -799,23 +799,26 @@ class MainWindow(QMainWindow):
             self.apps_loading_thread = AppsLoadingThread(
                 self.app_manager, self.selected_device, app_type
             )
-            self.register_thread(self.apps_loading_thread)  # <- Registrar el thread
+            self.register_thread(self.apps_loading_thread)
             self.apps_loading_thread.finished_signal.connect(self.on_apps_loaded)
             self.apps_loading_thread.start()
             
         except Exception as e:
-            self._set_apps_controls_enabled(True)
+            self.set_apps_section_enabled(True)  # Usar el método principal
             self.show_apps_message("Error al obtener aplicaciones", "error")
 
     def _uninstall_app(self, app_data):
         if not self._confirm_operation("desinstalar", app_data['name']):
             return
         
+        # Bloquear controles antes de iniciar la operación
+        self.block_apps_section_during_operation()
+        
         self._start_operation("Desinstalando aplicación...")
         self.uninstall_thread = UninstallThread(
             self.app_manager, self.selected_device, app_data['package_name']
         )
-        self.register_thread(self.uninstall_thread)  # <- Registrar el thread
+        self.register_thread(self.uninstall_thread)
         self.uninstall_thread.finished_signal.connect(
             lambda success, msg: self._operation_finished(success, msg, 'uninstall')
         )
@@ -825,13 +828,17 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Guardar APK", f"{app_data['package_name']}.apk", "APK Files (*.apk)"
         )
-        if not file_path: return
+        if not file_path: 
+            return
+        
+        # Bloquear controles antes de iniciar la operación
+        self.block_apps_section_during_operation()
         
         self._start_operation("Extrayendo APK...")
         self.extract_thread = ExtractThread(
             self.app_manager, self.selected_device, app_data['apk_path'], file_path
         )
-        self.register_thread(self.extract_thread)  # <- Registrar el thread
+        self.register_thread(self.extract_thread)
         self.extract_thread.finished_signal.connect(
             lambda success, msg: self._operation_finished(success, msg, 'extract')
         )
@@ -854,8 +861,8 @@ class MainWindow(QMainWindow):
         if self.cleaning_up or self.property("closing"):
             return
             
-        self.hide_operation_status()
-        self.set_operation_buttons_enabled(True)
+        # Desbloquear controles después de la operación
+        self.unblock_apps_section_after_operation()
         
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
@@ -922,29 +929,6 @@ class MainWindow(QMainWindow):
 
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
-
-    def _set_apps_controls_enabled(self, enabled):
-        # Si se deshabilitan, hacerlo inmediatamente
-        if not enabled:
-            self.refresh_apps_btn.setEnabled(False)
-            self.all_apps_radio.setEnabled(False)
-            self.user_apps_radio.setEnabled(False)
-            self.system_apps_radio.setEnabled(False)
-        else:
-            # Si se habilitan, tanto el botón como los radio buttons se habilitan después del delay
-            self.execute_after_delay(lambda: self._enable_apps_controls(), 2500)
-        
-        has_apps = hasattr(self, 'all_apps_data') and len(self.all_apps_data) > 0
-        search_enabled = enabled and has_apps
-        
-        self.search_input.setEnabled(search_enabled)
-
-    def _enable_apps_controls(self):
-        """Habilita todos los controles de aplicaciones (método auxiliar para el delay)"""
-        self.refresh_apps_btn.setEnabled(True)
-        self.all_apps_radio.setEnabled(True)
-        self.user_apps_radio.setEnabled(True)
-        self.system_apps_radio.setEnabled(True)
 
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
 
@@ -1040,7 +1024,8 @@ class MainWindow(QMainWindow):
         if self.cleaning_up or self.property("closing"):
             return
             
-        self._set_apps_controls_enabled(True)
+        # Desbloquear controles después de cargar
+        self.set_apps_section_enabled(True)
         self.apps_list.clear()
         
         if result['success']:
@@ -1279,6 +1264,43 @@ class MainWindow(QMainWindow):
             self._radio_timer.setSingleShot(True)
             self._radio_timer.timeout.connect(lambda: self.handle_app_operations('load', force_load=True))
             self._radio_timer.start(100)  # 100ms de delay anti-rebote
+    
+    def set_apps_section_enabled(self, enabled):
+        """Habilita o deshabilita todos los controles de la sección de aplicaciones"""
+        # Radio buttons
+        self.all_apps_radio.setEnabled(enabled)
+        self.user_apps_radio.setEnabled(enabled)
+        self.system_apps_radio.setEnabled(enabled)
+        
+        # Botones
+        self.refresh_apps_btn.setEnabled(enabled)
+        
+        # Lista y búsqueda
+        self.apps_list.setEnabled(enabled)
+        
+        # El buscador solo se habilita si hay aplicaciones cargadas
+        has_apps = hasattr(self, 'all_apps_data') and len(self.all_apps_data) > 0
+        self.search_input.setEnabled(enabled and has_apps)
+        
+        # Botones de operación (solo se habilitan si hay una app seleccionada Y está habilitada la sección)
+        if enabled:
+            selected_items = self.apps_list.selectedItems()
+            has_selection = bool(selected_items)
+            self.uninstall_btn.setEnabled(has_selection)
+            self.extract_apk_btn.setEnabled(has_selection)
+        else:
+            self.uninstall_btn.setEnabled(False)
+            self.extract_apk_btn.setEnabled(False)
+
+    def block_apps_section_during_operation(self):
+        """Bloquea los controles al iniciar una operación"""
+        self.set_apps_section_enabled(False)
+        self.show_operation_status("Operación en curso...")
+
+    def unblock_apps_section_after_operation(self):
+        """Desbloquea los controles al finalizar una operación"""
+        self.set_apps_section_enabled(True)
+        self.hide_operation_status()
 
     def show_connection_help_dialog(self):
         dialog = ConnectionHelpDialog(self)

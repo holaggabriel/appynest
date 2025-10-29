@@ -35,8 +35,10 @@ COLORS = {
     'disabled': '#666666',
     'accent': '#BB86FC',
     'secondary_accent': '#03DAC6',
-    'selected_item':'#2E7D32',         # item seleccionado
-    'selected_item_hover': "#678F69",   # hover sobre item seleccionado
+    'selected_item': '#2E7D32',             # item seleccionado
+    'selected_item_hover': '#678F69',       # hover sobre item seleccionado
+    'selected_item_disabled': '#A5D6A7',    # item seleccionado pero deshabilitado
+    'selected_item_hover_disabled': '#C8E6C9',  # hover sobre item seleccionado deshabilitado
     'banner':'#323233',
     'status_info_message': '#262627',  # Info (gris oscuro)
     'status_success_message': '#1F6F43',  # Verde oscuro - éxito

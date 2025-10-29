@@ -94,10 +94,20 @@ class DarkTheme:
                     outline: none;
                     font-size: 12px;
                 }}
+                QListWidget:disabled {{
+                    background-color: {colors['window']};
+                    color: {colors['text_disabled']};
+                    border: 1px solid {colors['border_disabled']};
+                }}
                 QListWidget::item {{
                     padding: 8px;
                     border-bottom: 1px solid {colors['border']};
                     background-color: transparent;
+                }}
+                QListWidget::item:disabled {{
+                    color: {colors['text_disabled']};
+                    background-color: transparent;
+                    border-bottom: 1px solid {colors['border_disabled']};
                 }}
                 QListWidget::item:selected {{
                     background-color: {colors['selected_item']};
@@ -105,11 +115,17 @@ class DarkTheme:
                     border-radius: 3px;
                     border-bottom: 1px solid {colors['selected_item_hover']};
                 }}
+                QListWidget::item:selected:disabled {{
+                    background-color: {colors['selected_item_disabled']};
+                    color: {colors['text_disabled']};
+                    border-bottom: 1px solid {colors['border_disabled']};
+                }}
                 QListWidget::item:hover {{
                     background-color: {colors['selected_item_hover']};
                     border-radius: 3px;
                 }}
             """,
+
             
             # ===== BOTONES PRINCIPALES =====
             'button_primary_default': f"""
