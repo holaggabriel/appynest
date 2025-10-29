@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
         nav_buttons_layout.addWidget(self.apps_btn_nav)
         
-        self.config_btn_nav = QPushButton("⚙️ Configuración")
+        self.config_btn_nav = QPushButton("⚙️ Ajustes")
         self.config_btn_nav.setCheckable(True)
         self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
         nav_buttons_layout.addWidget(self.config_btn_nav)
