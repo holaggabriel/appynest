@@ -77,6 +77,11 @@ class AboutDialog(QDialog):
                 color: #666;
                 font-size: 10px;
             }
+            QLabel#copyright {
+                color: #888;
+                font-size: 10px;
+                line-height: 1.4;
+            }
             QLabel a {
                 color: #4dabf7;
                 text-decoration: none;
@@ -107,7 +112,7 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Acerca de Easy ADB")
-        self.setFixedSize(450, 420)
+        self.setFixedSize(450, 460)  # Aumenté la altura para acomodar el nuevo contenido
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         layout = QVBoxLayout(self)
@@ -199,6 +204,23 @@ class AboutDialog(QDialog):
         separator2.setObjectName("separator")
         separator2.setFrameShape(QFrame.Shape.HLine)
         layout.addWidget(separator2)
+        
+        # NUEVO: Copyright y licencia
+        copyright_text = """
+        <p style='margin: 0;'>
+        Copyright © 2019–2025 holaggabriel<br>
+        This application comes with absolutely no warranty. See the 
+        <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General Public License, version 3</a> 
+        or later for details.
+        </p>
+        """
+        
+        copyright_label = QLabel(copyright_text)
+        copyright_label.setObjectName("copyright")
+        copyright_label.setOpenExternalLinks(True)
+        copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        copyright_label.setWordWrap(True)
+        layout.addWidget(copyright_label)
         
         # Créditos de iconos con licencia CC BY
         icon_credit = """
