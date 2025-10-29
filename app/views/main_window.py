@@ -420,14 +420,14 @@ class MainWindow(QMainWindow):
         about_buttons_layout.setSpacing(8)
         
         # Botón de información
-        self.info_btn = QPushButton("Acerda de")
-        self.info_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.info_btn = QPushButton("Acerca de")
+        self.info_btn.setStyleSheet(self.styles['button_tertiary_default'])
         self.info_btn.clicked.connect(self.show_about_dialog)
         about_buttons_layout.addWidget(self.info_btn)
         
         # Botón de sugerencias
         self.feedback_btn = QPushButton("Comentarios")
-        self.feedback_btn.setStyleSheet(self.styles['button_success_default'])
+        self.feedback_btn.setStyleSheet(self.styles['button_tertiary_default'])
         self.feedback_btn.clicked.connect(self.show_feedback_dialog)
         about_buttons_layout.addWidget(self.feedback_btn)
         

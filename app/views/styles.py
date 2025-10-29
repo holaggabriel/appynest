@@ -222,6 +222,28 @@ class DarkTheme:
                 }}
             """,
             
+            'button_tertiary_default': f"""
+                QPushButton {{
+                    background-color: #6A4C93;  /* violeta sobrio */
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    font-size: 11px;
+                }}
+                QPushButton:hover {{
+                    background-color: #8561C5;  /* un tono más claro al pasar el mouse */
+                }}
+                QPushButton:pressed {{
+                    background-color: #4C2A75;  /* un tono más oscuro al presionar */
+                }}
+                QPushButton:disabled {{
+                    background-color: #5A5A6E;
+                    color: #C8C8C8;
+                }}
+            """,
+
             'title_container': f"""
                 QLabel {{
                     color: #cccccc;
