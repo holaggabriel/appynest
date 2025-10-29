@@ -2,6 +2,7 @@ import sys
 import os
 from PyQt6.QtWidgets import QApplication
 from app.views.main_window import MainWindow
+from PyQt6.QtGui import QIcon
 
 def main():
     # Agregar el directorio src al path
@@ -12,6 +13,8 @@ def main():
     app.setApplicationVersion("1.0.0")
     
     window = MainWindow()
+    logo_path = os.path.join(os.path.dirname(__file__), "assets", "letter-e-cropped.svg")
+    window.setWindowIcon(QIcon(logo_path))
     window.show()
     
     sys.exit(app.exec())
