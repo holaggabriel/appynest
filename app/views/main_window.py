@@ -11,12 +11,14 @@ from app.core.device_manager import DeviceManager
 from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
+from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
+from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
 from .styles import DarkTheme
 from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
-
+        
 class MainWindow(QMainWindow):
     
     def __init__(self):
@@ -45,7 +47,7 @@ class MainWindow(QMainWindow):
     
     def init_ui(self):
         self.setWindowTitle("Easy ADB")
-        self.setGeometry(100, 100, 1000, 750)
+        self.setGeometry(100, 100, 1000, 850)
         
         font = QFont("Segoe UI", 9)
         self.setFont(font)
@@ -409,9 +411,32 @@ class MainWindow(QMainWindow):
         # Agregar el contenedor principal al layout
         layout.addLayout(main_container)
         
+        about_tittle = QLabel("INFORMACIÓN")
+        about_tittle.setStyleSheet(self.styles['title_container'])
+        about_tittle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(about_tittle)
+        
+        about_buttons_layout = QHBoxLayout()
+        about_buttons_layout.setSpacing(8)
+        
+        # Botón de información
+        self.info_btn = QPushButton("Acerda de")
+        self.info_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.info_btn.clicked.connect(self.show_about_dialog)
+        about_buttons_layout.addWidget(self.info_btn)
+        
+        # Botón de sugerencias
+        self.feedback_btn = QPushButton("Comentarios")
+        self.feedback_btn.setStyleSheet(self.styles['button_success_default'])
+        self.feedback_btn.clicked.connect(self.show_feedback_dialog)
+        about_buttons_layout.addWidget(self.feedback_btn)
+        
+        layout.addLayout(about_buttons_layout)
+            
         layout.addStretch()
         
         return widget
+    
     def setup_devices_panel(self):
         panel = QFrame()
         layout = QVBoxLayout(panel)
@@ -1138,4 +1163,13 @@ class MainWindow(QMainWindow):
         
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)
+        dialog.exec()
+
+    def show_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec()
+        
+    def show_feedback_dialog(self):
+        """Muestra el diálogo de sugerencias"""
+        dialog = FeedbackDialog(self)
         dialog.exec()
