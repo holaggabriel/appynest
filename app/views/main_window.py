@@ -775,6 +775,7 @@ class MainWindow(QMainWindow):
 
     def update_adb_status(self):
         self.update_adb_btn.setEnabled(False)
+        self.folder_adb_btn.setEnabled(False)
         self.verifying_label.setText("Verificando disponibilidad del ADB...")
         self.verifying_label.setStyleSheet(self.styles['status_info_message'])
         self.verifying_label.setVisible(True)
@@ -811,8 +812,8 @@ class MainWindow(QMainWindow):
             self.verifying_label.setVisible(True)
         
         finally:
-            # Restaurar estado del botón (siempre habilitar el botón de verificar)
             self.update_adb_btn.setEnabled(True)
+            self.folder_adb_btn.setEnabled(True)
 
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
