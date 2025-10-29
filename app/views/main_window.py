@@ -77,6 +77,8 @@ class MainWindow(QMainWindow):
         
         if reply == QMessageBox.StandardButton.Yes:
             self.cleaning_up = True
+            # Marcar que la aplicación se está cerrando para evitar diálogos
+            self.setProperty("closing", True)
             self.cleanup_before_exit()
             
             # Esperar un momento para que los threads se detengan
@@ -89,6 +91,9 @@ class MainWindow(QMainWindow):
         Limpia todos los recursos antes de salir - SOLO threads de la aplicación
         """
         print_in_debug_mode("Cerrando aplicación... Deteniendo threads activos")
+        
+        # Marcar que la aplicación se está cerrando
+        self.setProperty("closing", True)
         
         # Detener threads de ESTA aplicación
         self.stop_all_threads()
@@ -199,6 +204,11 @@ class MainWindow(QMainWindow):
         self.update_nav_buttons_style()
     
     def show_section(self, index):
+        
+        # Verificar si la aplicación se está cerrando
+        if self.cleaning_up or self.property("closing"):
+            return
+        
         # Prevenir cambiar de sección si ADB no está disponible
         if not self.adb_manager.is_available() and index != 2:
             QMessageBox.warning(self, "ADB no disponible", 
@@ -840,6 +850,10 @@ class MainWindow(QMainWindow):
         self.set_operation_buttons_enabled(False)
 
     def _operation_finished(self, success, message, operation_type):
+        # Verificar si la aplicación se está cerrando
+        if self.cleaning_up or self.property("closing"):
+            return
+            
         self.hide_operation_status()
         self.set_operation_buttons_enabled(True)
         
@@ -978,9 +992,17 @@ class MainWindow(QMainWindow):
         self.installation_thread.start()
 
     def update_progress(self, message):
+        # Verificar si la aplicación se está cerrando
+        if self.cleaning_up or self.property("closing"):
+            return
         self.status_label.setText(message)
 
     def installation_finished(self, success, message):
+        # Verificar si la aplicación se está cerrando
+        if self.cleaning_up or self.property("closing"):
+            print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
+            return
+            
         self.install_btn.setEnabled(True)
         
         if success:
@@ -988,9 +1010,11 @@ class MainWindow(QMainWindow):
             self.status_label.setText("Instalación completada exitosamente")
             self.status_label.setStyleSheet(self.styles['status_info_message'])
         else:
-            QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
-            self.status_label.setText("❌ Error en la instalación")
-            self.status_label.setStyleSheet(self.styles['status_error_message'])
+            # Solo mostrar el diálogo si la aplicación no se está cerrando
+            if not self.property("closing"):
+                QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
+                self.status_label.setText("❌ Error en la instalación")
+                self.status_label.setStyleSheet(self.styles['status_error_message'])
 
     def select_custom_adb(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -998,6 +1022,10 @@ class MainWindow(QMainWindow):
         )
         
         if file_path:
+            # Verificar si la aplicación se está cerrando antes de continuar
+            if self.cleaning_up or self.property("closing"):
+                return
+                
             self.config_manager.set_adb_path(file_path)
             self.device_manager = DeviceManager(self.adb_manager)
             self.verifying_label.setText("Verificando nueva ruta de ADB...")
@@ -1009,6 +1037,9 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def on_apps_loaded(self, result):
+        if self.cleaning_up or self.property("closing"):
+            return
+            
         self._set_apps_controls_enabled(True)
         self.apps_list.clear()
         
