@@ -208,6 +208,10 @@ class UIDevicePanel:
         self.selected_device = device_id
         self.selected_device_banner.setText(self.preselected_device)
         self._update_ui_states()
+        
+        # Recargar aplicaciones si estamos en esa sección (USANDO LA NUEVA VARIABLE)
+        if hasattr(self, 'current_section') and self.current_section == 'apps':
+            self.handle_app_operations('load', force_load=True)
 
     def _extract_device_id(self, device_text):
         """Extrae el ID del dispositivo del texto mostrado"""

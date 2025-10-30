@@ -35,6 +35,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.app_list_update_attempts = 0
         self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
         self.filtered_apps_data = []  # Aplicaciones filtradas
+        self.current_section = None  # Puede ser: 'install', 'apps', 'config'
         # Lista para trackear threads activos
         self.active_threads = []
         self.cleaning_up = False
@@ -219,6 +220,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         self.last_section_index = index
         
+        # ACTUALIZAR LA VARIABLE DE SECCIÓN ACTUAL
+        section_map = {0: 'install', 1: 'apps', 2: 'config'}
+        self.current_section = section_map[index]
+
+        
         self.install_btn_nav.setChecked(index == 0)
         self.apps_btn_nav.setChecked(index == 1)
         self.config_btn_nav.setChecked(index == 2)
@@ -252,6 +258,9 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.config_btn_nav.setChecked(True)
         self.install_btn_nav.setChecked(False)
         self.apps_btn_nav.setChecked(False)
+        
+        # ACTUALIZAR SECCIÓN ACTUAL
+        self.current_section = 'config'
         
         # Actualizar estilos de botones
         self.update_nav_buttons_style()
