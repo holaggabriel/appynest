@@ -22,8 +22,9 @@ from app.core.threads import UninstallThread, ExtractThread, InstallationThread,
 from app.views.ui_devices_panel import UIDevicePanel
 from app.views.ui_install_section import UIInstallSection
 from app.views.ui_apps_section import UIAppsSection
+from app.views.ui_config_section import UIConfigSection
 
-class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection):
+class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection):
     
     def __init__(self):
         super().__init__()
@@ -247,110 +248,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection):
                 else self.styles['nav_button_inactive_state']
             )
     
-    def setup_config_section(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setSpacing(15)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        adb_title = QLabel("ADB")
-        adb_title.setStyleSheet(self.styles['title_container'])
-        adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(adb_title)
-        
-        # Label para indicar que se está verificando (inicialmente oculto)
-        self.verifying_label = QLabel("Verificando disponibilidad del ADB...")
-        self.verifying_label.setStyleSheet(self.styles['status_info_message'])
-        self.verifying_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.verifying_label.setVisible(False)
-        layout.addWidget(self.verifying_label)
-        
-        # Contenedor para estado ADB y botón de actualizar
-        status_container = QHBoxLayout()
-        status_container.setSpacing(10)
-        
-        # Label de estado ADB
-        self.adb_status_label = QLabel("Estado ADB: Verificando...")
-        self.adb_status_label.setStyleSheet(self.styles['banner_label'])
-        self.adb_status_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        status_container.addWidget(self.adb_status_label)
-
-        # Botón de actualizar/verificar
-        self.update_adb_btn = QPushButton("Verificar")
-        self.update_adb_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.update_adb_btn.setFixedWidth(100)
-        self.update_adb_btn.setToolTip("Verificar estado ADB")
-        self.update_adb_btn.clicked.connect(self.update_adb_status)
-        status_container.addWidget(self.update_adb_btn)
-
-        layout.addLayout(status_container)
-        
-        # CONTENEDOR 1: Info button y label (con borde)
-        adb_frame = QFrame()
-        adb_frame.setObjectName("adbFrame")
-        adb_frame.setStyleSheet(self.styles['banner_label_container'])
-
-        # Layout interno para el primer contenedor
-        info_label_layout = QHBoxLayout(adb_frame)
-        info_label_layout.setSpacing(0)
-        info_label_layout.setContentsMargins(0,0,0,0)
-
-        # Agregar widgets al primer contenedor
-        info_button = InfoButton(size=15)
-        info_button.clicked.connect(self.show_adb_help_dialog)
-        info_label_layout.addWidget(info_button)
-        
-        info_label_layout.addSpacing(10)
-
-        self.adb_path_label = QLabel("Ruta: No detectada")
-        self.adb_path_label.setStyleSheet(self.styles['normal_label'])
-        self.adb_path_label.setWordWrap(True)
-        info_label_layout.addWidget(self.adb_path_label)
-
-        # CONTENEDOR 2: Contenedor principal que incluye el frame anterior + botón seleccionar
-        main_container = QHBoxLayout()
-        main_container.setSpacing(8)
-        
-        # Agregar el frame con borde al contenedor principal
-        main_container.addWidget(adb_frame)
-        
-        # Agregar el botón seleccionar al contenedor principal
-        self.folder_adb_btn = QPushButton("Seleccionar")
-        self.folder_adb_btn.setStyleSheet(self.styles['button_success_default'])
-        self.folder_adb_btn.setFixedWidth(100)
-        self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
-        self.folder_adb_btn.clicked.connect(self.select_custom_adb)
-        main_container.addWidget(self.folder_adb_btn)
-
-        # Agregar el contenedor principal al layout
-        layout.addLayout(main_container)
-        
-        about_tittle = QLabel("INFORMACIÓN")
-        about_tittle.setStyleSheet(self.styles['title_container'])
-        about_tittle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(about_tittle)
-        
-        about_buttons_layout = QHBoxLayout()
-        about_buttons_layout.setSpacing(8)
-        
-        # Botón de información
-        self.info_btn = QPushButton("Acerca de")
-        self.info_btn.setStyleSheet(self.styles['button_tertiary_default'])
-        self.info_btn.clicked.connect(self.show_about_dialog)
-        about_buttons_layout.addWidget(self.info_btn)
-        
-        # Botón de sugerencias
-        self.feedback_btn = QPushButton("Comentarios")
-        self.feedback_btn.setStyleSheet(self.styles['button_tertiary_default'])
-        self.feedback_btn.clicked.connect(self.show_feedback_dialog)
-        about_buttons_layout.addWidget(self.feedback_btn)
-        
-        layout.addLayout(about_buttons_layout)
-            
-        layout.addStretch()
-        
-        return widget
-
     # ========== MÉTODOS OPTIMIZADOS DE LÓGICA DE NEGOCIO ==========
 
     def handle_apk_operations(self, operation):
@@ -440,72 +337,10 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection):
             self.status_label.setText(status_text)
             self.status_label.setStyleSheet(self.styles['status_info_message'])
 
-    def update_adb_status(self):
-        self.update_adb_btn.setEnabled(False)
-        self.folder_adb_btn.setEnabled(False)
-        self.verifying_label.setText("Verificando disponibilidad del ADB...")
-        self.verifying_label.setStyleSheet(self.styles['status_info_message'])
-        self.verifying_label.setVisible(True)
-        self.execute_after_delay(self._perform_adb_check, 500)
-
-    def _perform_adb_check(self):
-        """Realiza la verificación de ADB después del delay"""
-        try:
-            adb_path = self.adb_manager.get_adb_path()
-            
-            if self.adb_manager.is_available():
-                self.adb_status_label.setText("Estado ADB: Disponible")
-                display_path = f"Ruta: {self._shorten_path(adb_path)}"
-                self.adb_path_label.setText(display_path)
-                self.enable_all_sections()
-                self.verifying_label.setStyleSheet(self.styles['status_success_message'])
-                self.verifying_label.setVisible(False)
-                
-            else:
-                self.adb_status_label.setText("Estado ADB: No disponible")
-                self.adb_path_label.setText("Ruta: No encontrada")
-                self.disable_sections_and_show_config()
-                self.verifying_label.setText("ADB no disponible - Verifica la configuración")
-                self.verifying_label.setStyleSheet(self.styles['status_warning_message'])
-                self.verifying_label.setVisible(True)
-        
-        except Exception as e:
-            # Captura cualquier error inesperado
-            self.adb_status_label.setText("Estado ADB: No disponible")
-            self.adb_path_label.setText("Ruta: No encontrada")
-            self.disable_sections_and_show_config()
-            self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
-            self.verifying_label.setStyleSheet(self.styles['status_error_message']) 
-            self.verifying_label.setVisible(True)
-        
-        finally:
-            self.update_adb_btn.setEnabled(True)
-            self.folder_adb_btn.setEnabled(True)
-
     def _shorten_path(self, path, max_length=50):
         return f"...{path[-47:]}" if len(path) > max_length else path
 
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
-
-    def select_custom_adb(self):
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Seleccionar ADB", "", "ADB Binary (adb);;All Files (*)"
-        )
-        
-        if file_path:
-            # Verificar si la aplicación se está cerrando antes de continuar
-            if self.cleaning_up or self.property("closing"):
-                return
-                
-            self.config_manager.set_adb_path(file_path)
-            self.device_manager = DeviceManager(self.adb_manager)
-            self.verifying_label.setText("Verificando nueva ruta de ADB...")
-            self.verifying_label.setStyleSheet(self.styles['status_info_message'])
-            self.verifying_label.setVisible(True)
-            
-            self.update_adb_status()
-            self.load_devices()
-            QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
 
     def enable_all_sections(self):
         """Habilita todas las secciones cuando ADB está disponible"""
@@ -540,17 +375,4 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection):
     
     def show_connection_help_dialog(self):
         dialog = ConnectionHelpDialog(self)
-        dialog.exec()
-        
-    def show_adb_help_dialog(self):
-        dialog = ADBHelpDialog(self)
-        dialog.exec()
-
-    def show_about_dialog(self):
-        dialog = AboutDialog(self)
-        dialog.exec()
-        
-    def show_feedback_dialog(self):
-        """Muestra el diálogo de sugerencias"""
-        dialog = FeedbackDialog(self)
         dialog.exec()
