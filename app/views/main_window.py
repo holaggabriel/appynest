@@ -402,14 +402,12 @@ class MainWindow(QMainWindow):
         self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
-        self.uninstall_btn.setFixedHeight(35)
         app_details_layout.addWidget(self.uninstall_btn)
         
         self.extract_apk_btn = QPushButton("Extraer APK")
         self.extract_apk_btn.setStyleSheet(self.styles['button_primary_default'])
         self.extract_apk_btn.clicked.connect(self.extract_app_apk)
         self.extract_apk_btn.setEnabled(False)
-        self.extract_apk_btn.setFixedHeight(35)
         app_details_layout.addWidget(self.extract_apk_btn)
         
         self.operation_status_label = QLabel()

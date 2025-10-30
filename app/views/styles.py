@@ -178,7 +178,6 @@ class DarkTheme:
                     padding: 8px 16px;
                     border-radius: 4px;
                     font-weight: 500;
-                    min-height: 20px;
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
@@ -201,7 +200,6 @@ class DarkTheme:
                     padding: 8px 16px;
                     border-radius: 4px;
                     font-weight: 500;
-                    min-height: 20px;
                     font-size: 11px;
                 }}
                 QPushButton:hover {{
@@ -439,7 +437,7 @@ class DarkTheme:
                     padding: 10px;
                     border-radius: 4px;
                     font-size: 11px;
-                    border: 1px solid #5c946e;   /* verde oliva medio, sutil pero legible */
+                    border: none
                 }
             """,
 
