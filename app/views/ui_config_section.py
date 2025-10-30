@@ -19,7 +19,8 @@ from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
 from .styles import DarkTheme
 from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
-    
+from app.utils.helpers import execute_after_delay, _shorten_path
+
 class UIConfigSection:
 
     def setup_config_section(self):
@@ -132,7 +133,7 @@ class UIConfigSection:
         self.verifying_label.setText("Verificando disponibilidad del ADB...")
         self.verifying_label.setStyleSheet(self.styles['status_info_message'])
         self.verifying_label.setVisible(True)
-        self.execute_after_delay(self._perform_adb_check, 500)
+        execute_after_delay(self._perform_adb_check, 500)
 
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""
@@ -141,7 +142,7 @@ class UIConfigSection:
             
             if self.adb_manager.is_available():
                 self.adb_status_label.setText("Estado ADB: Disponible")
-                display_path = f"Ruta: {self._shorten_path(adb_path)}"
+                display_path = f"Ruta: {_shorten_path(adb_path)}"
                 self.adb_path_label.setText(display_path)
                 self.enable_all_sections()
                 self.verifying_label.setStyleSheet(self.styles['status_success_message'])
@@ -187,7 +188,19 @@ class UIConfigSection:
             self.update_adb_status()
             self.load_devices()
             QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
+
+    def enable_all_sections(self):
+        """Habilita todas las secciones cuando ADB está disponible"""
+        self.install_btn_nav.setEnabled(True)
+        self.apps_btn_nav.setEnabled(True)
+        self.config_btn_nav.setEnabled(True)
         
+        # Restaurar el estado anterior si existe, sino mostrar instalación
+        if self.last_section_index is not None:
+            self.show_section(self.last_section_index)
+        else:
+            self.show_section(0)  # Sección de instalación
+       
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)
         dialog.exec()
@@ -200,3 +213,4 @@ class UIConfigSection:
         """Muestra el diálogo de sugerencias"""
         dialog = FeedbackDialog(self)
         dialog.exec()
+        

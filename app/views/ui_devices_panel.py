@@ -19,7 +19,7 @@ from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
 from .styles import DarkTheme
 from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
-        
+from app.utils.helpers import execute_after_delay
 class UIDevicePanel:
     def setup_devices_panel(self):
         panel = QFrame()
@@ -113,7 +113,7 @@ class UIDevicePanel:
         self.refresh_devices_btn.setEnabled(False)
         
         # Usar el método helper para el delay
-        self.execute_after_delay(self._perform_devices_scan, 500)
+        execute_after_delay(self._perform_devices_scan, 500)
 
     def _perform_devices_scan(self):
         # Verificar si ADB no está disponible
@@ -195,4 +195,52 @@ class UIDevicePanel:
         # Solo permitir seleccionar si hay un dispositivo preseleccionado
         if enabled:
             self.on_device_preselected()  # Re-evalúa el estado del botón confirmar
-    
+
+    def handle_device_selection(self, action):
+        if action == 'preselect':
+            self._preselect_device()
+        elif action == 'confirm':
+            self._confirm_device()
+
+    def _preselect_device(self):
+        selected_items = self.device_list.selectedItems()
+        if not selected_items or self.device_list.count() == 0:
+            self.preselected_device = None
+            self.confirm_device_btn.setEnabled(False)
+            return
+        
+        self.preselected_device = selected_items[0].text()
+        preselected_id = self._extract_device_id(self.preselected_device)
+        self.confirm_device_btn.setEnabled(preselected_id != getattr(self, 'active_device', None))
+
+    def _confirm_device(self):
+        if not self.preselected_device: return
+        
+        device_id = self._extract_device_id(self.preselected_device)
+        self.active_device = self.selected_device = device_id
+        self.selected_device_banner.setText(self.preselected_device)
+        self.confirm_device_btn.setEnabled(False)
+        
+        self.update_device_status_emoji()
+        self.update_install_button()
+
+    def _extract_device_id(self, device_text):
+        return device_text.split(" - ")[1] if " - " in device_text else device_text
+
+    def update_install_button(self):
+        has_apks = bool(self.selected_apks)
+        enabled = has_apks and self.selected_device is not None
+        
+        self.install_btn.setEnabled(enabled)
+        
+        if enabled:
+            self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
+        else:
+            status_text = "Selecciona al menos un APK" if not has_apks else "Selecciona un dispositivo"
+            self.status_label.setText(status_text)
+            self.status_label.setStyleSheet(self.styles['status_info_message'])
+
+    def show_connection_help_dialog(self):
+        dialog = ConnectionHelpDialog(self)
+        dialog.exec()

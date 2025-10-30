@@ -19,7 +19,8 @@ from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
 from .styles import DarkTheme
 from app.core.threads import UninstallThread, ExtractThread, InstallationThread, AppsLoadingThread
-    
+from app.utils.helpers import execute_after_delay
+
 class UIAppsSection:
 
     def setup_apps_section(self):
@@ -186,7 +187,7 @@ class UIAppsSection:
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         
         # Usar el método helper para el delay antes de iniciar el thread
-        self.execute_after_delay(self._perform_apps_loading, 500)
+        execute_after_delay(self._perform_apps_loading, 500)
 
     def _perform_apps_loading(self):
         if not self.selected_device:

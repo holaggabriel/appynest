@@ -179,3 +179,32 @@ class UIInstallSection:
 
     def select_apk(self):
         self.handle_apk_operations('select')
+
+    def handle_apk_operations(self, operation):
+        operations = {
+            'select': self._select_apks,
+            'remove': self._remove_apks,
+            'clear': self._clear_apks
+        }
+        operations.get(operation, lambda: None)()
+        self.update_apk_list_display()
+        self.update_install_button()
+
+    def _remove_apks(self):
+        selected_items = self.apk_list.selectedItems()
+        if not selected_items: return
+        
+        files_to_remove = {item.text().replace("🧩 ", "") for item in selected_items}
+        self.selected_apks = [
+            apk for apk in self.selected_apks 
+            if os.path.basename(apk) not in files_to_remove
+        ]
+
+    def _clear_apks(self):
+        self.selected_apks.clear()
+
+    def update_apk_list_display(self):
+        self.apk_list.clear()
+        for apk_path in self.selected_apks:
+            self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
+        self.remove_apk_btn.setEnabled(len(self.apk_list.selectedItems()) > 0)

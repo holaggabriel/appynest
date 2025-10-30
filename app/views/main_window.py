@@ -250,70 +250,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
     
     # ========== MÉTODOS OPTIMIZADOS DE LÓGICA DE NEGOCIO ==========
 
-    def handle_apk_operations(self, operation):
-        operations = {
-            'select': self._select_apks,
-            'remove': self._remove_apks,
-            'clear': self._clear_apks
-        }
-        operations.get(operation, lambda: None)()
-        self.update_apk_list_display()
-        self.update_install_button()
 
-
-    def _remove_apks(self):
-        selected_items = self.apk_list.selectedItems()
-        if not selected_items: return
-        
-        files_to_remove = {item.text().replace("🧩 ", "") for item in selected_items}
-        self.selected_apks = [
-            apk for apk in self.selected_apks 
-            if os.path.basename(apk) not in files_to_remove
-        ]
-
-    def _clear_apks(self):
-        self.selected_apks.clear()
-
-    def update_apk_list_display(self):
-        self.apk_list.clear()
-        for apk_path in self.selected_apks:
-            self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
-        self.remove_apk_btn.setEnabled(len(self.apk_list.selectedItems()) > 0)
-
-    def handle_device_selection(self, action):
-        if action == 'preselect':
-            self._preselect_device()
-        elif action == 'confirm':
-            self._confirm_device()
-
-    def _preselect_device(self):
-        selected_items = self.device_list.selectedItems()
-        if not selected_items or self.device_list.count() == 0:
-            self.preselected_device = None
-            self.confirm_device_btn.setEnabled(False)
-            return
-        
-        self.preselected_device = selected_items[0].text()
-        preselected_id = self._extract_device_id(self.preselected_device)
-        self.confirm_device_btn.setEnabled(preselected_id != getattr(self, 'active_device', None))
-
-    def _confirm_device(self):
-        if not self.preselected_device: return
-        
-        device_id = self._extract_device_id(self.preselected_device)
-        self.active_device = self.selected_device = device_id
-        self.selected_device_banner.setText(self.preselected_device)
-        self.confirm_device_btn.setEnabled(False)
-        
-        self.update_device_status_emoji()
-        self.update_install_button()
-
-    def _extract_device_id(self, device_text):
-        return device_text.split(" - ")[1] if " - " in device_text else device_text
-
-    def execute_after_delay(self, callback, delay_ms=500):
-        """Ejecuta un callback después de un delay especificado"""
-        QTimer.singleShot(delay_ms, callback)
 
     def _confirm_operation(self, operation_name, app_name):
         reply = QMessageBox.question(
@@ -323,36 +260,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         )
         return reply == QMessageBox.StandardButton.Yes
 
-    def update_install_button(self):
-        has_apks = bool(self.selected_apks)
-        enabled = has_apks and self.selected_device is not None
-        
-        self.install_btn.setEnabled(enabled)
-        
-        if enabled:
-            self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
-        else:
-            status_text = "Selecciona al menos un APK" if not has_apks else "Selecciona un dispositivo"
-            self.status_label.setText(status_text)
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
-
-    def _shorten_path(self, path, max_length=50):
-        return f"...{path[-47:]}" if len(path) > max_length else path
-
     # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
-
-    def enable_all_sections(self):
-        """Habilita todas las secciones cuando ADB está disponible"""
-        self.install_btn_nav.setEnabled(True)
-        self.apps_btn_nav.setEnabled(True)
-        self.config_btn_nav.setEnabled(True)
-        
-        # Restaurar el estado anterior si existe, sino mostrar instalación
-        if self.last_section_index is not None:
-            self.show_section(self.last_section_index)
-        else:
-            self.show_section(0)  # Sección de instalación
 
     def disable_sections_and_show_config(self):
         """Deshabilita secciones y muestra configuración cuando ADB no está disponible"""
@@ -373,6 +281,3 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         # Mostrar mensaje en panel de dispositivos
         self.show_devices_message("ADB no está configurado", "warning")
     
-    def show_connection_help_dialog(self):
-        dialog = ConnectionHelpDialog(self)
-        dialog.exec()
