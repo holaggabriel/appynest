@@ -62,6 +62,9 @@ class UIInstallSection:
         self.install_btn.setEnabled(False)
         layout.addWidget(self.install_btn)
         
+        # INICIALIZAR ESTADO DE LOS BOTONES
+        self.update_apk_list_display()
+  
         return widget
 
     def _select_apks(self):
@@ -154,17 +157,19 @@ class UIInstallSection:
 
     def set_install_section_enabled(self, enabled):
         """Habilita o deshabilita todos los controles de la sección de instalación"""
+        has_apks = len(self.selected_apks) > 0
+        
         # Botones de APK
         self.select_apk_btn.setEnabled(enabled)
         self.remove_apk_btn.setEnabled(enabled and len(self.apk_list.selectedItems()) > 0)
-        self.clear_apk_btn.setEnabled(enabled)
+        self.clear_apk_btn.setEnabled(enabled and has_apks)
         
         # Lista de APKs
         self.apk_list.setEnabled(enabled)
         
         # Botón de instalar
-        self.install_btn.setEnabled(enabled and bool(self.selected_apks) and self.selected_device is not None)
-
+        self.install_btn.setEnabled(enabled and has_apks and self.selected_device is not None)
+    
     def select_apk(self):
         self.handle_apk_operations('select')
 
@@ -195,4 +200,11 @@ class UIInstallSection:
         self.apk_list.clear()
         for apk_path in self.selected_apks:
             self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
-        self.remove_apk_btn.setEnabled(len(self.apk_list.selectedItems()) > 0)
+        
+        # Actualizar estado de los botones basado en si hay APKs
+        has_apks = len(self.selected_apks) > 0
+        has_selection = len(self.apk_list.selectedItems()) > 0
+        is_section_enabled = self.select_apk_btn.isEnabled()
+        
+        self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
+        self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
