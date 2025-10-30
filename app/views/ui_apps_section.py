@@ -1,5 +1,3 @@
-# main_window.py - Código completo optimizado
-import os
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
@@ -27,7 +25,7 @@ class UIAppsSection:
         
         self.refresh_apps_btn = QPushButton("Actualizar")
         self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.refresh_apps_btn.clicked.connect(lambda:self.handle_app_operations('load',force_load=True))
+        self.refresh_apps_btn.clicked.connect(lambda: self.handle_app_operations('load', force_load=True))
         controls_layout.addWidget(self.refresh_apps_btn)
         
         radio_layout = QHBoxLayout()
@@ -143,8 +141,8 @@ class UIAppsSection:
     def handle_app_operations(self, operation, app_data=None, force_load=False):
         operations = {
             'load': lambda: self._load_apps(force_load),
-            'uninstall': lambda: self._uninstall_app(app_data),
-            'extract': lambda: self._extract_app(app_data)
+            'uninstall': lambda: self._execute_operation('uninstall', app_data),
+            'extract': lambda: self._execute_operation('extract', app_data)
         }
         operations.get(operation, lambda: None)()
 
@@ -159,7 +157,7 @@ class UIAppsSection:
                 pass
             else:
                 if self.last_device_selected == self.selected_device:
-                    self.set_apps_section_enabled(True)  # Usar el método principal
+                    self.set_ui_state(True)
                     return
                         
         # Asignamos el dispsotivo seleccionado actual como ultimo seleccionado
@@ -169,8 +167,7 @@ class UIAppsSection:
         self.apps_list.clear()
         
         # Bloquear controles durante la carga
-        self.set_apps_section_enabled(False)  # Usar el método principal
-        self.set_devices_section_enabled(False)
+        self.set_ui_state(False)
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         
         # Usar el método helper para el delay antes de iniciar el thread
@@ -179,8 +176,7 @@ class UIAppsSection:
     def _perform_apps_loading(self):
         if not self.selected_device:
             self.show_apps_message("Selecciona un dispositivo primero", "warning")
-            self.set_apps_section_enabled(True)  # Usar el método principal
-            self.set_devices_section_enabled(True)
+            self.set_ui_state(True)
             return
         
         try:
@@ -200,7 +196,7 @@ class UIAppsSection:
             self.apps_loading_thread.start()
             
         except Exception as e:
-            self.set_apps_section_enabled(True)  # Usar el método principal
+            self.set_ui_state(True)
             self.show_apps_message("Error al obtener aplicaciones", "error")
 
     def on_apps_loaded(self, result):
@@ -208,8 +204,7 @@ class UIAppsSection:
             return
             
         # Desbloquear controles después de cargar
-        self.set_apps_section_enabled(True)
-        self.set_devices_section_enabled(True)
+        self.set_ui_state(True)
         self.apps_list.clear()
         
         if result['success']:
@@ -231,19 +226,9 @@ class UIAppsSection:
             self.search_input.setEnabled(False)
 
     def on_app_selected(self):
-        selected_items = self.apps_list.selectedItems()
+        app_data = self.get_selected_app_data()
         
-        if not selected_items:
-            self.initial_info_label.setVisible(True)
-            self.app_details_widget.setVisible(False)
-            self.uninstall_btn.setEnabled(False)
-            self.extract_apk_btn.setEnabled(False)
-            return
-        
-        item = selected_items[0]
-        app_data = item.data(Qt.ItemDataRole.UserRole)
-        
-        if app_data is None:
+        if not app_data:
             self.initial_info_label.setVisible(True)
             self.app_details_widget.setVisible(False)
             self.uninstall_btn.setEnabled(False)
@@ -263,12 +248,15 @@ class UIAppsSection:
         self.uninstall_btn.setEnabled(True)
         self.extract_apk_btn.setEnabled(True)
 
-    def on_app_info_double_click(self, event):
+    def get_selected_app_data(self):
+        """Obtiene los datos de la app seleccionada o None"""
         selected_items = self.apps_list.selectedItems()
-        if not selected_items: return
-        
-        item = selected_items[0]
-        app_data = item.data(Qt.ItemDataRole.UserRole)
+        return selected_items[0].data(Qt.ItemDataRole.UserRole) if selected_items else None
+
+    def on_app_info_double_click(self, event):
+        app_data = self.get_selected_app_data()
+        if not app_data: 
+            return
         
         app_info_text = f"""🧩 Aplicación: {app_data['name']}\n📦 Paquete: {app_data['package_name']}\n🏷️ Versión: {app_data['version']}\n📁 Ruta APK: {app_data['apk_path']}"""
         
@@ -279,38 +267,27 @@ class UIAppsSection:
         original_style = self.app_info_label.styleSheet()
         self.app_info_label.setStyleSheet(self.styles['copy_feedback_style'])
         
-        from PyQt6.QtCore import QTimer
         QTimer.singleShot(800, lambda: self.app_info_label.setStyleSheet(original_style))
         
         super(QLabel, self.app_info_label).mouseDoubleClickEvent(event)
 
     def filter_apps_list(self):
-        """Filtra la lista de aplicaciones según el texto de búsqueda y tipo seleccionado"""
-        if not hasattr(self, 'all_apps_data') or not self.all_apps_data:
-            # Si no hay aplicaciones, deshabilitar búsqueda
+        """Filtra la lista de aplicaciones según el texto de búsqueda"""
+        if not getattr(self, 'all_apps_data', None):
             self.search_input.setEnabled(False)
             return
         
-        # Habilitar búsqueda si hay aplicaciones
+        search_text = self.search_input.text().lower().strip()
         self.search_input.setEnabled(True)
         
-        # Obtener texto de búsqueda y convertirlo a minúsculas
-        search_text = self.search_input.text().lower().strip()
+        # Filtrado eficiente
+        self.filtered_apps_data = [
+            app for app in self.all_apps_data
+            if not search_text or 
+               search_text in app['name'].lower() or 
+               search_text in app['package_name'].lower()
+        ]
         
-        # SIMPLIFICAR: Ya no verificar is_system, solo aplicar búsqueda
-        self.filtered_apps_data = []
-        for app in self.all_apps_data:
-            # Solo filtrar por texto de búsqueda
-            search_match = (
-                not search_text or
-                search_text in app['name'].lower() or
-                search_text in app['package_name'].lower()
-            )
-            
-            if search_match:
-                self.filtered_apps_data.append(app)
-        
-        # Actualizar la lista visual
         self.update_apps_list_display()
 
     def update_apps_list_display(self):
@@ -365,118 +342,72 @@ class UIAppsSection:
         """Oculta el mensaje (cuando hay aplicaciones en la lista)"""
         self.apps_message_label.setVisible(False)
 
-    def set_apps_section_enabled(self, enabled):
-        """Habilita o deshabilita todos los controles de la sección de aplicaciones"""
-        # Radio buttons
+    def set_ui_state(self, enabled, operation_in_progress=False):
+        """Control centralizado del estado de la UI"""
+        # Controles de apps
         self.all_apps_radio.setEnabled(enabled)
         self.user_apps_radio.setEnabled(enabled)
         self.system_apps_radio.setEnabled(enabled)
-        
-        # Botones
         self.refresh_apps_btn.setEnabled(enabled)
-        
-        # Lista y búsqueda
         self.apps_list.setEnabled(enabled)
         
-        # El buscador solo se habilita si hay aplicaciones cargadas
+        # Búsqueda solo si hay apps y UI habilitada
         has_apps = hasattr(self, 'all_apps_data') and len(self.all_apps_data) > 0
         self.search_input.setEnabled(enabled and has_apps)
         
-        # Botones de operación (solo se habilitan si hay una app seleccionada Y está habilitada la sección)
-        if enabled:
-            selected_items = self.apps_list.selectedItems()
-            has_selection = bool(selected_items)
-            self.uninstall_btn.setEnabled(has_selection)
-            self.extract_apk_btn.setEnabled(has_selection)
+        # Botones de operación
+        has_selection = enabled and bool(self.apps_list.selectedItems())
+        self.uninstall_btn.setEnabled(has_selection and not operation_in_progress)
+        self.extract_apk_btn.setEnabled(has_selection and not operation_in_progress)
+        
+        # Sección de dispositivos
+        self.set_devices_section_enabled(enabled)
+        
+        # Estado de operación
+        if operation_in_progress:
+            self.show_operation_status("Operación en curso...")
         else:
-            self.uninstall_btn.setEnabled(False)
-            self.extract_apk_btn.setEnabled(False)
+            self.hide_operation_status()
 
-    def _uninstall_app(self, app_data):
-        if not self._confirm_operation("desinstalar", app_data['name']):
+    def _execute_operation(self, operation_type, app_data=None):
+        """Método unificado para operaciones"""
+        if not app_data:
+            return
+            
+        if operation_type == 'uninstall' and not self._confirm_operation("desinstalar", app_data['name']):
             return
         
-        # Bloquear controles antes de iniciar la operación
-        self.block_apps_section_during_operation()
-        self.set_devices_section_enabled(False)
+        if operation_type == 'extract':
+            file_path, _ = QFileDialog.getSaveFileName(
+                self, "Guardar APK", f"{app_data['package_name']}.apk", "APK Files (*.apk)"
+            )
+            if not file_path: 
+                return
         
-        self._start_operation("Desinstalando aplicación...")
-        self.uninstall_thread = UninstallThread(
-            self.app_manager, self.selected_device, app_data['package_name']
-        )
-        self.register_thread(self.uninstall_thread)
-        self.uninstall_thread.finished_signal.connect(
-            lambda success, msg: self._operation_finished(success, msg, 'uninstall')
-        )
-        self.uninstall_thread.start()
-
-    def _extract_app(self, app_data):
-        file_path, _ = QFileDialog.getSaveFileName(
-            self, "Guardar APK", f"{app_data['package_name']}.apk", "APK Files (*.apk)"
-        )
-        if not file_path: 
+        # Configurar thread según operación
+        if operation_type == 'uninstall':
+            thread = UninstallThread(self.app_manager, self.selected_device, app_data['package_name'])
+        elif operation_type == 'extract':
+            thread = ExtractThread(self.app_manager, self.selected_device, app_data['apk_path'], file_path)
+        else:
             return
         
-        # Bloquear controles antes de iniciar la operación
-        self.block_apps_section_during_operation()
-        self.set_devices_section_enabled(False)
-        
-        self._start_operation("Extrayendo APK...")
-        self.extract_thread = ExtractThread(
-            self.app_manager, self.selected_device, app_data['apk_path'], file_path
+        # Estado UI y ejecución
+        self.set_ui_state(False, operation_in_progress=True)
+        self.register_thread(thread)
+        thread.finished_signal.connect(
+            lambda success, msg: self._on_operation_finished(success, msg, operation_type)
         )
-        self.register_thread(self.extract_thread)
-        self.extract_thread.finished_signal.connect(
-            lambda success, msg: self._operation_finished(success, msg, 'extract')
-        )
-        self.extract_thread.start()
+        thread.start()
 
-    def block_apps_section_during_operation(self):
-        """Bloquea los controles al iniciar una operación"""
-        self.set_apps_section_enabled(False)
-        self.show_operation_status("Operación en curso...")
-
-    def unblock_apps_section_after_operation(self):
-        """Desbloquea los controles al finalizar una operación"""
-        self.set_apps_section_enabled(True)
-        self.hide_operation_status()
-
-    def show_operation_status(self, message):
-        self.operation_status_label.setText(message)
-        self.operation_status_label.setVisible(True)
-
-    def hide_operation_status(self):
-        self.operation_status_label.setVisible(False)
-
-    def set_operation_buttons_enabled(self, enabled):
-        self.uninstall_btn.setEnabled(enabled)
-        self.extract_apk_btn.setEnabled(enabled)
-        self.apps_list.setEnabled(enabled)
-    
-    def uninstall_app(self):
-        selected_items = self.apps_list.selectedItems()
-        if selected_items:
-            self.handle_app_operations('uninstall', 
-                selected_items[0].data(Qt.ItemDataRole.UserRole))
-
-    def extract_app_apk(self):
-        selected_items = self.apps_list.selectedItems()
-        if selected_items:
-            self.handle_app_operations('extract',
-                selected_items[0].data(Qt.ItemDataRole.UserRole))
-
-    def _start_operation(self, message):
-        self.show_operation_status(message)
-        self.set_operation_buttons_enabled(False)
-
-    def _operation_finished(self, success, message, operation_type):
+    def _on_operation_finished(self, success, message, operation_type):
+        """Maneja la finalización de operaciones"""
         # Verificar si la aplicación se está cerrando
         if self.cleaning_up or self.property("closing"):
             return
             
         # Desbloquear controles después de la operación
-        self.unblock_apps_section_after_operation()
-        self.set_devices_section_enabled(True)
+        self.set_ui_state(True)
         
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
@@ -485,7 +416,27 @@ class UIAppsSection:
         else:
             QMessageBox.critical(self, "❌ Error", f"Error al {operation_type}:\n{message}")
 
+    def show_operation_status(self, message):
+        """Muestra el estado de la operación en curso"""
+        self.operation_status_label.setText(message)
+        self.operation_status_label.setVisible(True)
+
+    def hide_operation_status(self):
+        """Oculta el estado de la operación"""
+        self.operation_status_label.setVisible(False)
+
+    def uninstall_app(self):
+        """Maneja la desinstalación de aplicaciones"""
+        if app_data := self.get_selected_app_data():
+            self._execute_operation('uninstall', app_data)
+
+    def extract_app_apk(self):
+        """Maneja la extracción de APK"""
+        if app_data := self.get_selected_app_data():
+            self._execute_operation('extract', app_data)
+
     def _confirm_operation(self, operation_name, app_name):
+        """Muestra diálogo de confirmación para operaciones"""
         reply = QMessageBox.question(
             self, f"⚠️ Confirmar {operation_name.capitalize()}",
             f"¿Estás seguro de que quieres {operation_name} <b>{app_name}</b>?",

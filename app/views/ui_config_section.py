@@ -1,5 +1,4 @@
-# main_window.py - Código completo optimizado
-import os
+import contextlib
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
@@ -118,13 +117,43 @@ class UIConfigSection:
         
         return widget
 
-    def update_adb_status(self):
-        self.update_adb_btn.setEnabled(False)
-        self.folder_adb_btn.setEnabled(False)
-        self.verifying_label.setText("Verificando disponibilidad del ADB...")
+    def _show_verifying_status(self, message="Verificando disponibilidad del ADB..."):
+        """Muestra el estado de verificación"""
+        self.verifying_label.setText(message)
         self.verifying_label.setStyleSheet(self.styles['status_info_message'])
         self.verifying_label.setVisible(True)
-        execute_after_delay(self._perform_adb_check, 500)
+
+    def _set_adb_status(self, status, path_text, status_type="success"):
+        """Configura el estado de ADB de manera centralizada"""
+        self.adb_status_label.setText(f"Estado ADB: {status}")
+        self.adb_path_label.setText(f"Ruta: {path_text}")
+        
+        if status_type == "success":
+            self.verifying_label.setStyleSheet(self.styles['status_success_message'])
+            self.verifying_label.setVisible(False)
+        elif status_type == "warning":
+            self.verifying_label.setStyleSheet(self.styles['status_warning_message'])
+            self.verifying_label.setVisible(True)
+        elif status_type == "error":
+            self.verifying_label.setStyleSheet(self.styles['status_error_message'])
+            self.verifying_label.setVisible(True)
+
+    @contextlib.contextmanager
+    def _disable_buttons_context(self):
+        """Context manager para manejar estado de botones durante verificación"""
+        try:
+            self.update_adb_btn.setEnabled(False)
+            self.folder_adb_btn.setEnabled(False)
+            yield
+        finally:
+            self.update_adb_btn.setEnabled(True)
+            self.folder_adb_btn.setEnabled(True)
+
+    def update_adb_status(self):
+        """Inicia la verificación del estado de ADB"""
+        with self._disable_buttons_context():
+            self._show_verifying_status()
+            execute_after_delay(self._perform_adb_check, 500)
 
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""
@@ -132,49 +161,31 @@ class UIConfigSection:
             adb_path = self.adb_manager.get_adb_path()
             
             if self.adb_manager.is_available():
-                self.adb_status_label.setText("Estado ADB: Disponible")
-                display_path = f"Ruta: {_shorten_path(adb_path)}"
-                self.adb_path_label.setText(display_path)
+                self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
                 self.enable_all_sections()
-                self.verifying_label.setStyleSheet(self.styles['status_success_message'])
-                self.verifying_label.setVisible(False)
-                
             else:
-                self.adb_status_label.setText("Estado ADB: No disponible")
-                self.adb_path_label.setText("Ruta: No encontrada")
+                self._set_adb_status("No disponible", "No encontrada", "warning")
                 self.disable_sections_and_show_config()
                 self.verifying_label.setText("ADB no disponible - Verifica la configuración")
-                self.verifying_label.setStyleSheet(self.styles['status_warning_message'])
-                self.verifying_label.setVisible(True)
         
         except Exception as e:
-            # Captura cualquier error inesperado
-            self.adb_status_label.setText("Estado ADB: No disponible")
-            self.adb_path_label.setText("Ruta: No encontrada")
+            self._set_adb_status("No disponible", "No encontrada", "error")
             self.disable_sections_and_show_config()
             self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
-            self.verifying_label.setStyleSheet(self.styles['status_error_message']) 
-            self.verifying_label.setVisible(True)
-        
-        finally:
-            self.update_adb_btn.setEnabled(True)
-            self.folder_adb_btn.setEnabled(True)
 
     def select_custom_adb(self):
+        """Selecciona una ruta personalizada para ADB"""
+        if self.cleaning_up:
+            return
+            
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Seleccionar ADB", "", "ADB Binary (adb);;All Files (*)"
         )
         
         if file_path:
-            # Verificar si la aplicación se está cerrando antes de continuar
-            if self.cleaning_up or self.property("closing"):
-                return
-                
             self.config_manager.set_adb_path(file_path)
             self.device_manager = DeviceManager(self.adb_manager)
-            self.verifying_label.setText("Verificando nueva ruta de ADB...")
-            self.verifying_label.setStyleSheet(self.styles['status_info_message'])
-            self.verifying_label.setVisible(True)
+            self._show_verifying_status("Verificando nueva ruta de ADB...")
             
             self.update_adb_status()
             self.load_devices()
@@ -204,4 +215,3 @@ class UIConfigSection:
         """Muestra el diálogo de sugerencias"""
         dialog = FeedbackDialog(self)
         dialog.exec()
-        

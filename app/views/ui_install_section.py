@@ -1,4 +1,3 @@
-# main_window.py - Código completo optimizado
 import os
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
@@ -11,9 +10,12 @@ from app.core.threads import InstallationThread
 class UIInstallSection:
     def setup_install_section(self):
         widget = QWidget()
-        widget.setAcceptDrops(True)  # ✅ Habilitar drag & drop en todo el widget
-        widget.dragEnterEvent = self.install_section_drag_enter_event  # ✅ Asignar evento
-        widget.dropEvent = self.install_section_drop_event  # ✅ Asignar evento
+        widget.setAcceptDrops(True)  # Habilitar drag & drop en todo el widget
+        widget.dragEnterEvent = self.install_section_drag_enter_event  # Asignar evento
+        widget.dropEvent = self.install_section_drop_event  # Asignar evento
+        
+        # Referencia al widget para poder controlar el drag & drop
+        self.install_section_widget = widget
         
         layout = QVBoxLayout(widget)
         layout.setSpacing(12)
@@ -62,9 +64,6 @@ class UIInstallSection:
         self.install_btn.setEnabled(False)
         layout.addWidget(self.install_btn)
         
-        # INICIALIZAR ESTADO DE LOS BOTONES
-        self.update_apk_list_display()
-  
         return widget
 
     def _select_apks(self):
@@ -81,10 +80,14 @@ class UIInstallSection:
         self.handle_apk_operations('clear')
 
     def on_apk_selection_changed(self):
-        # Solo habilitar el botón eliminar si la sección está habilitada y hay selección
-        has_selection = len(self.apk_list.selectedItems()) > 0
-        is_section_enabled = self.select_apk_btn.isEnabled()  # Usamos este como referencia
+        """Unificado - maneja estado de todos los botones relacionados"""
+        has_selection = bool(self.apk_list.selectedItems())
+        has_apks = bool(self.selected_apks)
+        is_section_enabled = self.select_apk_btn.isEnabled()
+        
         self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
+        self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
+        self.install_btn.setEnabled(is_section_enabled and has_apks and bool(self.selected_device))
 
     def install_apk(self):
         if not self.selected_apks or not self.selected_device:
@@ -94,7 +97,6 @@ class UIInstallSection:
         self.set_install_section_enabled(False)
         self.set_devices_section_enabled(False)
         
-        self.install_btn.setEnabled(False)
         self.status_label.setStyleSheet(self.styles['status_info_message'])
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
@@ -106,20 +108,19 @@ class UIInstallSection:
 
     def update_progress(self, message):
         # Verificar si la aplicación se está cerrando
-        if self.cleaning_up or self.property("closing"):
+        if self._is_app_closing():
             return
         self.status_label.setText(message)
 
     def installation_finished(self, success, message):
         # Verificar si la aplicación se está cerrando
-        if self.cleaning_up or self.property("closing"):
+        if self._is_app_closing():
             print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
             return
         
         # DESBLOQUEAR CONTROLES AL FINALIZAR
         self.set_install_section_enabled(True)
-        self.set_devices_section_enabled(True) 
-        self.install_btn.setEnabled(True)
+        self.set_devices_section_enabled(True)
         
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
@@ -157,18 +158,12 @@ class UIInstallSection:
 
     def set_install_section_enabled(self, enabled):
         """Habilita o deshabilita todos los controles de la sección de instalación"""
-        has_apks = len(self.selected_apks) > 0
-        
-        # Botones de APK
         self.select_apk_btn.setEnabled(enabled)
-        self.remove_apk_btn.setEnabled(enabled and len(self.apk_list.selectedItems()) > 0)
-        self.clear_apk_btn.setEnabled(enabled and has_apks)
-        
-        # Lista de APKs
         self.apk_list.setEnabled(enabled)
-        
-        # Botón de instalar
-        self.install_btn.setEnabled(enabled and has_apks and self.selected_device is not None)
+         # Habilitar/deshabilitar drag & drop en el widget principal
+        self.install_section_widget.setAcceptDrops(enabled)
+        # Los demás botones se actualizan automáticamente mediante on_apk_selection_changed
+        self.on_apk_selection_changed()
     
     def select_apk(self):
         self.handle_apk_operations('select')
@@ -197,14 +192,18 @@ class UIInstallSection:
         self.selected_apks.clear()
 
     def update_apk_list_display(self):
+        """Actualiza lista y estado de botones en una sola operación"""
         self.apk_list.clear()
         for apk_path in self.selected_apks:
             self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
         
-        # Actualizar estado de los botones basado en si hay APKs
-        has_apks = len(self.selected_apks) > 0
-        has_selection = len(self.apk_list.selectedItems()) > 0
-        is_section_enabled = self.select_apk_btn.isEnabled()
-        
-        self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
-        self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
+        # Actualizar estado de botones
+        self.on_apk_selection_changed()
+
+    def _is_app_closing(self):
+        """Método helper unificado para verificar cierre de aplicación"""
+        return self.cleaning_up or self.property("closing")
+
+    def update_install_button(self):
+        """Método mantenido por compatibilidad (puede ser eliminado si no se usa en otros lugares)"""
+        self.on_apk_selection_changed()
