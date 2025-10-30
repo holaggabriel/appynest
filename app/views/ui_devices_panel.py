@@ -182,6 +182,7 @@ class UIDevicePanel:
         self.banner_layout.setStretchFactor(self.selected_device_banner, banner_stretch)
         self.banner_layout.setStretchFactor(self.device_status_emoji, emoji_stretch)
 
+    # Este metodo es usado por otras operaciones como la instalacion, obtención de aplicaciones, etc...
     def set_devices_section_enabled(self, enabled):
         """Habilita o deshabilita los controles de la sección de dispositivos"""
         # Lista de dispositivos
