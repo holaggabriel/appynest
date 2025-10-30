@@ -774,6 +774,7 @@ class MainWindow(QMainWindow):
         
         # Bloquear controles durante la carga
         self.set_apps_section_enabled(False)  # Usar el método principal
+        self.set_devices_section_enabled(False)
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
         
         # Usar el método helper para el delay antes de iniciar el thread
@@ -783,6 +784,7 @@ class MainWindow(QMainWindow):
         if not self.selected_device:
             self.show_apps_message("Selecciona un dispositivo primero", "warning")
             self.set_apps_section_enabled(True)  # Usar el método principal
+            self.set_devices_section_enabled(True)
             return
         
         try:
@@ -811,6 +813,7 @@ class MainWindow(QMainWindow):
         
         # Bloquear controles antes de iniciar la operación
         self.block_apps_section_during_operation()
+        self.set_devices_section_enabled(False)
         
         self._start_operation("Desinstalando aplicación...")
         self.uninstall_thread = UninstallThread(
@@ -831,6 +834,7 @@ class MainWindow(QMainWindow):
         
         # Bloquear controles antes de iniciar la operación
         self.block_apps_section_during_operation()
+        self.set_devices_section_enabled(False)
         
         self._start_operation("Extrayendo APK...")
         self.extract_thread = ExtractThread(
@@ -861,6 +865,7 @@ class MainWindow(QMainWindow):
             
         # Desbloquear controles después de la operación
         self.unblock_apps_section_after_operation()
+        self.set_devices_section_enabled(True)
         
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
@@ -969,6 +974,7 @@ class MainWindow(QMainWindow):
         
         # BLOQUEAR CONTROLES AL INICIAR INSTALACIÓN
         self.set_install_section_enabled(False)
+        self.set_devices_section_enabled(False)
         
         self.install_btn.setEnabled(False)
         self.status_label.setStyleSheet(self.styles['status_info_message'])
@@ -994,7 +1000,7 @@ class MainWindow(QMainWindow):
         
         # DESBLOQUEAR CONTROLES AL FINALIZAR
         self.set_install_section_enabled(True)
-        
+        self.set_devices_section_enabled(True) 
         self.install_btn.setEnabled(True)
         
         if success:
@@ -1033,6 +1039,7 @@ class MainWindow(QMainWindow):
             
         # Desbloquear controles después de cargar
         self.set_apps_section_enabled(True)
+        self.set_devices_section_enabled(True)
         self.apps_list.clear()
         
         if result['success']:
@@ -1322,6 +1329,19 @@ class MainWindow(QMainWindow):
         # Botón de instalar
         self.install_btn.setEnabled(enabled and bool(self.selected_apks) and self.selected_device is not None)
 
+    def set_devices_section_enabled(self, enabled):
+        """Habilita o deshabilita los controles de la sección de dispositivos"""
+        # Lista de dispositivos
+        self.device_list.setEnabled(enabled)
+        
+        # Botones
+        self.refresh_devices_btn.setEnabled(enabled)
+        self.confirm_device_btn.setEnabled(enabled and self.preselected_device is not None)
+        
+        # Solo permitir seleccionar si hay un dispositivo preseleccionado
+        if enabled:
+            self.on_device_preselected()  # Re-evalúa el estado del botón confirmar
+    
     def show_connection_help_dialog(self):
         dialog = ConnectionHelpDialog(self)
         dialog.exec()
