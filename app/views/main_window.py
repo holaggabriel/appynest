@@ -247,20 +247,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
                 self.styles['nav_button_active_state'] if is_active 
                 else self.styles['nav_button_inactive_state']
             )
-    
-    # ========== MÉTODOS OPTIMIZADOS DE LÓGICA DE NEGOCIO ==========
-
-
-
-    def _confirm_operation(self, operation_name, app_name):
-        reply = QMessageBox.question(
-            self, f"⚠️ Confirmar {operation_name.capitalize()}",
-            f"¿Estás seguro de que quieres {operation_name} <b>{app_name}</b>?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        )
-        return reply == QMessageBox.StandardButton.Yes
-
-    # ========== MÉTODOS DE INTERFAZ MANTENIDOS ==========
 
     def disable_sections_and_show_config(self):
         """Deshabilita secciones y muestra configuración cuando ADB no está disponible"""

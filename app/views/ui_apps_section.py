@@ -497,3 +497,11 @@ class UIAppsSection:
                 self.handle_app_operations('load', force_load=True)
         else:
             QMessageBox.critical(self, "❌ Error", f"Error al {operation_type}:\n{message}")
+
+    def _confirm_operation(self, operation_name, app_name):
+        reply = QMessageBox.question(
+            self, f"⚠️ Confirmar {operation_name.capitalize()}",
+            f"¿Estás seguro de que quieres {operation_name} <b>{app_name}</b>?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        return reply == QMessageBox.StandardButton.Yes
