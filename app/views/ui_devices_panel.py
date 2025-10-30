@@ -162,7 +162,17 @@ class UIDevicePanel:
     def _update_confirm_button_state(self):
         """Actualiza el estado del botón de confirmar selección"""
         has_selection = bool(self.device_list.selectedItems()) and self.device_list.count() > 0
-        is_enabled = self.device_list.isEnabled() and has_selection
+        
+        # Verificar si el dispositivo preseleccionado es el mismo que ya está seleccionado
+        if has_selection and self.selected_device:
+            selected_item = self.device_list.selectedItems()[0].text()
+            device_id = self._extract_device_id(selected_item)
+            is_same_device = device_id == self.selected_device
+        else:
+            is_same_device = False
+        
+        # El botón se habilita solo si hay selección y NO es el mismo dispositivo
+        is_enabled = self.device_list.isEnabled() and has_selection and not is_same_device
         self.confirm_device_btn.setEnabled(is_enabled)
 
     def _update_install_button_state(self):
