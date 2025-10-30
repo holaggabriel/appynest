@@ -960,17 +960,24 @@ class MainWindow(QMainWindow):
                 selected_items[0].data(Qt.ItemDataRole.UserRole))
 
     def on_apk_selection_changed(self):
-        self.remove_apk_btn.setEnabled(len(self.apk_list.selectedItems()) > 0)
+        # Solo habilitar el botón eliminar si la sección está habilitada y hay selección
+        has_selection = len(self.apk_list.selectedItems()) > 0
+        is_section_enabled = self.select_apk_btn.isEnabled()  # Usamos este como referencia
+        self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
 
     def install_apk(self):
         if not self.selected_apks or not self.selected_device:
             return
         
+        # BLOQUEAR CONTROLES AL INICIAR INSTALACIÓN
+        self.set_install_section_enabled(False)
+        
         self.install_btn.setEnabled(False)
+        self.status_label.setStyleSheet(self.styles['status_info_message'])
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(self.apk_installer, self.selected_apks, self.selected_device)
-        self.register_thread(self.installation_thread)  # <- Registrar el thread
+        self.register_thread(self.installation_thread)
         self.installation_thread.progress_update.connect(self.update_progress)
         self.installation_thread.finished_signal.connect(self.installation_finished)
         self.installation_thread.start()
@@ -986,7 +993,10 @@ class MainWindow(QMainWindow):
         if self.cleaning_up or self.property("closing"):
             print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
             return
-            
+        
+        # DESBLOQUEAR CONTROLES AL FINALIZAR
+        self.set_install_section_enabled(True)
+        
         self.install_btn.setEnabled(True)
         
         if success:
@@ -994,7 +1004,6 @@ class MainWindow(QMainWindow):
             self.status_label.setText("Instalación completada exitosamente")
             self.status_label.setStyleSheet(self.styles['status_info_message'])
         else:
-            # Solo mostrar el diálogo si la aplicación no se está cerrando
             if not self.property("closing"):
                 QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
                 self.status_label.setText("❌ Error en la instalación")
@@ -1301,6 +1310,19 @@ class MainWindow(QMainWindow):
         """Desbloquea los controles al finalizar una operación"""
         self.set_apps_section_enabled(True)
         self.hide_operation_status()
+    
+    def set_install_section_enabled(self, enabled):
+        """Habilita o deshabilita todos los controles de la sección de instalación"""
+        # Botones de APK
+        self.select_apk_btn.setEnabled(enabled)
+        self.remove_apk_btn.setEnabled(enabled and len(self.apk_list.selectedItems()) > 0)
+        self.clear_apk_btn.setEnabled(enabled)
+        
+        # Lista de APKs
+        self.apk_list.setEnabled(enabled)
+        
+        # Botón de instalar
+        self.install_btn.setEnabled(enabled and bool(self.selected_apks) and self.selected_device is not None)
 
     def show_connection_help_dialog(self):
         dialog = ConnectionHelpDialog(self)
