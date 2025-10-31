@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
-                             QWidget, QFrame)
+                             QWidget, QFrame, QApplication)
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QClipboard
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
@@ -22,8 +23,26 @@ class UIDevicePanel:
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
-        self.selected_device_banner.setMinimumHeight(40)
         layout.addWidget(self.selected_device_banner)
+        
+        self.device_details_banner = QLabel("")
+        self.device_details_banner.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.device_details_banner.setStyleSheet(self.styles['status_info_message'] + """
+            QLabel {
+                padding: 8px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            QLabel:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        """)
+        self.device_details_banner.setVisible(False)
+        self.device_details_banner.setWordWrap(True)
+        self.device_details_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.device_details_banner.mouseDoubleClickEvent = self._copy_device_details_to_clipboard
+
+        layout.addWidget(self.device_details_banner)
         
         # Contenedor de título con botón de información
         title_widget = QWidget()
@@ -98,7 +117,7 @@ class UIDevicePanel:
             devices = self.device_manager.get_connected_devices()
             
             for device in devices:
-                self.device_list.addItem(f"{device['model']} - {device['device']}")
+                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
             
             self._handle_scan_results(devices)
             
@@ -126,7 +145,9 @@ class UIDevicePanel:
         self.show_devices_message(error_message, "error")
         self.device_list.clear()
         self.selected_device = None
+        self.selected_device_info = {}
         self.selected_device_banner.setText("No hay dispositivo seleccionado")
+        self.device_details_banner.setVisible(False)
 
     def show_devices_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
@@ -200,7 +221,15 @@ class UIDevicePanel:
         device_id = self._extract_device_id(device_text)
         
         self.selected_device = device_id
-        self.selected_device_banner.setText(device_text)
+        
+        # Obtener y guardar la información del dispositivo una sola vez
+        try:
+            self.selected_device_info = self.device_manager.get_device_info(device_id)
+        except Exception as e:
+            print(f"Error al obtener información del dispositivo: {e}")
+            self.selected_device_info = {}
+        
+        self._update_device_banner()
         self._update_device_ui_state()
         
         # Actualizar estado de la sección de instalación
@@ -214,6 +243,126 @@ class UIDevicePanel:
     def _extract_device_id(self, device_text):
         """Extrae el ID del dispositivo del texto mostrado"""
         return device_text.split(" - ")[1] if " - " in device_text else device_text
+
+    def _update_device_banner(self):
+        """Actualiza los banners con la información del dispositivo guardada"""
+        if not self.selected_device:
+            self.selected_device_banner.setText("No hay dispositivo seleccionado")
+            self.device_details_banner.setText("")
+            self.device_details_banner.setVisible(False)
+            return
+        
+        if self.selected_device_info:
+            brand = self.selected_device_info.get('brand', 'Desconocido')
+            model = self.selected_device_info.get('model', 'Desconocido')
+            ID = self.selected_device_info.get('device_id', 'Desconocido')
+            
+            # BANNER PRINCIPAL - SIEMPRE mostrar marca y modelo sin condiciones
+            self.selected_device_banner.setText(f"{brand} {model} - {ID}")
+            
+            # Banner de detalles - SIEMPRE mostrar todos los campos
+            info_lines = []
+            current_line = []
+            
+            field_names = {
+                'model': 'Modelo',
+                'brand': 'Marca',
+                'android_version': 'Android',
+                'sdk_version': 'SDK', 
+                'manufacturer': 'Fabricante',
+                'resolution': 'Pantalla',
+                'density': 'Densidad',
+                'total_ram': 'RAM',
+                'storage': 'Almacenamiento',
+                'cpu_arch': 'CPU',
+                'serial_number': 'Serie',
+                'device_id': 'ID'
+            }
+            
+            # SIEMPRE iteramos sobre TODOS los campos sin condiciones
+            for field, display_name in field_names.items():
+                value = self.selected_device_info.get(field, 'Desconocido')
+                
+                # Procesar valores específicos
+                if field == 'resolution':
+                    # Tomar solo la resolución antes del espacio
+                    value = value.split(' ')[0] if ' ' in value else value
+                
+                current_line.append(f"{display_name}: {value}")
+                
+                # Cada 2 elementos, crear nueva línea
+                if len(current_line) >= 2:
+                    info_lines.append(" | ".join(current_line))
+                    current_line = []
+            
+            # Agregar la última línea si tiene elementos
+            if current_line:
+                info_lines.append(" | ".join(current_line))
+            
+            # Unir todas las líneas
+            details_text = "\n".join(info_lines)
+            self.device_details_banner.setText(details_text)
+            self.device_details_banner.setVisible(True)
+            
+        else:
+            # Fallback si no hay información detallada
+            self.selected_device_banner.setText(f"No hay dispositivo seleccionado")
+            self.device_details_banner.setText("Información no disponible")
+            self.device_details_banner.setVisible(True)
+        
+    def _copy_device_details_to_clipboard(self, event):
+        """Copia la información del dispositivo al portapapeles al hacer doble clic"""
+        if not self.selected_device_info:
+            return
+            
+        # Construir texto formateado para copiar
+        clipboard_text = self._format_device_info_for_clipboard()
+        
+        # Copiar al portapapeles
+        clipboard = QApplication.clipboard()
+        clipboard.setText(clipboard_text)
+        
+        # Feedback visual
+        original_style = self.device_details_banner.styleSheet()
+        self.device_details_banner.setStyleSheet(original_style + """
+            QLabel {
+                background-color: rgba(76, 175, 80, 0.3);
+                border: 1px solid #4CAF50;
+            }
+        """)
+        
+        # Restaurar estilo después de 500ms
+        execute_after_delay(lambda: self.device_details_banner.setStyleSheet(original_style), 500)
+
+    def _format_device_info_for_clipboard(self):
+        """Formatea la información del dispositivo para el portapapeles"""
+        info = self.selected_device_info
+        if not info:
+            return "No hay información del dispositivo disponible"
+        
+        lines = []
+        
+        field_names = {
+            'model': 'Modelo',
+            'brand': 'Marca',
+            'android_version': 'Android',
+            'sdk_version': 'SDK', 
+            'manufacturer': 'Fabricante',
+            'resolution': 'Resolución',
+            'density': 'Densidad',
+            'total_ram': 'RAM',
+            'storage': 'Almacenamiento',
+            'cpu_arch': 'CPU',
+            'serial_number': 'Número de Serie',
+            'device_id': 'ID'
+        }
+        
+        # SIEMPRE copiar TODOS los campos sin condiciones
+        for field, display_name in field_names.items():
+            value = info.get(field, 'Desconocido')
+            lines.append(f"{display_name}: {value}")
+        
+        return "\n".join(lines)
 
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""

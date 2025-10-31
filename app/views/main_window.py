@@ -39,6 +39,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         # Lista para trackear threads activos
         self.active_threads = []
         self.cleaning_up = False
+        self.selected_device_info = {}
         self.init_ui()
         self.load_devices()
         self.update_adb_status()
