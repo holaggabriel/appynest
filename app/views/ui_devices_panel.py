@@ -23,6 +23,7 @@ class UIDevicePanel:
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
+        self.selected_device_banner.setMinimumHeight(40)
         layout.addWidget(self.selected_device_banner)
 
         self.details_container = self._create_device_details_grid()
