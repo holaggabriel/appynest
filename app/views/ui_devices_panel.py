@@ -28,6 +28,28 @@ class UIDevicePanel:
         self.details_container = self._create_device_details_grid()
         layout.addWidget(self.details_container)
         
+        # Contenedor de título con botón de información
+        title_widget = QWidget()
+        title_widget.setObjectName("my_container")
+        title_widget.setStyleSheet(self.styles['my_container'])
+
+        title_layout = QHBoxLayout(title_widget)
+        title_layout.setContentsMargins(10, 10, 10, 10)
+        title_layout.setSpacing(0)
+        
+        info_button = InfoButton(size=15)
+        info_button.clicked.connect(self.show_connection_help_dialog)
+
+        device_label = QLabel("Dispositivos Conectados:")
+        device_label.setStyleSheet(self.styles['title'])
+
+        title_layout.addWidget(info_button)
+        title_layout.addSpacing(10)
+        title_layout.addWidget(device_label)
+        title_layout.addStretch()
+
+        layout.addWidget(title_widget)
+        
         # Mensaje de estado
         self.devices_message_label = QLabel()
         self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
