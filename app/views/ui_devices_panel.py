@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
-                             QWidget,
-                             QFrame)
+                             QWidget, QFrame)
 from PyQt6.QtCore import Qt
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
@@ -19,14 +18,14 @@ class UIDevicePanel:
         section_title.setStyleSheet(self.styles['title_container'])
         layout.addWidget(section_title)
         
-        # Banner simplificado - solo el label del dispositivo seleccionado
+        # Banner del dispositivo seleccionado
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
         self.selected_device_banner.setMinimumHeight(40)
         layout.addWidget(self.selected_device_banner)
         
-        # Crear contenedor horizontal con borde
+        # Contenedor de título con botón de información
         title_widget = QWidget()
         title_widget.setObjectName("my_container")
         title_widget.setStyleSheet(self.styles['my_container'])
@@ -35,23 +34,20 @@ class UIDevicePanel:
         title_layout.setContentsMargins(10, 10, 10, 10)
         title_layout.setSpacing(0)
         
-        # Botón de información
         info_button = InfoButton(size=15)
         info_button.clicked.connect(self.show_connection_help_dialog)
 
-        # Texto en label separado
         device_label = QLabel("Dispositivos Conectados:")
         device_label.setStyleSheet(self.styles['title'])
 
-        # Añadir al layout horizontal
         title_layout.addWidget(info_button)
         title_layout.addSpacing(10)
         title_layout.addWidget(device_label)
         title_layout.addStretch()
 
-        # Añadir al layout principal
         layout.addWidget(title_widget)
         
+        # Mensaje de estado
         self.devices_message_label = QLabel()
         self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.devices_message_label.setStyleSheet(self.styles['status_info_message'])
@@ -59,11 +55,13 @@ class UIDevicePanel:
         self.devices_message_label.setWordWrap(True)
         layout.addWidget(self.devices_message_label)
         
+        # Lista de dispositivos
         self.device_list = QListWidget()
         self.device_list.setStyleSheet(self.styles['list_main_widget'])
-        self.device_list.itemSelectionChanged.connect(self._preselect_device)
+        self.device_list.itemSelectionChanged.connect(self._update_device_ui_state)
         layout.addWidget(self.device_list)
         
+        # Botones
         device_buttons_layout = QHBoxLayout()
         device_buttons_layout.setSpacing(8)
         
@@ -75,7 +73,7 @@ class UIDevicePanel:
         self.confirm_device_btn = QPushButton("Seleccionar")
         self.confirm_device_btn.setStyleSheet(self.styles['button_success_default'])
         self.confirm_device_btn.setEnabled(False)
-        self.confirm_device_btn.clicked.connect(self._confirm_device)
+        self.confirm_device_btn.clicked.connect(self._confirm_device_selection)
         device_buttons_layout.addWidget(self.confirm_device_btn)
         
         layout.addLayout(device_buttons_layout)
@@ -108,7 +106,7 @@ class UIDevicePanel:
             self._handle_scan_error(f"Error al escanear dispositivos: {str(e)}")
         finally:
             self.refresh_devices_btn.setEnabled(True)
-            self._update_ui_states()
+            self._update_device_ui_state()
 
     def _handle_scan_results(self, devices):
         """Procesa los resultados del escaneo de dispositivos"""
@@ -151,19 +149,16 @@ class UIDevicePanel:
         """Habilita o deshabilita los controles de la sección de dispositivos"""
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled)
-        self._update_ui_states()
+        self._update_device_ui_state()
 
-    def _update_ui_states(self):
-        """Actualiza todos los estados de UI relacionados con dispositivos"""
-        self._update_confirm_button_state()
-        self._update_install_button_state()
-        self._update_status_message()
-
-    def _update_confirm_button_state(self):
-        """Actualiza el estado del botón de confirmar selección"""
-        has_selection = bool(self.device_list.selectedItems()) and self.device_list.count() > 0
+    def _update_device_ui_state(self):
+        """Método único para actualizar todo el estado de UI de dispositivos"""
+        # Estado actual
+        has_devices = self.device_list.count() > 0
+        has_selection = bool(self.device_list.selectedItems())
+        is_section_enabled = self.device_list.isEnabled()
         
-        # Verificar si el dispositivo preseleccionado es el mismo que ya está seleccionado
+        # 1. Actualizar botón de confirmación
         if has_selection and self.selected_device:
             selected_item = self.device_list.selectedItems()[0].text()
             device_id = self._extract_device_id(selected_item)
@@ -171,45 +166,48 @@ class UIDevicePanel:
         else:
             is_same_device = False
         
-        # El botón se habilita solo si hay selección y NO es el mismo dispositivo
-        is_enabled = self.device_list.isEnabled() and has_selection and not is_same_device
-        self.confirm_device_btn.setEnabled(is_enabled)
-
-    def _update_install_button_state(self):
-        """Actualiza el estado del botón de instalación"""
-        has_apks = bool(self.selected_apks)
-        has_device = self.selected_device is not None
-        self.install_btn.setEnabled(has_apks and has_device)
-
-    def _update_status_message(self):
-        """Actualiza el mensaje de estado principal"""
-        if not self.selected_apks:
-            self.status_label.setText("Selecciona al menos un APK")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
-        elif not self.selected_device:
-            self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
+        self.confirm_device_btn.setEnabled(
+            is_section_enabled and 
+            has_selection and 
+            not is_same_device
+        )
+        
+        # 2. Actualizar banner del dispositivo seleccionado
+        if self.selected_device:
+            # Buscar el texto completo del dispositivo seleccionado
+            device_text = None
+            for i in range(self.device_list.count()):
+                item_text = self.device_list.item(i).text()
+                if self._extract_device_id(item_text) == self.selected_device:
+                    device_text = item_text
+                    break
+            
+            banner_text = device_text if device_text else f"Dispositivo: {self.selected_device}"
+            self.selected_device_banner.setText(banner_text)
         else:
-            self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
-            self.status_label.setStyleSheet(self.styles['status_success_message'])
+            self.selected_device_banner.setText("No hay dispositivo seleccionado")
+            # Actualizar también la sección de instalación
+            if hasattr(self, '_update_ui_state'):
+                self._update_ui_state()
 
-    def _preselect_device(self):
-        """Maneja la preselección de un dispositivo de la lista"""
-        selected_items = self.device_list.selectedItems()
-        self.preselected_device = selected_items[0].text() if selected_items else None
-        self._update_ui_states()
-
-    def _confirm_device(self):
+    def _confirm_device_selection(self):
         """Confirma la selección del dispositivo preseleccionado"""
-        if not self.preselected_device or self.device_list.count() == 0:
+        selected_items = self.device_list.selectedItems()
+        if not selected_items:
             return
             
-        device_id = self._extract_device_id(self.preselected_device)
-        self.selected_device = device_id
-        self.selected_device_banner.setText(self.preselected_device)
-        self._update_ui_states()
+        device_text = selected_items[0].text()
+        device_id = self._extract_device_id(device_text)
         
-        # Recargar aplicaciones si estamos en esa sección (USANDO LA NUEVA VARIABLE)
+        self.selected_device = device_id
+        self.selected_device_banner.setText(device_text)
+        self._update_device_ui_state()
+        
+        # Actualizar estado de la sección de instalación
+        if hasattr(self, '_update_ui_state'):
+            self._update_ui_state()
+        
+        # Recargar aplicaciones si estamos en esa sección
         if hasattr(self, 'current_section') and self.current_section == 'apps':
             self.handle_app_operations('load', force_load=True)
 
