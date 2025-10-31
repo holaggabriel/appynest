@@ -67,40 +67,6 @@ class ConnectionHelpDialog(QDialog):
         help_text.setHtml(self.get_help_content())
         help_text.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         layout.addWidget(help_text)
-        
-        # Botones
-        button_layout = QHBoxLayout()
-        
-        self.copy_btn = QPushButton("📋 Copiar pasos")
-        self.copy_btn.clicked.connect(self.copy_steps_to_clipboard)
-        self.copy_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #2d5b7c;
-                color: white;
-            }
-            QPushButton:hover {
-                background-color: #3574a0;
-            }
-        """)
-        
-        close_btn = QPushButton("✅ Cerrar")
-        close_btn.clicked.connect(self.accept)
-        close_btn.setDefault(True)
-        close_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #2e7d32;
-                color: white;
-            }
-            QPushButton:hover {
-                background-color: #388e3c;
-            }
-        """)
-        
-        button_layout.addWidget(self.copy_btn)
-        button_layout.addStretch()
-        button_layout.addWidget(close_btn)
-        
-        layout.addLayout(button_layout)
     
     def get_help_content(self):
         return """
@@ -168,13 +134,7 @@ class ConnectionHelpDialog(QDialog):
             i { color: #ce93d8; }
         </style>
 
-        <h3>🔌 Conectar dispositivo Android con ADB</h3>
-        
-        <div class="note">
-        <b>💡 Información importante:</b> Este proceso habilita la comunicación ADB entre tu PC y dispositivo Android para usar todas las funciones de Easy ADB.
-        </div>
-        
-        <h4>📋 Pasos detallados:</h4>
+        <h4>📋 Pasos:</h4>
         <ol>
             <li><b>Conecta el dispositivo</b> con cable USB (preferiblemente original o de calidad)</li>
             <li>Abre la aplicación <b>Ajustes / Configuración</b> en tu dispositivo</li>
@@ -192,7 +152,6 @@ class ConnectionHelpDialog(QDialog):
             <li>Si ya estaba conectado, <b>reconecta el dispositivo</b> al PC</li>
             <li>Cuando aparezca la ventana de confirmación en el teléfono:<br>
                 • Selecciona <b>"Permitir depuración USB"</b><br>
-                • Marca <b>"Permitir siempre desde este equipo"</b> si confías en el PC
             </li>
             <li>En <b>Easy ADB</b>, haz clic en <b>"Actualizar"</b> en la sección de dispositivos</li>
             <li>¡Listo! Tu dispositivo debería aparecer en la lista</li>
@@ -213,15 +172,10 @@ class ConnectionHelpDialog(QDialog):
         <ul>
             <li><b>Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)</li>
             <li><b>No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"</li>
-            <li><b>Error de permisos:</b> Asegúrate de marcar "Permitir siempre" en la ventana de confirmación</li>
-            <li><b>Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)"</li>
+            <li><b>Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el telefono.</li>
+            <li><b>Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP) en el telefono, esta opcion por lo general aparece en el panel de notificaciones como una notificaion silenciosa."</li>
             <li><b>No encuentras las opciones:</b> La ubicación puede variar - busca en Internet específicamente para tu modelo</li>
         </ul>
-        </div>
-
-        <div class="note">
-        <b>📝 Nota sobre variaciones:</b> Las ubicaciones exactas de los menús y opciones pueden variar dependiendo del dispositivo, fabricante y versión de Android. 
-        Si tienes dificultades para encontrar alguna opción, consulta la documentación específica de tu modelo.
         </div>
         """
     
@@ -247,9 +201,3 @@ PROBLEMAS COMUNES:
 - Si no encuentras opciones, busca específicamente para tu modelo
 - Reiniciar ambos dispositivos (PC y teléfono)
 - Verificar que los controladores ADB estén instalados"""
-        
-        clipboard.setText(plain_text)
-        self.copy_btn.setText("✅ ¡Copiado!")
-        
-        # Restaurar texto después de 2 segundos
-        QTimer.singleShot(2000, lambda: self.copy_btn.setText("📋 Copiar pasos"))
