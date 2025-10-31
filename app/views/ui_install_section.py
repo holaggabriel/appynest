@@ -6,6 +6,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDragEnterEvent, QDropEvent
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.core.threads import InstallationThread
+from app.views.dialogs.apk_installation_info_dialog import ApkInstallationInfoDialog
+from app.views.widgets.info_button import InfoButton
         
 class UIInstallSection:
     def setup_install_section(self):
@@ -20,6 +22,10 @@ class UIInstallSection:
         layout.setSpacing(12)
         layout.setContentsMargins(0, 0, 0, 0)
         
+        info_button = InfoButton(size=15)
+        info_button.clicked.connect(self.show_apk_installation_info_dialog)
+        layout.addWidget(info_button)
+
         self.apk_title = QLabel("ARCHIVOS APK")
         self.apk_title.setStyleSheet(self.styles['title_container'])
         self.apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -211,3 +217,8 @@ class UIInstallSection:
     def _is_app_closing(self):
         """Verificar si la aplicación se está cerrando"""
         return self.cleaning_up or self.property("closing")
+    
+    def show_apk_installation_info_dialog(self):
+        """Muestra el diálogo de ayuda para conexión"""
+        dialog = ApkInstallationInfoDialog(self)
+        dialog.exec()
