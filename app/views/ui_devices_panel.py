@@ -11,7 +11,7 @@ class UIDevicePanel:
     def setup_devices_panel(self):
         panel = QFrame()
         layout = QVBoxLayout(panel)
-        layout.setSpacing(12)
+        layout.setSpacing(10)
         layout.setContentsMargins(0, 0, 0, 0)
         
         section_title = QLabel("DISPOSITIVOS")
@@ -24,76 +24,9 @@ class UIDevicePanel:
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
         layout.addWidget(self.selected_device_banner)
-        
-        # ✅ NUEVO: Contenedor para los detalles en grid 2 columnas
-        self.details_container = QWidget()
-        self.details_layout = QGridLayout(self.details_container)
-        self.details_layout.setSpacing(0)
-        self.details_layout.setContentsMargins(0,0,0,0)
-        self.details_container.setVisible(False)
-        
-        # ✅ Crear UN rectángulo por cada propiedad (12 rectángulos)
-        self.detail_cards = {}
-        field_names = {
-            'model': 'Modelo',
-            'brand': 'Marca',
-            'android_version': 'Android',
-            'sdk_version': 'SDK', 
-            'manufacturer': 'Fabricante',
-            'resolution': 'Pantalla',
-            'density': 'Densidad',
-            'total_ram': 'RAM',
-            'storage': 'Almacenamiento',
-            'cpu_arch': 'CPU',
-            'serial_number': 'Serie',
-            'device_id': 'ID'
-        }
-        
-        # Crear los cards y posicionarlos en el grid
-        row, col = 0, 0
-        for field, display_name in field_names.items():
-            # ✅ UN SOLO LABEL por propiedad (nombre + valor)
-            card_label = QLabel(f"<b>{display_name}:</b>\n")
-            card_label.setStyleSheet(self.styles['detail_card'])  # Estilo para cada card
-            card_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            card_label.setWordWrap(True)
-            card_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            
-            # Guardar referencia al card
-            self.detail_cards[field] = card_label
-            
-            # Posicionar en el grid (6 filas x 2 columnas)
-            self.details_layout.addWidget(card_label, row, col)
-            
-            # Actualizar posición para la siguiente celda
-            col += 1
-            if col >= 2:  # 2 columnas
-                col = 0
-                row += 1
-        
+
+        self.details_container = self._create_device_details_grid()
         layout.addWidget(self.details_container)
-        
-        # Contenedor de título con botón de información
-        title_widget = QWidget()
-        title_widget.setObjectName("my_container")
-        title_widget.setStyleSheet(self.styles['my_container'])
-
-        title_layout = QHBoxLayout(title_widget)
-        title_layout.setContentsMargins(10, 10, 10, 10)
-        title_layout.setSpacing(0)
-        
-        info_button = InfoButton(size=15)
-        info_button.clicked.connect(self.show_connection_help_dialog)
-
-        device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(self.styles['title'])
-
-        title_layout.addWidget(info_button)
-        title_layout.addSpacing(10)
-        title_layout.addWidget(device_label)
-        title_layout.addStretch()
-
-        layout.addWidget(title_widget)
         
         # Mensaje de estado
         self.devices_message_label = QLabel()
@@ -127,7 +60,66 @@ class UIDevicePanel:
         layout.addLayout(device_buttons_layout)
         
         return panel
-    
+
+    def _create_device_details_grid(self):
+        """Crea el grid de detalles del dispositivo con bordes redondeados en las esquinas"""
+        # Contenedor para los detalles en grid 2 columnas
+        self.details_container = QWidget()
+        self.details_layout = QGridLayout(self.details_container)
+        self.details_layout.setSpacing(0)
+        self.details_layout.setContentsMargins(0, 0, 0, 0)
+        self.details_container.setVisible(False)
+
+        # Crear UN rectángulo por cada propiedad (12 rectángulos)
+        self.detail_cards = {}
+        field_names = {
+            'model': 'Modelo',
+            'brand': 'Marca', 
+            'android_version': 'Android',
+            'sdk_version': 'SDK',
+            'manufacturer': 'Fabricante',
+            'resolution': 'Pantalla',
+            'density': 'Densidad',
+            'total_ram': 'RAM',
+            'storage': 'Almacenamiento',
+            'cpu_arch': 'CPU',
+            'serial_number': 'Serie',
+            'device_id': 'ID'
+        }
+
+        # Crear los cards y posicionarlos en el grid (6 filas x 2 columnas)
+        for i, (field, display_name) in enumerate(field_names.items()):
+            row = i // 2
+            col = i % 2
+            
+            # UN SOLO LABEL por propiedad (nombre + valor)
+            card_label = QLabel(f"<b>{display_name}:</b>\n")
+            card_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            card_label.setWordWrap(True)
+            card_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            
+            # Aplicar estilo según la posición
+            if row == 0 and col == 0:
+                card_label.setStyleSheet(self.styles['detail_card_top_left'])
+            elif row == 0 and col == 1:
+                card_label.setStyleSheet(self.styles['detail_card_top_right'])
+            elif row == 5 and col == 0:
+                card_label.setStyleSheet(self.styles['detail_card_bottom_left'])
+            elif row == 5 and col == 1:
+                card_label.setStyleSheet(self.styles['detail_card_bottom_right'])
+            elif col == 0:  # Columna izquierda (no esquinas)
+                card_label.setStyleSheet(self.styles['detail_card_left'])
+            else:  # Columna derecha (no esquinas)
+                card_label.setStyleSheet(self.styles['detail_card_right'])
+            
+            # Guardar referencia al card
+            self.detail_cards[field] = card_label
+            
+            # Posicionar en el grid
+            self.details_layout.addWidget(card_label, row, col)
+
+        return self.details_container
+        
     def load_devices(self):
         """Inicia la carga de dispositivos con estado visual"""
         self.show_devices_message("Actualizando lista de dispositivos...", "info")

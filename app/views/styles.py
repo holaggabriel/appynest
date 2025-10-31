@@ -81,13 +81,87 @@ class DarkTheme:
             }}
             """,
 
-            'detail_card': f"""
+            'detail_card_left': f"""
                 QLabel {{
                     background-color: {colors['banner']};
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border: 1px solid {colors['border']};
+                    border-top: none;
                     border-radius: 0px;
                     padding: 4px;
-                    margin: 0px, 0px, 0px, 0px;
+                    margin: 0px;
+                    font-size: 11px;
+                }}
+            """,
+
+            'detail_card_right': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid {colors['border']};
+                    border-top: none;
+                    border-left: none;
+                    border-radius: 0px;
+                    padding: 4px;
+                    margin: 0px;
+                    font-size: 11px;
+                }}
+            """,
+            
+            'detail_card_top_left': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid {colors['border']};
+                    border-top-left-radius: 4px;
+                    border-top-right-radius: 0px;
+                    border-bottom-left-radius: 0px;
+                    border-bottom-right-radius: 0px;
+                    padding: 4px;
+                    margin: 0px;
+                    font-size: 11px;
+                }}
+            """,
+            
+            'detail_card_top_right': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid {colors['border']};
+                    border-left: none;
+                    border-top-left-radius: 0px;
+                    border-top-right-radius: 4px;
+                    border-bottom-left-radius: 0px;
+                    border-bottom-right-radius: 0px;
+                    padding: 4px;
+                    margin: 0px;
+                    font-size: 11px;
+                }}
+            """,
+            
+            'detail_card_bottom_left': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid {colors['border']};
+                    border-top: none;
+                    border-top-left-radius: 0px;
+                    border-top-right-radius: 0px;
+                    border-bottom-left-radius: 4px;
+                    border-bottom-right-radius: 0px;
+                    padding: 4px;
+                    margin: 0px;
+                    font-size: 11px;
+                }}
+            """,
+            
+            'detail_card_bottom_right': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid {colors['border']};
+                    border-top: none;
+                    border-left: none;
+                    border-top-left-radius: 0px;
+                    border-top-right-radius: 0px;
+                    border-bottom-left-radius: 0px;
+                    border-bottom-right-radius: 4px;
+                    padding: 4px;
+                    margin: 0px;
                     font-size: 11px;
                 }}
             """,
