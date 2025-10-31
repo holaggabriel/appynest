@@ -80,9 +80,18 @@ class DarkTheme:
                     margin: 0px 0px 0px 0px
             }}
             """,
-            
-            
-            
+
+            'detail_card': f"""
+                QLabel {{
+                    background-color: {colors['banner']};
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 0px;
+                    padding: 4px;
+                    margin: 0px, 0px, 0px, 0px;
+                    font-size: 11px;
+                }}
+            """,
+                        
             # ===== LISTAS =====
             'list_main_widget': f"""
                 QListWidget {{

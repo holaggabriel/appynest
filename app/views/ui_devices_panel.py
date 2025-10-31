@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
-                             QWidget, QFrame, QApplication)
+                             QWidget, QFrame, QApplication,QGridLayout )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QClipboard
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
@@ -25,24 +25,53 @@ class UIDevicePanel:
         self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
         layout.addWidget(self.selected_device_banner)
         
-        self.device_details_banner = QLabel("")
-        self.device_details_banner.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.device_details_banner.setStyleSheet(self.styles['status_info_message'] + """
-            QLabel {
-                padding: 8px;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-            QLabel:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-        """)
-        self.device_details_banner.setVisible(False)
-        self.device_details_banner.setWordWrap(True)
-        self.device_details_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.device_details_banner.mouseDoubleClickEvent = self._copy_device_details_to_clipboard
-
-        layout.addWidget(self.device_details_banner)
+        # ✅ NUEVO: Contenedor para los detalles en grid 2 columnas
+        self.details_container = QWidget()
+        self.details_layout = QGridLayout(self.details_container)
+        self.details_layout.setSpacing(0)
+        self.details_layout.setContentsMargins(0,0,0,0)
+        self.details_container.setVisible(False)
+        
+        # ✅ Crear UN rectángulo por cada propiedad (12 rectángulos)
+        self.detail_cards = {}
+        field_names = {
+            'model': 'Modelo',
+            'brand': 'Marca',
+            'android_version': 'Android',
+            'sdk_version': 'SDK', 
+            'manufacturer': 'Fabricante',
+            'resolution': 'Pantalla',
+            'density': 'Densidad',
+            'total_ram': 'RAM',
+            'storage': 'Almacenamiento',
+            'cpu_arch': 'CPU',
+            'serial_number': 'Serie',
+            'device_id': 'ID'
+        }
+        
+        # Crear los cards y posicionarlos en el grid
+        row, col = 0, 0
+        for field, display_name in field_names.items():
+            # ✅ UN SOLO LABEL por propiedad (nombre + valor)
+            card_label = QLabel(f"<b>{display_name}:</b>\n")
+            card_label.setStyleSheet(self.styles['detail_card'])  # Estilo para cada card
+            card_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            card_label.setWordWrap(True)
+            card_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            
+            # Guardar referencia al card
+            self.detail_cards[field] = card_label
+            
+            # Posicionar en el grid (6 filas x 2 columnas)
+            self.details_layout.addWidget(card_label, row, col)
+            
+            # Actualizar posición para la siguiente celda
+            col += 1
+            if col >= 2:  # 2 columnas
+                col = 0
+                row += 1
+        
+        layout.addWidget(self.details_container)
         
         # Contenedor de título con botón de información
         title_widget = QWidget()
@@ -248,67 +277,41 @@ class UIDevicePanel:
         """Actualiza los banners con la información del dispositivo guardada"""
         if not self.selected_device:
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
-            self.device_details_banner.setText("")
-            self.device_details_banner.setVisible(False)
+            self.details_container.setVisible(False)
             return
         
         if self.selected_device_info:
             brand = self.selected_device_info.get('brand', 'Desconocido')
             model = self.selected_device_info.get('model', 'Desconocido')
-            ID = self.selected_device_info.get('device_id', 'Desconocido')
+            device_id = self.selected_device_info.get('device_id', 'Desconocido')
             
-            # BANNER PRINCIPAL - SIEMPRE mostrar marca y modelo sin condiciones
-            self.selected_device_banner.setText(f"{brand} {model} - {ID}")
+            # Banner principal
+            self.selected_device_banner.setText(f"{brand} {model} - {device_id}")
             
-            # Banner de detalles - SIEMPRE mostrar todos los campos
-            info_lines = []
-            current_line = []
-            
-            field_names = {
-                'model': 'Modelo',
-                'brand': 'Marca',
-                'android_version': 'Android',
-                'sdk_version': 'SDK', 
-                'manufacturer': 'Fabricante',
-                'resolution': 'Pantalla',
-                'density': 'Densidad',
-                'total_ram': 'RAM',
-                'storage': 'Almacenamiento',
-                'cpu_arch': 'CPU',
-                'serial_number': 'Serie',
-                'device_id': 'ID'
-            }
-            
-            # SIEMPRE iteramos sobre TODOS los campos sin condiciones
-            for field, display_name in field_names.items():
+            # ✅ ACTUALIZAR TODOS LOS CARDS DEL GRID
+            for field, card_label in self.detail_cards.items():
                 value = self.selected_device_info.get(field, 'Desconocido')
                 
                 # Procesar valores específicos
                 if field == 'resolution':
-                    # Tomar solo la resolución antes del espacio
                     value = value.split(' ')[0] if ' ' in value else value
                 
-                current_line.append(f"{display_name}: {value}")
+                # ✅ ACTUALIZAR EL TEXTO DEL CARD (nombre + valor)
+                display_name = {
+                    'model': 'Modelo', 'brand': 'Marca', 'android_version': 'Android',
+                    'sdk_version': 'SDK', 'manufacturer': 'Fabricante', 'resolution': 'Pantalla',
+                    'density': 'Densidad', 'total_ram': 'RAM', 'storage': 'Almacenamiento',
+                    'cpu_arch': 'CPU', 'serial_number': 'Serie', 'device_id': 'ID'
+                }[field]
                 
-                # Cada 2 elementos, crear nueva línea
-                if len(current_line) >= 2:
-                    info_lines.append(" | ".join(current_line))
-                    current_line = []
+                card_label.setText(f"<b>{display_name}:</b>\n{value}")
             
-            # Agregar la última línea si tiene elementos
-            if current_line:
-                info_lines.append(" | ".join(current_line))
-            
-            # Unir todas las líneas
-            details_text = "\n".join(info_lines)
-            self.device_details_banner.setText(details_text)
-            self.device_details_banner.setVisible(True)
+            self.details_container.setVisible(True)
             
         else:
             # Fallback si no hay información detallada
-            self.selected_device_banner.setText(f"No hay dispositivo seleccionado")
-            self.device_details_banner.setText("Información no disponible")
-            self.device_details_banner.setVisible(True)
+            self.selected_device_banner.setText("No hay dispositivo seleccionado")
+            self.details_container.setVisible(False)
         
     def _copy_device_details_to_clipboard(self, event):
         """Copia la información del dispositivo al portapapeles al hacer doble clic"""
