@@ -22,15 +22,25 @@ class UIInstallSection:
         layout.setSpacing(12)
         layout.setContentsMargins(0, 0, 0, 0)
         
+        # Crear un layout horizontal para estos dos elementos
+        title_section_layout = QHBoxLayout()
+        title_section_layout.setContentsMargins(0,0,0,0)
+        title_section_layout.setSpacing(0)
+
         info_button = InfoButton(size=15)
         info_button.clicked.connect(self.show_apk_installation_info_dialog)
-        layout.addWidget(info_button)
+        title_section_layout.addWidget(info_button)
+        
+        title_section_layout.addSpacing(10)
 
         self.apk_title = QLabel("ARCHIVOS APK")
         self.apk_title.setStyleSheet(self.styles['title_container'])
         self.apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.apk_title)
-        
+        title_section_layout.addWidget(self.apk_title)
+
+        # Añadir el layout horizontal al layout principal
+        layout.addLayout(title_section_layout)
+
         self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setStyleSheet(self.styles['status_info_message'])
