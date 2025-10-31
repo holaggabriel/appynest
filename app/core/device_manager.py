@@ -63,3 +63,47 @@ class DeviceManager:
         except Exception as e:
             print(f"Error al obtener información del dispositivo: {e}")
             return {}
+
+    def is_device_available(self, device_id):
+            """
+            Verifica si un dispositivo está conectado y disponible
+            
+            Args:
+                device_id (str): El ID del dispositivo a verificar
+                
+            Returns:
+                bool: True si el dispositivo está conectado y disponible, False en caso contrario
+            """
+            try:
+                adb_path = self.adb_manager.get_adb_path()
+                
+                # Verificar si el dispositivo está en la lista de dispositivos conectados
+                result = subprocess.run(
+                    [adb_path, "-s", device_id, "get-state"],
+                    capture_output=True, text=True, timeout=10
+                )
+                
+                # Si el comando es exitoso y el estado es 'device', está disponible
+                if result.returncode == 0 and "device" in result.stdout.strip():
+                    return True
+                
+                # Alternativa: verificar mediante devices -l
+                devices_result = subprocess.run(
+                    [adb_path, "devices", "-l"],
+                    capture_output=True, text=True, timeout=10
+                )
+                
+                if devices_result.returncode == 0:
+                    lines = devices_result.stdout.strip().split('\n')
+                    for line in lines:
+                        if device_id in line and "device" in line:
+                            return True
+                
+                return False
+                
+            except subprocess.TimeoutExpired:
+                print(f"Timeout al verificar disponibilidad del dispositivo {device_id}")
+                return False
+            except Exception as e:
+                print(f"Error al verificar disponibilidad del dispositivo {device_id}: {e}")
+                return False

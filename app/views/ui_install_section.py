@@ -130,7 +130,13 @@ class UIInstallSection:
         """Iniciar instalación de APKs"""
         if not self.selected_apks or not self.selected_device:
             return
-        
+
+        # VERIFICAR SI EL DISPOSITivo ESTÁ DISPONIBLE
+        if not self.device_manager.is_device_available(self.selected_device):
+            self.status_label.setText("Dispositivo no disponible")
+            self.status_label.setStyleSheet(self.styles['status_error_message'])
+            return
+            
         # Bloquear controles durante instalación
         self.set_install_section_enabled(False)
         self.set_devices_section_enabled(False)
