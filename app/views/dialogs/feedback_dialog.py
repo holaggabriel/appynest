@@ -110,7 +110,7 @@ class FeedbackDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Comentarios")
-        self.setFixedSize(400, 300)
+        self.setFixedSize(370, 300)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         layout = QVBoxLayout(self)
@@ -171,25 +171,13 @@ class FeedbackDialog(QDialog):
         note_label.setMinimumWidth(200)
         layout.addWidget(note_label)
         
-        # Botones
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        
-        cancel_btn = QPushButton("Cancelar")
-        cancel_btn.setFixedSize(100, 35)
-        cancel_btn.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_btn)
-        
-        button_layout.addSpacing(10)
+        # Boton
         
         self.open_btn = QPushButton("Abrir Formulario")
         self.open_btn.setStyleSheet(self.styles['button_primary_default'])
-        self.open_btn.setFixedSize(140, 35)
         self.open_btn.clicked.connect(self.open_feedback_form)
-        button_layout.addWidget(self.open_btn)
-        
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
+
+        layout.addWidget(self.open_btn)
     
     def open_feedback_form(self):
         """Abre el formulario de Google Forms y deshabilita el botón temporalmente"""

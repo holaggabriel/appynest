@@ -112,7 +112,7 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Acerca de Easy ADB")
-        self.setFixedSize(450, 460)  # Aumenté la altura para acomodar el nuevo contenido
+        self.setFixedSize(450, 440)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         layout = QVBoxLayout(self)
@@ -238,21 +238,6 @@ class AboutDialog(QDialog):
         credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         credit_label.setWordWrap(True)
         layout.addWidget(credit_label)
-        
-        # Espaciador
-        layout.addStretch()
-        
-        # Botón de cerrar centrado
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        
-        close_btn = QPushButton("Aceptar")
-        close_btn.setFixedSize(100, 32)
-        close_btn.clicked.connect(self.accept)
-        button_layout.addWidget(close_btn)
-        
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
     
     def keyPressEvent(self, event):
         """Permite cerrar el diálogo con la tecla Escape"""
