@@ -53,29 +53,42 @@ class ConnectionHelpDialog(QDialog):
         
         # Contenido de Pasos
         steps_content = """
-        <ol style="color: #b0b0b0; line-height: 1.5;">
-            <li><b style="color: #90caf9;">Conecta el dispositivo</b> con cable USB (preferiblemente original o de calidad)</li>
-            <li>Abre la aplicación <b style="color: #90caf9;">Ajustes / Configuración</b> en tu dispositivo</li>
-            <li><b style="color: #90caf9;">Habilita Opciones de Desarrollador:</b><br>
-                • Busca la sección <b style="color: #90caf9;">Acerca del teléfono</b> o similar<br>
-                • <i style="color: #ce93d8;">Nota: La ubicación exacta puede variar según el dispositivo</i>
-            </li>
-            <li>Toca <b style="color: #90caf9;">Número de compilación</b> 7 veces hasta ver el mensaje <i style="color: #ce93d8;">"¡Ahora eres desarrollador!"</i></li>
-            <li><b style="color: #90caf9;">Accede a Opciones de Desarrollador:</b><br>
-                • Busca en Ajustes la sección <b style="color: #90caf9;">Opciones de desarrollador</b><br>
-                • <i style="color: #ce93d8;">Puede estar en Ajustes → Sistema o directamente en el menú principal</i><br>
-                • <i style="color: #ce93d8;">La ubicación puede cambiar dependiendo del fabricante y versión de Android</i>
-            </li>
-            <li>Activa <b style="color: #90caf9;">Depuración USB</b> (busca en la lista y activa el interruptor)</li>
-            <li>Si ya estaba conectado, <b style="color: #90caf9;">reconecta el dispositivo</b> al PC</li>
-            <li>Cuando aparezca la ventana de confirmación en el teléfono:<br>
-                • Selecciona <b style="color: #90caf9;">"Permitir depuración USB"</b><br>
-            </li>
-            <li>En <b style="color: #90caf9;">Easy ADB</b>, haz clic en <b style="color: #90caf9;">"Actualizar"</b> en la sección de dispositivos</li>
-            <li>¡Listo! Tu dispositivo debería aparecer en la lista</li>
-        </ol>
-        """
+        <p>1. Conecta el dispositivo con cable USB al PC</p>
+
+        <p>2. Abre la aplicación <b>Ajustes / Configuración</b> en tu dispositivo</p>
+
+        <p>3. Habilita las <b>Opciones de desarrollador</b>:</p>
+        <p style="margin-left:2em;">• Busca la sección <b>Acerca del teléfono</b> o similar</p>
+        <p style="margin-left:2em;"><i>La ubicación exacta puede variar según el dispositivo</i></p>
+
+        <p>4. Toca <b>Número de compilación</b> 7 veces hasta ver el mensaje <i>"¡Ahora eres desarrollador!"</i> o similar</p>
+
+        <p>5. Accede a las <b>Opciones de desarrollador</b>:</p>
+        <p style="margin-left:2em;">• Busca en Ajustes la sección <b>Opciones de desarrollador</b></p>
+        <p style="margin-left:2em;"><i>Puede estar en Ajustes → Sistema o directamente en el menú principal</i></p>
+        <p style="margin-left:2em;"><i>La ubicación puede cambiar dependiendo del fabricante y versión de Android</i></p>
+
+        <p>6. Activa la opción <b>Depuración USB</b> (busca en la lista y activa el interruptor)</p>
+
+        <p>7. Si ya estaba conectado, desconecta y vuelve a conectar el dispositivo al PC</p>
+
+        <p>8. Cuando aparezca la ventana de confirmación en el dispositivo:</p>
+        <p style="margin-left:2em;">• Selecciona <b>"Permitir depuración USB"</b> o similar</p>
+
+        <p>9. Verifica que el modo USB esté configurado como <b>Transferencia de archivos (MTP)</b> en el dispositivo:</p>
+        <p style="margin-left:2em;">• Antes de hacer cambios, intenta actualizar la lista de dispositivos en <b>Easy ADB</b>, ya que algunos dispositivos ya vienen configurados con el modo adecuado</p>
+        <p style="margin-left:2em;">• Si el dispositivo no aparece, asegúrate de que esté usando un modo de conexión compatible como <b>Transferencia de archivos (MTP)</b></p>
+        <p style="margin-left:2em;">• Para cambiar al modo MTP:</p>
+        <p style="margin-left:4em;">- Despliega el panel de notificaciones en tu dispositivo</p>
+        <p style="margin-left:4em;">- Busca la notificación de <b>"Carga por USB"</b> o <b>"USB para"</b></p>
+        <p style="margin-left:4em;">- Toca esta notificación y selecciona <b>"Transferencia de archivos (MTP)"</b> o <b>"Transferir archivos"</b></p>
+        <p style="margin-left:4em;"><i>Esta configuración puede variar dependiendo del fabricante y versión de Android</i></p>
         
+        <p>10. En <b>Easy ADB</b>, haz clic en <b>"Actualizar"</b> en la sección de dispositivos</p>
+
+        <p>11. ¡Listo! Tu dispositivo debería aparecer en la lista</p>
+        """
+
         steps_label = QLabel(steps_content)
         steps_label.setObjectName("description")
         steps_label.setWordWrap(True)
@@ -96,12 +109,21 @@ class ConnectionHelpDialog(QDialog):
         
         # Contenido de Consejos
         tips_content = """
-        <ul style="color: #b0b0b0; line-height: 1.5;">
-            <li>Algunos dispositivos requieren <b style="color: #90caf9;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga</li>
-            <li>Si no encuentras alguna opción, <b style="color: #90caf9;">busca en el menú de ajustes</b> ya que puede variar</li>
-            <li>Si no funciona, prueba <b style="color: #90caf9;">reiniciar ambos dispositivos</b> (PC y teléfono)</li>
-            <li>La primera conexión puede tardar unos segundos en ser detectada</li>
-        </ul>
+        <p style="color: #b0b0b0;">
+            Algunos dispositivos requieren <b style="color: #3399DD;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga
+        </p>
+
+        <p style="color: #b0b0b0;">
+            Si no encuentras alguna opción, <b style="color: #3399DD;">busca en el menú de ajustes</b> ya que puede variar
+        </p>
+
+        <p style="color: #b0b0b0;">
+            Si no funciona, prueba <b style="color: #3399DD;">reiniciar ambos dispositivos</b> (PC y dispositivo)
+        </p>
+
+        <p style="color: #b0b0b0;">
+            La primera conexión puede tardar unos segundos en ser detectada
+        </p>
         """
         
         tips_label = QLabel(tips_content)
@@ -124,15 +146,27 @@ class ConnectionHelpDialog(QDialog):
         
         # Contenido de Problemas
         problems_content = """
-        <ul style="color: #b0b0b0; line-height: 1.5;">
-            <li><b style="color: #90caf9;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)</li>
-            <li><b style="color: #90caf9;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"</li>
-            <li><b style="color: #90caf9;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el teléfono.</li>
-            <li><b style="color: #90caf9;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el teléfono, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa.</li>
-            <li><b style="color: #90caf9;">No encuentras las opciones:</b> La ubicación puede variar - busca en Internet específicamente para tu modelo</li>
-        </ul>
+        <p style="color: #b0b0b0;">
+            <b style="color: #90caf9;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)
+        </p>
+
+        <p style="color: #b0b0b0;">
+            <b style="color: #90caf9;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"
+        </p>
+
+        <p style="color: #b0b0b0;">
+            <b style="color: #90caf9;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el dispositivo
+        </p>
+
+        <p style="color: #b0b0b0;">
+            <b style="color: #90caf9;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el dispositivo, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa. En algunos dispositivos, esta opción o ventana aparece automáticamente al conectar el cable USB
+        </p>
+
+        <p style="color: #b0b0b0;">
+            <b style="color: #90caf9;">No encuentras las opciones:</b> La ubicación puede variar — busca en Internet específicamente para tu modelo
+        </p>
         """
-        
+
         problems_label = QLabel(problems_content)
         problems_label.setObjectName("description")
         problems_label.setWordWrap(True)

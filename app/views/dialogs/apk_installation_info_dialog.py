@@ -59,20 +59,20 @@ class ApkInstallationInfoDialog(QDialog):
         con aplicaciones extraídas que fueron instaladas a través de una tienda de aplicaciones, 
         ya que las tiendas modernas generan paquetes divididos optimizados específicamente 
         para cada dispositivo.<br><br>
-        
+
         Este término de Split APK se utiliza habitualmente para referirse a los APKs generados automáticamente 
         a partir de Android App Bundles (.aab) por canales de distribución o tiendas de aplicaciones. Están optimizados 
         para un dispositivo específico y pueden no funcionar correctamente en otros, ya que dependen de características 
         concretas de hardware, idioma, resolución y configuración.<br><br>
-        
+
         <b>¿Por qué es problemático?</b> Los Split APKs están altamente especializados y solo funcionan en dispositivos que tengan 
-        características IDÉNTICAS al dispositivo de origen. Esto incluye:<br><br>
-        
-        • <b>Arquitectura de CPU exactamente igual</b> (ARMv7, ARM64, x86, etc.)<br>
-        • <b>Misma densidad de pantalla y resolución</b><br>
-        • <b>Idioma y región configurados igual</b><br>
-        • <b>Características de hardware idénticas</b><br><br>
-        
+        características IDÉNTICAS al dispositivo de origen. Esto incluye:
+
+        <p style="margin-left:2em;">• <b>Arquitectura de CPU exactamente igual</b> (ARMv7, ARM64, x86, etc.)</p>
+        <p style="margin-left:2em;">• <b>Misma densidad de pantalla y resolución</b></p>
+        <p style="margin-left:2em;">• <b>Idioma y región configurados igual</b></p>
+        <p style="margin-left:2em;">• <b>Características de hardware idénticas</b></p>
+
         <b>Consecuencia:</b> Si intentas instalar un Split APK en un dispositivo que no 
         coincide exactamente en todas estas características, la instalación <b>FALLARÁ</b> 
         o la aplicación <b>NO FUNCIONARÁ CORRECTAMENTE</b> aunque se instale.
@@ -127,16 +127,16 @@ class ApkInstallationInfoDialog(QDialog):
         
         # Contenido de Consejos
         tips_content = """
-        • Si experimentas errores de instalación frecuentes con un APK específico, 
+        Si experimentas errores de instalación frecuentes con un APK específico, 
         es muy probable que sea un Split APK. Busca un APK universal alternativo.<br><br>
         
-        • Los APKs extraídos de tiendas de aplicaciones generalmente son splits APK 
+        Los APKs extraídos de tiendas de aplicaciones generalmente son splits APK 
         diseñados específicamente para el dispositivo de origen.<br><br>
         
-        • Verifica que el APK no esté corrupto descargándolo nuevamente o desde 
+        Verifica que el APK no esté corrupto descargándolo nuevamente o desde 
         una fuente diferente.<br><br>
         
-        • Algunas aplicaciones requieren versiones específicas de Android o 
+        Algunas aplicaciones requieren versiones específicas de Android o 
         permisos especiales. Verifica los requisitos antes de instalar.
         """
         
