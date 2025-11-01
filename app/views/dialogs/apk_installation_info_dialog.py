@@ -116,7 +116,7 @@ class ApkInstallationInfoDialog(QDialog):
         """)
     
     def init_ui(self):
-        self.setWindowTitle("Información de Instalación APK")
+        self.setWindowTitle("Consideraciones sobre la instalación de APKs")
         self.setFixedSize(580, 520)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
@@ -139,7 +139,7 @@ class ApkInstallationInfoDialog(QDialog):
         scroll_layout.setContentsMargins(24, 20, 24, 20)
         
         # Título
-        title_label = QLabel("Información para Instalación de APKs")
+        title_label = QLabel("Consideraciones sobre la instalación de APKs")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(title_label)
