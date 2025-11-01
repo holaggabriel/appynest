@@ -1,152 +1,14 @@
-from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                            QPushButton, QTextEdit, QScrollArea, QWidget, 
-                            QFrame, QSizePolicy)
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, 
+                            QScrollArea, QWidget, 
+                            QFrame)
+from PyQt6.QtCore import Qt
+from .style_dialogs import DIALOG_STYLES
 
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setup_styles()
+        self.setStyleSheet(DIALOG_STYLES)
         self.init_ui()
-    
-    def setup_styles(self):
-        """Configura el estilo moderno flat minimalista en modo oscuro"""
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #1a1a1a;
-                color: #e0e0e0;
-                border: none;
-                border-radius: 12px;
-            }
-            QScrollArea {
-                background-color: transparent;
-                border: none;
-            }
-            QWidget#scrollWidget {
-                background-color: transparent;
-            }
-            QLabel {
-                color: #e0e0e0;
-                background-color: transparent;
-            }
-            QLabel#title {
-                font-size: 20px;
-                font-weight: 600;
-                color: #ffffff;
-                padding: 0px 0px 0px 0px;
-                margin: 0px 0px 0px 0px;
-                letter-spacing: -0.5px;
-            }
-            QLabel#subtitle_green {
-                font-size: 16px;
-                font-weight: 600;
-                color: #2ecc71;
-                padding: 12px 0px 6px 0px;
-                background-color: rgba(46, 204, 113, 0.12);
-                border-radius: 6px;
-                padding: 10px 16px;
-                margin: 4px 0px;
-            }
-            QLabel#subtitle_blue {
-                font-size: 16px;
-                font-weight: 600;
-                color: #3498db;
-                padding: 12px 0px 6px 0px;
-                background-color: rgba(52, 152, 219, 0.12);
-                border-radius: 6px;
-                padding: 10px 16px;
-                margin: 4px 0px;
-            }
-            QLabel#subtitle_orange {
-                font-size: 16px;
-                font-weight: 600;
-                color: #e67e22;
-                padding: 12px 0px 6px 0px;
-                background-color: rgba(230, 126, 34, 0.12);
-                border-radius: 6px;
-                padding: 10px 16px;
-                margin: 4px 0px;
-            }
-            QLabel#subtitle_purple {
-                font-size: 16px;
-                font-weight: 600;
-                color: #9b59b6;
-                padding: 12px 0px 6px 0px;
-                background-color: rgba(155, 89, 182, 0.12);
-                border-radius: 6px;
-                padding: 10px 16px;
-                margin: 4px 0px;
-            }
-            QLabel#description {
-                color: #b0b0b0;
-                line-height: 1.5;
-                padding: 8px 0px;
-                font-size: 14px;
-            }
-            QTextEdit {
-                background-color: transparent;
-                color: #b0b0b0;
-                border: none;
-                padding: 0px;
-                font-size: 14px;
-                line-height: 1.5;
-                selection-background-color: #3949ab;
-            }
-            QPushButton {
-                background-color: #3498db;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                padding: 10px 20px;
-                font-weight: 500;
-                font-size: 14px;
-                min-width: 90px;
-            }
-            QPushButton:hover {
-                background-color: #2980b9;
-            }
-            QPushButton:pressed {
-                background-color: #21618c;
-            }
-            QPushButton#primary {
-                background-color: #27ae60;
-                color: white;
-            }
-            QPushButton#primary:hover {
-                background-color: #219653;
-            }
-            QFrame#separator {
-                background-color: #333;
-                border: none;
-                max-height: 1px;
-                min-height: 1px;
-                margin: 0px 0px 12px 0px;
-                padding: 0px 0px 0px 0px;
-            }
-            QScrollBar:vertical {
-                background-color: #2d2d2d;
-                width: 10px;
-                border-radius: 5px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #555;
-                border-radius: 5px;
-                min-height: 20px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background-color: #777;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
-                height: 0px;
-            }
-            QScrollBar:vertical {
-                border: none;
-            }
-        """)
     
     def init_ui(self):
         self.setWindowTitle("Ayuda")
@@ -169,7 +31,7 @@ class ADBHelpDialog(QDialog):
         self.scroll_widget.setObjectName("scrollWidget")
         self.scroll_layout = QVBoxLayout(self.scroll_widget)
         self.scroll_layout.setSpacing(5)
-        self.scroll_layout.setContentsMargins(28, 0, 28, 24)
+        self.scroll_layout.setContentsMargins(28, 24, 28, 24)
         
         # Título
         self.title_label = QLabel("Configuración de ADB")
@@ -206,7 +68,6 @@ class ADBHelpDialog(QDialog):
         self.content_locations.setTextFormat(Qt.TextFormat.RichText)
         self.content_locations.setWordWrap(True)
         self.content_locations.setText(self.get_adb_locations_content())
-        self.content_locations.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.scroll_layout.addWidget(self.content_locations)
 
     def add_common_paths_section(self):
@@ -223,7 +84,6 @@ class ADBHelpDialog(QDialog):
         self.content_paths.setTextFormat(Qt.TextFormat.RichText)
         self.content_paths.setWordWrap(True)
         self.content_paths.setText(self.get_common_paths_content())
-        self.content_paths.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.scroll_layout.addWidget(self.content_paths)
 
     def add_setup_instructions_section(self):
@@ -240,7 +100,6 @@ class ADBHelpDialog(QDialog):
         self.content_setup.setTextFormat(Qt.TextFormat.RichText)
         self.content_setup.setWordWrap(True)
         self.content_setup.setText(self.get_setup_instructions_content())
-        self.content_setup.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.scroll_layout.addWidget(self.content_setup)
 
     def get_adb_locations_content(self):
