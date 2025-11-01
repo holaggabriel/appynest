@@ -1,203 +1,297 @@
 from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QDialog, 
-                             QVBoxLayout, QTextEdit, QPushButton, QApplication)
+                             QVBoxLayout, QPushButton, QApplication,
+                             QScrollArea, QWidget, QFrame)
 from PyQt6.QtCore import Qt, QTimer
 
 class ConnectionHelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Cómo conectar dispositivo Android con ADB")
-        self.setFixedSize(500, 550)
-        self.setup_ui()
+        self.setup_styles()
+        self.init_ui()
         
-    def setup_ui(self):
-        # Aplicar estilo oscuro al diálogo
+    def setup_styles(self):
+        """Configura el estilo moderno flat minimalista en modo oscuro"""
         self.setStyleSheet("""
             QDialog {
-                background-color: #2b2b2b;
+                background-color: #1a1a1a;
+                color: #e0e0e0;
+                border: none;
+                border-radius: 12px;
+            }
+            QScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+            QWidget#scrollWidget {
+                background-color: transparent;
+            }
+            QLabel {
+                color: #e0e0e0;
+                background-color: transparent;
+            }
+            QLabel#title {
+                font-size: 20px;
+                font-weight: 600;
                 color: #ffffff;
-                font-family: 'Segoe UI', Arial, sans-serif;
+                padding: 8px 0px;
+                letter-spacing: -0.5px;
+            }
+            QLabel#subtitle_green {
+                font-size: 16px;
+                font-weight: 600;
+                color: #2ecc71;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(46, 204, 113, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#subtitle_blue {
+                font-size: 16px;
+                font-weight: 600;
+                color: #3498db;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(52, 152, 219, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#subtitle_orange {
+                font-size: 16px;
+                font-weight: 600;
+                color: #e67e22;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(230, 126, 34, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#description {
+                color: #b0b0b0;
+                line-height: 1.5;
+                padding: 8px 0px;
+                font-size: 14px;
+            }
+            QLabel#warning {
+                color: #e74c3c;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 8px 0px;
+                background-color: rgba(231, 76, 60, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+            }
+            QLabel#tip {
+                color: #2ecc71;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 8px 0px;
+                background-color: rgba(46, 204, 113, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+            }
+            QLabel#note {
+                color: #3498db;
+                font-size: 14px;
+                font-weight: 500;
+                padding: 8px 0px;
+                background-color: rgba(52, 152, 219, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
             }
             QPushButton {
-                background-color: #404040;
+                background-color: #3498db;
                 color: white;
-                border: 1px solid #555;
-                padding: 8px 15px;
-                border-radius: 4px;
-                font-weight: bold;
-                min-width: 100px;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
+                font-weight: 500;
+                font-size: 14px;
+                min-width: 90px;
             }
             QPushButton:hover {
-                background-color: #505050;
-                border: 1px solid #666;
+                background-color: #2980b9;
             }
             QPushButton:pressed {
-                background-color: #303030;
+                background-color: #21618c;
             }
-            QTextEdit {
-                background-color: #1e1e1e;
-                color: #e0e0e0;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 5px;
-                font-size: 13px;
+            QPushButton#primary {
+                background-color: #27ae60;
+                color: white;
+            }
+            QPushButton#primary:hover {
+                background-color: #219653;
+            }
+            QFrame#separator {
+                background-color: #333;
+                border: none;
+                max-height: 1px;
+                min-height: 1px;
+                margin: 12px 0px;
+            }
+            QScrollBar:vertical {
+                background-color: #2d2d2d;
+                width: 10px;
+                border-radius: 5px;
+                margin: 0px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #555;
+                border-radius: 5px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #777;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+                height: 0px;
+            }
+            QScrollBar:vertical {
+                border: none;
             }
         """)
-        
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
-        layout.setContentsMargins(15, 15, 15, 15)
-        
-        # Título con estilo oscuro
-        title = QLabel("🔧 Conectar Dispositivo Android")
-        title.setStyleSheet("""
-            font-size: 18px; 
-            font-weight: bold; 
-            padding: 12px; 
-            background-color: #3a3a3a;
-            border-radius: 6px;
-            color: #ffffff;
-            margin-bottom: 5px;
-        """)
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
-        
-        # Contenido de ayuda
-        help_text = QTextEdit()
-        help_text.setReadOnly(True)
-        help_text.setHtml(self.get_help_content())
-        help_text.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        layout.addWidget(help_text)
     
-    def get_help_content(self):
-        return """
-        <style>
-            body { 
-                font-family: 'Segoe UI', Arial, sans-serif; 
-                line-height: 1.5; 
-                color: #e0e0e0;
-                background-color: #1e1e1e;
-                margin: 0;
-                padding: 0;
-            }
-            h3 { 
-                color: #4fc3f7; 
-                margin-top: 0; 
-                border-bottom: 1px solid #444;
-                padding-bottom: 8px;
-            }
-            h4 {
-                color: #81c784;
-                margin-top: 15px;
-                margin-bottom: 8px;
-            }
-            ol { 
-                padding-left: 25px; 
-                margin: 10px 0;
-            }
-            ul {
-                padding-left: 20px;
-                margin: 8px 0;
-            }
-            li { 
-                margin-bottom: 10px; 
-                text-align: justify;
-            }
-            .note { 
-                background: #37474f; 
-                padding: 12px; 
-                border-radius: 6px; 
-                margin: 15px 0;
-                border-left: 4px solid #4fc3f7;
-            }
-            .warning { 
-                background: #5d4037; 
-                padding: 12px; 
-                border-radius: 6px; 
-                margin: 15px 0;
-                border-left: 4px solid #ff9800;
-            }
-            .tip { 
-                background: #1b5e20; 
-                padding: 12px; 
-                border-radius: 6px; 
-                margin: 15px 0;
-                border-left: 4px solid #81c784;
-            }
-            code { 
-                background: #263238; 
-                padding: 3px 6px; 
-                border-radius: 3px; 
-                font-family: 'Consolas', monospace;
-                color: #ffcc80;
-            }
-            b { color: #90caf9; }
-            i { color: #ce93d8; }
-        </style>
-
-        <h4>📋 Pasos:</h4>
-        <ol>
-            <li><b>Conecta el dispositivo</b> con cable USB (preferiblemente original o de calidad)</li>
-            <li>Abre la aplicación <b>Ajustes / Configuración</b> en tu dispositivo</li>
-            <li><b>Habilita Opciones de Desarrollador:</b><br>
-                • Busca la sección <b>Acerca del teléfono</b> o similar<br>
-                • <i>Nota: La ubicación exacta puede variar según el dispositivo</i>
+    def init_ui(self):
+        self.setWindowTitle("Ayuda")
+        self.setFixedSize(600, 540)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
+        
+        # Layout principal
+        main_layout = QVBoxLayout(self)
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Crear scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Widget contenedor del scroll
+        scroll_widget = QWidget()
+        scroll_widget.setObjectName("scrollWidget")
+        scroll_layout = QVBoxLayout(scroll_widget)
+        scroll_layout.setSpacing(10)
+        scroll_layout.setContentsMargins(28, 24, 28, 24)
+        
+        # Título
+        title_label = QLabel("Conectar Dispositivo Android")
+        title_label.setObjectName("title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scroll_layout.addWidget(title_label)
+        
+        # Separador
+        separator_top = QFrame()
+        separator_top.setObjectName("separator")
+        separator_top.setFrameShape(QFrame.Shape.HLine)
+        scroll_layout.addWidget(separator_top)
+        
+        # Subtítulo para Pasos (color azul) - CENTRADO
+        steps_subtitle = QLabel("Pasos para conectar")
+        steps_subtitle.setObjectName("subtitle_blue")
+        steps_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scroll_layout.addWidget(steps_subtitle)
+        
+        # Contenido de Pasos
+        steps_content = """
+        <ol style="color: #b0b0b0; line-height: 1.5;">
+            <li><b style="color: #90caf9;">Conecta el dispositivo</b> con cable USB (preferiblemente original o de calidad)</li>
+            <li>Abre la aplicación <b style="color: #90caf9;">Ajustes / Configuración</b> en tu dispositivo</li>
+            <li><b style="color: #90caf9;">Habilita Opciones de Desarrollador:</b><br>
+                • Busca la sección <b style="color: #90caf9;">Acerca del teléfono</b> o similar<br>
+                • <i style="color: #ce93d8;">Nota: La ubicación exacta puede variar según el dispositivo</i>
             </li>
-            <li>Toca <b>Número de compilación</b> 7 veces hasta ver el mensaje <i>"¡Ahora eres desarrollador!"</i></li>
-            <li><b>Accede a Opciones de Desarrollador:</b><br>
-                • Busca en Ajustes la sección <b>Opciones de desarrollador</b><br>
-                • <i>Puede estar en Ajustes → Sistema o directamente en el menú principal</i><br>
-                • <i>La ubicción puede cambiar dependiendo del fabricante y versión de Android</i>
+            <li>Toca <b style="color: #90caf9;">Número de compilación</b> 7 veces hasta ver el mensaje <i style="color: #ce93d8;">"¡Ahora eres desarrollador!"</i></li>
+            <li><b style="color: #90caf9;">Accede a Opciones de Desarrollador:</b><br>
+                • Busca en Ajustes la sección <b style="color: #90caf9;">Opciones de desarrollador</b><br>
+                • <i style="color: #ce93d8;">Puede estar en Ajustes → Sistema o directamente en el menú principal</i><br>
+                • <i style="color: #ce93d8;">La ubicación puede cambiar dependiendo del fabricante y versión de Android</i>
             </li>
-            <li>Activa <b>Depuración USB</b> (busca en la lista y activa el interruptor)</li>
-            <li>Si ya estaba conectado, <b>reconecta el dispositivo</b> al PC</li>
+            <li>Activa <b style="color: #90caf9;">Depuración USB</b> (busca en la lista y activa el interruptor)</li>
+            <li>Si ya estaba conectado, <b style="color: #90caf9;">reconecta el dispositivo</b> al PC</li>
             <li>Cuando aparezca la ventana de confirmación en el teléfono:<br>
-                • Selecciona <b>"Permitir depuración USB"</b><br>
+                • Selecciona <b style="color: #90caf9;">"Permitir depuración USB"</b><br>
             </li>
-            <li>En <b>Easy ADB</b>, haz clic en <b>"Actualizar"</b> en la sección de dispositivos</li>
+            <li>En <b style="color: #90caf9;">Easy ADB</b>, haz clic en <b style="color: #90caf9;">"Actualizar"</b> en la sección de dispositivos</li>
             <li>¡Listo! Tu dispositivo debería aparecer en la lista</li>
         </ol>
-
-        <div class="tip">
-        <b>🎯 Consejos útiles:</b>
-        <ul>
-            <li>Algunos dispositivos requieren <b>modo MTP (Transferencia de archivos)</b> en lugar de solo carga</li>
-            <li>Si no encuentras alguna opción, <b>busca en el menú de ajustes</b> ya que puede variar</li>
-            <li>Si no funciona, prueba <b>reiniciar ambos dispositivos</b> (PC y teléfono)</li>
+        """
+        
+        steps_label = QLabel(steps_content)
+        steps_label.setObjectName("description")
+        steps_label.setWordWrap(True)
+        steps_label.setTextFormat(Qt.TextFormat.RichText)
+        scroll_layout.addWidget(steps_label)
+        
+        # Separador
+        separator1 = QFrame()
+        separator1.setObjectName("separator")
+        separator1.setFrameShape(QFrame.Shape.HLine)
+        scroll_layout.addWidget(separator1)
+        
+        # Subtítulo para Consejos (color verde) - CENTRADO
+        tips_subtitle = QLabel("Consejos útiles")
+        tips_subtitle.setObjectName("subtitle_green")
+        tips_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scroll_layout.addWidget(tips_subtitle)
+        
+        # Contenido de Consejos
+        tips_content = """
+        <ul style="color: #b0b0b0; line-height: 1.5;">
+            <li>Algunos dispositivos requieren <b style="color: #90caf9;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga</li>
+            <li>Si no encuentras alguna opción, <b style="color: #90caf9;">busca en el menú de ajustes</b> ya que puede variar</li>
+            <li>Si no funciona, prueba <b style="color: #90caf9;">reiniciar ambos dispositivos</b> (PC y teléfono)</li>
             <li>La primera conexión puede tardar unos segundos en ser detectada</li>
         </ul>
-        </div>
-        
-        <div class="warning">
-        <b>⚠️ Solución de problemas comunes:</b>
-        <ul>
-            <li><b>Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)</li>
-            <li><b>No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"</li>
-            <li><b>Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el telefono.</li>
-            <li><b>Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP) en el telefono, esta opcion por lo general aparece en el panel de notificaciones como una notificaion silenciosa."</li>
-            <li><b>No encuentras las opciones:</b> La ubicación puede variar - busca en Internet específicamente para tu modelo</li>
-        </ul>
-        </div>
         """
+        
+        tips_label = QLabel(tips_content)
+        tips_label.setObjectName("description")
+        tips_label.setWordWrap(True)
+        tips_label.setTextFormat(Qt.TextFormat.RichText)
+        scroll_layout.addWidget(tips_label)
+        
+        # Separador
+        separator2 = QFrame()
+        separator2.setObjectName("separator")
+        separator2.setFrameShape(QFrame.Shape.HLine)
+        scroll_layout.addWidget(separator2)
+        
+        # Subtítulo para Solución de Problemas (color naranja) - CENTRADO
+        problems_subtitle = QLabel("Solución de problemas comunes")
+        problems_subtitle.setObjectName("subtitle_orange")
+        problems_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        scroll_layout.addWidget(problems_subtitle)
+        
+        # Contenido de Problemas
+        problems_content = """
+        <ul style="color: #b0b0b0; line-height: 1.5;">
+            <li><b style="color: #90caf9;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)</li>
+            <li><b style="color: #90caf9;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"</li>
+            <li><b style="color: #90caf9;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el teléfono.</li>
+            <li><b style="color: #90caf9;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el teléfono, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa.</li>
+            <li><b style="color: #90caf9;">No encuentras las opciones:</b> La ubicación puede variar - busca en Internet específicamente para tu modelo</li>
+        </ul>
+        """
+        
+        problems_label = QLabel(problems_content)
+        problems_label.setObjectName("description")
+        problems_label.setWordWrap(True)
+        problems_label.setTextFormat(Qt.TextFormat.RichText)
+        scroll_layout.addWidget(problems_label)
+        
+        # Espaciador al final del contenido scrollable
+        scroll_layout.addStretch()
+        
+        # Configurar el scroll area
+        scroll_area.setWidget(scroll_widget)
+        main_layout.addWidget(scroll_area)
     
-    def copy_steps_to_clipboard(self):
-        clipboard = QApplication.clipboard()
-        plain_text = """CÓMO CONECTAR DISPOSITIVO ANDROID CON ADB - Easy ADB
-
-PASOS PRINCIPALES:
-1. Conecta con cable USB original o de calidad
-2. Abre Ajustes → Busca "Acerca del teléfono" o similar
-3. Toca "Número de compilación" 7 veces hasta ver mensaje de desarrollador
-4. Busca "Opciones de desarrollador" en Ajustes (puede estar en Sistema o directamente)
-5. Activa "Depuración USB"
-6. Reconecta el dispositivo si es necesario
-7. En ventana de confirmación: "Permitir depuración USB" y "Permitir siempre"
-8. En Easy ADB, haz clic en "Actualizar" en dispositivos
-
-NOTA: Las ubicaciones de los menús pueden variar dependiendo del dispositivo, fabricante y versión de Android.
-
-PROBLEMAS COMUNES:
-- Probar otro cable USB (los de solo carga no funcionan)
-- Cambiar a modo "Transferencia de archivos (MTP)"
-- Si no encuentras opciones, busca específicamente para tu modelo
-- Reiniciar ambos dispositivos (PC y teléfono)
-- Verificar que los controladores ADB estén instalados"""
+    def keyPressEvent(self, event):
+        """Permite cerrar el diálogo con la tecla Escape"""
+        if event.key() == Qt.Key.Key_Escape:
+            self.accept()
+        else:
+            super().keyPressEvent(event)

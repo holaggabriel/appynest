@@ -11,13 +11,13 @@ class ApkInstallationInfoDialog(QDialog):
         self.init_ui()
     
     def setup_styles(self):
-        """Configura el estilo oscuro minimalista consistente"""
+        """Configura el estilo moderno flat minimalista en modo oscuro"""
         self.setStyleSheet("""
             QDialog {
-                background-color: #1e1e1e;
+                background-color: #1a1a1a;
                 color: #e0e0e0;
-                border: 1px solid #333;
-                border-radius: 8px;
+                border: none;
+                border-radius: 12px;
             }
             QScrollArea {
                 background-color: transparent;
@@ -31,93 +31,114 @@ class ApkInstallationInfoDialog(QDialog):
                 background-color: transparent;
             }
             QLabel#title {
-                font-size: 18px;
-                font-weight: bold;
+                font-size: 20px;
+                font-weight: 600;
                 color: #ffffff;
-                padding: 5px;
+                padding: 8px 0px;
+                letter-spacing: -0.5px;
             }
             QLabel#subtitle_green {
                 font-size: 16px;
-                font-weight: bold;
-                color: #4CAF50;
-                padding: 8px 0px 4px 0px;
+                font-weight: 600;
+                color: #2ecc71;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(46, 204, 113, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
             }
             QLabel#subtitle_blue {
                 font-size: 16px;
-                font-weight: bold;
-                color: #2196F3;
-                padding: 8px 0px 4px 0px;
+                font-weight: 600;
+                color: #3498db;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(52, 152, 219, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
             }
             QLabel#subtitle_orange {
                 font-size: 16px;
-                font-weight: bold;
-                color: #FF9800;
-                padding: 8px 0px 4px 0px;
+                font-weight: 600;
+                color: #e67e22;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(230, 126, 34, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
             }
             QLabel#description {
                 color: #b0b0b0;
-                line-height: 1.4;
-                padding: 5px 0px;
+                line-height: 1.5;
+                padding: 8px 0px;
+                font-size: 14px;
             }
             QLabel#warning {
-                color: #ff6b6b;
+                color: #e74c3c;
                 font-size: 14px;
                 font-weight: 500;
                 padding: 8px 0px;
+                background-color: rgba(231, 76, 60, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
             }
             QPushButton {
-                background-color: #2d2d2d;
-                color: #e0e0e0;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 8px 16px;
+                background-color: #3498db;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
                 font-weight: 500;
-                min-width: 80px;
+                font-size: 14px;
+                min-width: 90px;
             }
             QPushButton:hover {
-                background-color: #3d3d3d;
-                border-color: #555;
+                background-color: #2980b9;
             }
             QPushButton:pressed {
-                background-color: #1a1a1a;
+                background-color: #21618c;
             }
             QPushButton#primary {
-                background-color: #1976D2;
-                border-color: #1976D2;
+                background-color: #27ae60;
                 color: white;
             }
             QPushButton#primary:hover {
-                background-color: #1565C0;
-                border-color: #1565C0;
+                background-color: #219653;
             }
             QFrame#separator {
                 background-color: #333;
                 border: none;
                 max-height: 1px;
                 min-height: 1px;
+                margin: 12px 0px;
             }
             QScrollBar:vertical {
                 background-color: #2d2d2d;
-                width: 12px;
-                border-radius: 6px;
+                width: 10px;
+                border-radius: 5px;
+                margin: 0px;
             }
             QScrollBar::handle:vertical {
-                background-color: #444;
-                border-radius: 6px;
+                background-color: #555;
+                border-radius: 5px;
                 min-height: 20px;
             }
             QScrollBar::handle:vertical:hover {
-                background-color: #555;
+                background-color: #777;
             }
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 border: none;
                 background: none;
+                height: 0px;
+            }
+            QScrollBar:vertical {
+                border: none;
             }
         """)
     
     def init_ui(self):
-        self.setWindowTitle("Consideraciones sobre la instalación de APKs")
-        self.setFixedSize(580, 520)
+        self.setWindowTitle("Información")
+        self.setFixedSize(600, 540)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         # Layout principal
@@ -135,8 +156,8 @@ class ApkInstallationInfoDialog(QDialog):
         scroll_widget = QWidget()
         scroll_widget.setObjectName("scrollWidget")
         scroll_layout = QVBoxLayout(scroll_widget)
-        scroll_layout.setSpacing(16)
-        scroll_layout.setContentsMargins(24, 20, 24, 20)
+        scroll_layout.setSpacing(10)
+        scroll_layout.setContentsMargins(28, 24, 28, 24)
         
         # Título
         title_label = QLabel("Consideraciones sobre la instalación de APKs")
@@ -150,9 +171,10 @@ class ApkInstallationInfoDialog(QDialog):
         separator_top.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator_top)
         
-        # Subtítulo para Split APKs (color naranja/rojo)
+        # Subtítulo para Split APKs (color naranja) - CENTRADO
         split_subtitle = QLabel("APK divididos (Split APKs)")
         split_subtitle.setObjectName("subtitle_orange")
+        split_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(split_subtitle)
         
         # Contenido de Split APKs
@@ -168,7 +190,7 @@ class ApkInstallationInfoDialog(QDialog):
         para un dispositivo específico y pueden no funcionar correctamente en otros, ya que dependen de características 
         concretas de hardware, idioma, resolución y configuración.<br><br>
         
-        <b>¿Por qué es problemático?</b>Los Split APKs están altamente especializados y solo funcionan en dispositivos que tengan 
+        <b>¿Por qué es problemático?</b> Los Split APKs están altamente especializados y solo funcionan en dispositivos que tengan 
         características IDÉNTICAS al dispositivo de origen. Esto incluye:<br><br>
         
         • <b>Arquitectura de CPU exactamente igual</b> (ARMv7, ARM64, x86, etc.)<br>
@@ -193,9 +215,10 @@ class ApkInstallationInfoDialog(QDialog):
         separator1.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator1)
         
-        # Subtítulo para APK Universales (color verde)
+        # Subtítulo para APK Universales (color verde) - CENTRADO
         universal_subtitle = QLabel("APK universal (Universal APK)")
         universal_subtitle.setObjectName("subtitle_green")
+        universal_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(universal_subtitle)
         
         # Contenido de APK Universales
@@ -212,7 +235,7 @@ class ApkInstallationInfoDialog(QDialog):
         universal_label = QLabel(universal_content)
         universal_label.setObjectName("description")
         universal_label.setWordWrap(True)
-        universal_label.setTextFormat(Qt.TextFormat.RichText)  # ¡IMPORTANTE!
+        universal_label.setTextFormat(Qt.TextFormat.RichText)
         scroll_layout.addWidget(universal_label)
 
         # Separador
@@ -221,9 +244,10 @@ class ApkInstallationInfoDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator2)
 
-        # Subtítulo para Consejos (color azul)
+        # Subtítulo para Consejos (color azul) - CENTRADO
         tips_subtitle = QLabel("Consejos")
         tips_subtitle.setObjectName("subtitle_blue")
+        tips_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(tips_subtitle)
         
         # Contenido de Consejos
@@ -244,7 +268,7 @@ class ApkInstallationInfoDialog(QDialog):
         tips_label = QLabel(tips_content)
         tips_label.setObjectName("description")
         tips_label.setWordWrap(True)
-        tips_label.setTextFormat(Qt.TextFormat.RichText)  # ¡IMPORTANTE!
+        tips_label.setTextFormat(Qt.TextFormat.RichText)
         scroll_layout.addWidget(tips_label)
         
         # Espaciador al final del contenido scrollable

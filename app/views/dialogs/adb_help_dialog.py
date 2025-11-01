@@ -7,244 +7,275 @@ from PyQt6.QtGui import QGuiApplication
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Ayuda - Configuración de ADB")
-        self.setModal(True)
-        self.resize(700, 600)
-        self.setMinimumSize(650, 550)
-        self.setup_ui()
-        
-    def setup_ui(self):
-        # Aplicar estilos directamente al diálogo
+        self.setup_styles()
+        self.init_ui()
+    
+    def setup_styles(self):
+        """Configura el estilo moderno flat minimalista en modo oscuro"""
         self.setStyleSheet("""
             QDialog {
-                background-color: #1e1e1e;
+                background-color: #1a1a1a;
                 color: #e0e0e0;
-                font-family: 'Segoe UI', Arial, sans-serif;
-                border: 1px solid #444;
-                border-radius: 8px;
+                border: none;
+                border-radius: 12px;
             }
-        """)
-        
-        layout = QVBoxLayout(self)
-        layout.setSpacing(15)
-        layout.setContentsMargins(20, 20, 20, 20)
-        
-        # Header con icono y título
-        header_widget = self.create_header()
-        layout.addWidget(header_widget)
-        
-        # Área de scroll para el contenido
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet("""
             QScrollArea {
-                border: 1px solid #444;
-                border-radius: 8px;
-                background-color: #2b2b2b;
+                background-color: transparent;
+                border: none;
             }
-            QScrollArea > QWidget > QWidget {
-                background-color: #2b2b2b;
+            QWidget#scrollWidget {
+                background-color: transparent;
+            }
+            QLabel {
+                color: #e0e0e0;
+                background-color: transparent;
+            }
+            QLabel#title {
+                font-size: 20px;
+                font-weight: 600;
+                color: #ffffff;
+                padding: 0px 0px 0px 0px;
+                margin: 0px 0px 0px 0px;
+                letter-spacing: -0.5px;
+            }
+            QLabel#subtitle_green {
+                font-size: 16px;
+                font-weight: 600;
+                color: #2ecc71;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(46, 204, 113, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#subtitle_blue {
+                font-size: 16px;
+                font-weight: 600;
+                color: #3498db;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(52, 152, 219, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#subtitle_orange {
+                font-size: 16px;
+                font-weight: 600;
+                color: #e67e22;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(230, 126, 34, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#subtitle_purple {
+                font-size: 16px;
+                font-weight: 600;
+                color: #9b59b6;
+                padding: 12px 0px 6px 0px;
+                background-color: rgba(155, 89, 182, 0.12);
+                border-radius: 6px;
+                padding: 10px 16px;
+                margin: 4px 0px;
+            }
+            QLabel#description {
+                color: #b0b0b0;
+                line-height: 1.5;
+                padding: 8px 0px;
+                font-size: 14px;
+            }
+            QTextEdit {
+                background-color: transparent;
+                color: #b0b0b0;
+                border: none;
+                padding: 0px;
+                font-size: 14px;
+                line-height: 1.5;
+                selection-background-color: #3949ab;
+            }
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px 20px;
+                font-weight: 500;
+                font-size: 14px;
+                min-width: 90px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+            QPushButton:pressed {
+                background-color: #21618c;
+            }
+            QPushButton#primary {
+                background-color: #27ae60;
+                color: white;
+            }
+            QPushButton#primary:hover {
+                background-color: #219653;
+            }
+            QFrame#separator {
+                background-color: #333;
+                border: none;
+                max-height: 1px;
+                min-height: 1px;
+                margin: 0px 0px 12px 0px;
+                padding: 0px 0px 0px 0px;
             }
             QScrollBar:vertical {
-                background: #404040;
-                width: 12px;
-                border-radius: 6px;
+                background-color: #2d2d2d;
+                width: 10px;
+                border-radius: 5px;
+                margin: 0px;
             }
             QScrollBar::handle:vertical {
-                background: #606060;
-                border-radius: 6px;
+                background-color: #555;
+                border-radius: 5px;
                 min-height: 20px;
             }
             QScrollBar::handle:vertical:hover {
-                background: #707070;
+                background-color: #777;
             }
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 border: none;
                 background: none;
+                height: 0px;
             }
-        """)
-        
-        content_widget = QWidget()
-        content_layout = QVBoxLayout(content_widget)
-        content_layout.setSpacing(12)
-        content_layout.setContentsMargins(15, 15, 15, 15)
-        
-        # Secciones de contenido
-        sections = [
-            self.create_section(
-                "📁 ¿Dónde encontrar ADB?",
-                self.get_adb_locations_content(),
-                "info"
-            ),
-            self.create_section(
-                "💡 Instrucciones de Configuración",
-                self.get_setup_instructions_content(),
-                "tip"
-            ),
-            self.create_section(
-                "🔍 Rutas Comunes por Sistema",
-                self.get_common_paths_content(),
-                "paths"
-            ),
-            self.create_section(
-                "⚡ Verificación y Solución de Problemas",
-                self.get_troubleshooting_content(),
-                "warning"
-            )
-        ]
-        
-        for section in sections:
-            content_layout.addWidget(section)
-        
-        content_layout.addStretch()
-        scroll_area.setWidget(content_widget)
-        layout.addWidget(scroll_area)
-        
-        # Botones de acción
-        button_layout = self.create_button_layout()
-        layout.addLayout(button_layout)
-    
-    def create_header(self):
-        header = QWidget()
-        header.setStyleSheet("""
-            QWidget {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #2c3e50, stop:1 #3498db);
-                border-radius: 10px;
-                padding: 5px;
-            }
-        """)
-        layout = QVBoxLayout(header)
-        layout.setContentsMargins(20, 15, 20, 15)
-        
-        title = QLabel("🔧 Configuración de ADB")
-        title.setStyleSheet("""
-            QLabel {
-                font-size: 20px;
-                font-weight: bold;
-                color: white;
-                background: transparent;
-            }
-        """)
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        subtitle = QLabel("Guía completa para configurar la ruta de ADB - Linux & Windows")
-        subtitle.setStyleSheet("""
-            QLabel {
-                font-size: 13px;
-                color: #e0f7fa;
-                background: transparent;
-                padding-top: 5px;
-            }
-        """)
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-        
-        return header
-    
-    def create_section(self, title, content, section_type):
-        section = QFrame()
-        section.setFrameStyle(QFrame.Shape.StyledPanel)
-        
-        # Colores según el tipo de sección
-        colors = {
-            "info": {"bg": "#1a237e", "border": "#283593", "header": "#3949ab"},
-            "tip": {"bg": "#1b5e20", "border": "#2e7d32", "header": "#388e3c"},
-            "paths": {"bg": "#4a148c", "border": "#6a1b9a", "header": "#8e24aa"},
-            "warning": {"bg": "#bf360c", "border": "#d84315", "header": "#f4511e"}
-        }
-        color = colors.get(section_type, colors["info"])
-        
-        section.setStyleSheet(f"""
-            QFrame {{
-                background-color: {color['bg']};
-                border: 2px solid {color['border']};
-                border-radius: 8px;
-            }}
-        """)
-        
-        layout = QVBoxLayout(section)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Header de la sección
-        header = QLabel(title)
-        header.setStyleSheet(f"""
-            QLabel {{
-                background-color: {color['header']};
-                color: white;
-                font-weight: bold;
-                font-size: 14px;
-                padding: 12px 15px;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
-                border-bottom: 1px solid {color['border']};
-            }}
-        """)
-        layout.addWidget(header)
-        
-        # Contenido de la sección
-        content_widget = QTextEdit()
-        content_widget.setHtml(content)
-        content_widget.setReadOnly(True)
-        content_widget.setStyleSheet("""
-            QTextEdit {
-                background-color: transparent;
-                color: #e0e0e0;
+            QScrollBar:vertical {
                 border: none;
-                padding: 15px;
-                font-size: 13px;
-                line-height: 1.5;
-                selection-background-color: #3949ab;
             }
         """)
-        content_widget.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        content_widget.setFixedHeight(200)
-        
-        layout.addWidget(content_widget)
-        
-        return section
     
+    def init_ui(self):
+        self.setWindowTitle("Ayuda")
+        self.setFixedSize(700, 600)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
+        
+        # Layout principal
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setSpacing(0)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Crear scroll area (único scroll global)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Widget contenedor del scroll
+        self.scroll_widget = QWidget()
+        self.scroll_widget.setObjectName("scrollWidget")
+        self.scroll_layout = QVBoxLayout(self.scroll_widget)
+        self.scroll_layout.setSpacing(5)
+        self.scroll_layout.setContentsMargins(28, 0, 28, 24)
+        
+        # Título
+        self.title_label = QLabel("Configuración de ADB")
+        self.title_label.setObjectName("title")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_layout.addWidget(self.title_label)
+        
+        # Agregar secciones
+        self.add_adb_locations_section()
+        self.add_common_paths_section()
+        self.add_setup_instructions_section()
+
+        self.scroll_area.setWidget(self.scroll_widget)
+        self.main_layout.addWidget(self.scroll_area)
+
+    def add_separator(self):
+        """Agrega un separador horizontal"""
+        sep = QFrame()
+        sep.setObjectName("separator")
+        sep.setFrameShape(QFrame.Shape.HLine)
+        self.scroll_layout.addWidget(sep)
+
+    def add_adb_locations_section(self):
+        """Agrega la sección de ubicaciones de ADB"""
+        self.add_separator()
+        
+        self.subtitle_locations = QLabel("¿Dónde obtener ADB?")
+        self.subtitle_locations.setObjectName("subtitle_orange")
+        self.subtitle_locations.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_layout.addWidget(self.subtitle_locations)
+
+        self.content_locations = QLabel()
+        self.content_locations.setObjectName("description")
+        self.content_locations.setTextFormat(Qt.TextFormat.RichText)
+        self.content_locations.setWordWrap(True)
+        self.content_locations.setText(self.get_adb_locations_content())
+        self.content_locations.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.scroll_layout.addWidget(self.content_locations)
+
+    def add_common_paths_section(self):
+        """Agrega la sección de rutas comunes"""
+        self.add_separator()
+        
+        self.subtitle_paths = QLabel("Rutas típicas de ADB según tu sistema")
+        self.subtitle_paths.setObjectName("subtitle_purple")
+        self.subtitle_paths.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_layout.addWidget(self.subtitle_paths)
+
+        self.content_paths = QLabel()
+        self.content_paths.setObjectName("description")
+        self.content_paths.setTextFormat(Qt.TextFormat.RichText)
+        self.content_paths.setWordWrap(True)
+        self.content_paths.setText(self.get_common_paths_content())
+        self.content_paths.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.scroll_layout.addWidget(self.content_paths)
+
+    def add_setup_instructions_section(self):
+        """Agrega la sección de instrucciones de configuración"""
+        self.add_separator()
+        
+        self.subtitle_setup = QLabel("Configurar la ruta de ADB")
+        self.subtitle_setup.setObjectName("subtitle_green")
+        self.subtitle_setup.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_layout.addWidget(self.subtitle_setup)
+
+        self.content_setup = QLabel()
+        self.content_setup.setObjectName("description")
+        self.content_setup.setTextFormat(Qt.TextFormat.RichText)
+        self.content_setup.setWordWrap(True)
+        self.content_setup.setText(self.get_setup_instructions_content())
+        self.content_setup.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.scroll_layout.addWidget(self.content_setup)
+
     def get_adb_locations_content(self):
-        return """
-        <p><b>ADB viene incluido en varias herramientas populares:</b></p>
+        return """        
+        <p><b style="color:#4fc3f7;">1. Descarga Directa</b><br>
+        • Busca en Internet "ADB Platform Tools" y descárgalo desde la página oficial de Android Developers.<br>
+        • Extrae el paquete y asegúrate de que ADB permanezca junto con los demás archivos incluidos.</p>
         
-        <p><b style="color:#4fc3f7;">1. Android Studio (Recomendado)</b><br>
+        <p><b style="color:#4fc3f7;">2. Android Studio (Opcional)</b><br>
+        • Si ya tienes Android Studio instalado, ADB se encuentra en:<br>
         • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Linux</code>: <code>~/Android/Sdk/platform-tools/adb</code><br>
-        • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Windows</code>: <code>C:\\Users\\[Usuario]\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe</code></p>
-        
-        <p><b style="color:#4fc3f7;">2. Platform Tools (Descarga Directa)</b><br>
-        • Descarga desde: <i>developer.android.com/tools/releases/platform-tools</i><br>
-        • Extrae el ZIP y usa la carpeta <code>platform-tools</code></p>
+        • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Windows</code>: <code>C:\\Users\\[Usuario]\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe</code><br>
+        ⚠️ No es necesario instalar Android Studio solo para obtener ADB; usa esta opción únicamente si ya lo tienes instalado y deseas evitar descargar Platform Tools por separado.</p>
         
         <p><b style="color:#4fc3f7;">3. Gestores de Paquetes (Linux)</b><br>
-        • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Debian/Ubuntu</code>: <code>sudo apt install adb fastboot</code><br>
-        • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Arch Linux</code>: <code>sudo pacman -S android-tools</code><br>
-        • <code style="background:#263238; padding:2px 6px; border-radius:3px;">Fedora</code>: <code>sudo dnf install android-tools</code></p>
+        • En Linux, muchas distribuciones incluyen ADB en sus gestores de paquetes. Puedes instalarlo ya sea desde la interfaz gráfica de tu gestor de paquetes o desde la línea de comandos, según prefieras.</p>
+        
+        
+       <p><i>ADB viene junto con otros archivos necesarios para su funcionamiento. Es importante mantener ADB en la misma ubicación que estos archivos y no moverlo por separado, de lo contrario podría no funcionar correctamente.</i></p>
         """
-    
+
     def get_setup_instructions_content(self):
         return """
-        <p><b style="color:#81c784;">Configuración Paso a Paso:</b></p>
-        
-        <p><b>1. Encuentra tu ADB:</b><br>
-        • Si tienes Android Studio, busca en la carpeta del SDK<br>
-        • Si descargaste Platform Tools, busca donde extrajiste los archivos</p>
-        
-        <p><b>2. Selecciona el ejecutable:</b><br>
-        • En Linux: Busca el archivo <code>adb</code> (sin extensión)<br>
-        • En Windows: Busca <code>adb.exe</code></p>
-        
-        <p><b>3. Verifica que funciona:</b><br>
-        • Abre terminal/CMD en esa carpeta<br>
-        • Ejecuta: <code>adb version</code> (debe mostrar la versión)</p>
-        
-        <p><b style="color:#ffb74d;">💡 Tip Linux:</b> Asegúrate de dar permisos: <code>chmod +x adb</code></p>
-        <p><b style="color:#ffb74d;">💡 Tip Windows:</b> Ejecuta CMD como administrador si hay problemas de permisos</p>
+        <p><b>Opción 1: Haz clic en el botón <span style="color:#1177BB;">Verificar</span></b><br>
+        • Dentro de la sección <b>Configuración</b>, presiona el botón <span style="color:#1177BB;">Verificar</span> para que la aplicación intente detectar ADB automáticamente.<br>
+        • Funciona si tienes Android Studio instalado o ADB se instaló mediante paquetes del sistema.<br>
+        • Si la verificación tiene éxito, la ruta y el estado de ADB se mostrarán en la sección de Configuración.<br>
+        • Si la verificación falla, no te preocupes: puedes usar la opción 2.</p>
+
+        <p><b>Opción 2: Haz clic en el botón <span style="color:#4CAF50;">Seleccionar</span></b><br>
+        • Descarga SDK Platform Tools desde la página oficial si aún no lo tienes.<br>
+        • En la sección <b>Configuración</b>, presiona el botón <span style="color:#4CAF50;">Seleccionar</span> y elige manualmente el archivo ejecutable <code>adb</code> dentro de la carpeta correspondiente.<br>
+        • Esta opción es útil si ADB está en una ruta no estándar o la detección automática no funcionó.</p>
         """
-    
+
     def get_common_paths_content(self):
         return """
         <p><b style="color:#ba68c8;">Rutas típicas donde encontrar ADB:</b></p>
@@ -262,150 +293,9 @@ class ADBHelpDialog(QDialog):
         • <code>%USERPROFILE%\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe</code></p>
         """
     
-    def get_troubleshooting_content(self):
-        return """
-        <p><b style="color:#ff9800;">Si tienes problemas:</b></p>
-        
-        <p><b>❌ ADB no encontrado:</b><br>
-        • Verifica que la ruta sea correcta<br>
-        • Asegúrate de que el archivo existe<br>
-        • En Windows, debe ser <code>adb.exe</code></p>
-        
-        <p><b>❌ Permisos denegados (Linux):</b><br>
-        • Ejecuta: <code>chmod +x adb</code><br>
-        • O usa: <code>sudo chmod +x adb</code><br>
-        • También: <code>sudo usermod -aG plugdev $USER</code> (para acceso USB)</p>
-        
-        <p><b>❌ Dispositivo no detectado (Linux):</b><br>
-        • Crea reglas udev: <code>sudo nano /etc/udev/rules.d/51-android.rules</code><br>
-        • Agrega: <code>SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666"</code><br>
-        • Recarga: <code>sudo udevadm control --reload-rules</code></p>
-        
-        <p><b>❌ No se ejecuta (Windows):</b><br>
-        • Verifica que sea la versión correcta (32/64 bits)<br>
-        • Prueba ejecutar CMD como administrador<br>
-        • Verifica que no haya bloqueo por antivirus</p>
-        
-        <p><b>✅ Verificación exitosa:</b><br>
-        • Al ejecutar <code>adb version</code> deberías ver algo como:<br>
-        <code style="background:#263238; padding:4px 8px; border-radius:3px; display:inline-block;">Android Debug Bridge version 1.0.41</code></p>
-        """
-    
-    def create_button_layout(self):
-        button_layout = QHBoxLayout()
-        
-        # Botón para copiar rutas comunes
-        self.copy_btn = QPushButton("📋 Copiar Rutas Comunes")
-        self.copy_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #5d4037;
-                color: white;
-                border: 1px solid #8d6e63;
-                padding: 8px 15px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #6d4c41;
-                border: 1px solid #9d8d87;
-            }
-            QPushButton:pressed {
-                background-color: #4e342e;
-            }
-        """)
-        self.copy_btn.clicked.connect(self.copy_common_paths)
-        
-        # Espacio flexible
-        button_layout.addWidget(self.copy_btn)
-        button_layout.addStretch()
-        
-        # Botón principal de entendido
-        btn_understand = QPushButton("¡Entendido!")
-        btn_understand.setStyleSheet("""
-            QPushButton {
-                background-color: #2d5b7c;
-                color: white;
-                border: 1px solid #3574a0;
-                padding: 10px 20px;
-                border-radius: 5px;
-                font-weight: bold;
-                font-size: 13px;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #3574a0;
-                border: 1px solid #3d8cc8;
-            }
-            QPushButton:pressed {
-                background-color: #255478;
-            }
-        """)
-        btn_understand.clicked.connect(self.accept)
-        btn_understand.setDefault(True)  # Enter activa este botón
-        
-        button_layout.addWidget(btn_understand)
-        
-        return button_layout
-    
-    def copy_common_paths(self):
-        common_paths = """RUTAS COMUNES ADB - Easy ADB
-
-LINUX:
-• /home/[usuario]/Android/Sdk/platform-tools/adb
-• /usr/bin/adb
-• /opt/android-sdk/platform-tools/adb
-• /usr/local/android-sdk/platform-tools/adb
-
-WINDOWS:
-• C:\\Users\\[Usuario]\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe
-• C:\\Android\\platform-tools\\adb.exe
-• %LOCALAPPDATA%\\Android\\Sdk\\platform-tools\\adb.exe
-• %USERPROFILE%\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe
-
-Reemplaza [usuario] con tu nombre de usuario real."""
-        
-        clipboard = QGuiApplication.clipboard()
-        clipboard.setText(common_paths)
-        
-        # Feedback visual
-        original_text = self.copy_btn.text()
-        self.copy_btn.setText("✅ ¡Copiado!")
-        self.copy_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #388e3c;
-                color: white;
-                border: 1px solid #4caf50;
-                padding: 8px 15px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #43a047;
-            }
-        """)
-        
-        # Restaurar después de 2 segundos
-        QTimer.singleShot(2000, self.restore_copy_button)
-    
-    def restore_copy_button(self):
-        self.copy_btn.setText("📋 Copiar Rutas Comunes")
-        self.copy_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #5d4037;
-                color: white;
-                border: 1px solid #8d6e63;
-                padding: 8px 15px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #6d4c41;
-                border: 1px solid #9d8d87;
-            }
-            QPushButton:pressed {
-                background-color: #4e342e;
-            }
-        """)
+    def keyPressEvent(self, event):
+        """Permite cerrar el diálogo con la tecla Escape"""
+        if event.key() == Qt.Key.Key_Escape:
+            self.accept()
+        else:
+            super().keyPressEvent(event)
