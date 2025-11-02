@@ -47,7 +47,7 @@ class ApkInstallationInfoDialog(QDialog):
         scroll_layout.addWidget(separator_top)
         
         # Subtítulo para Split APKs (color naranja) - CENTRADO
-        split_subtitle = QLabel("APK divididos (Split APKs)")
+        split_subtitle = QLabel("APK Divididos (Split APKs)")
         split_subtitle.setObjectName("subtitle_orange")
         split_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(split_subtitle)
@@ -55,27 +55,27 @@ class ApkInstallationInfoDialog(QDialog):
         # Contenido de Split APKs
         split_content = """
         Cuando extraes una aplicación instalada en tu dispositivo, 
-        generalmente obtienes un <b>Split APK</b>, no un APK universal. Esto sucede especialmente 
-        con aplicaciones extraídas que fueron instaladas a través de una tienda de aplicaciones, 
+        generalmente obtienes un <b style="color: #3399DD;">Split APK</b>, no un <b style="color: #3399DD;">APK Universal</b>. Esto sucede especialmente 
+        con aplicaciones extraídas que fueron instaladas a través de una <b style="color: #3399DD;">tienda de aplicaciones</b>, 
         ya que las tiendas modernas generan paquetes divididos optimizados específicamente 
         para cada dispositivo.<br><br>
 
-        Este término de Split APK se utiliza habitualmente para referirse a los APKs generados automáticamente 
-        a partir de Android App Bundles (.aab) por canales de distribución o tiendas de aplicaciones. Están optimizados 
-        para un dispositivo específico y pueden no funcionar correctamente en otros, ya que dependen de características 
+        Este término de <b style="color: #3399DD;">Split APK</b> se utiliza habitualmente para referirse a los APKs generados automáticamente 
+        a partir de <b style="color: #3399DD;">Android App Bundles (.aab)</b> por <b style="color: #3399DD;">canales de distribución</b> o tiendas de aplicaciones. Están <b style="color: #3399DD;">optimizados 
+        para un dispositivo específico</b> y pueden no funcionar correctamente en otros, ya que dependen de características 
         concretas de hardware, idioma, resolución y configuración.<br><br>
 
-        <b>¿Por qué es problemático?</b> Los Split APKs están altamente especializados y solo funcionan en dispositivos que tengan 
-        características IDÉNTICAS al dispositivo de origen. Esto incluye:
+        Los <b style="color: #3399DD;">Split APKs</b> están altamente especializados y solo funcionan en dispositivos que tengan 
+        características idénticas al dispositivo de origen. Esto incluye:
 
-        <p style="margin-left:2em;">• <b>Arquitectura de CPU exactamente igual</b> (ARMv7, ARM64, x86, etc.)</p>
-        <p style="margin-left:2em;">• <b>Misma densidad de pantalla y resolución</b></p>
-        <p style="margin-left:2em;">• <b>Idioma y región configurados igual</b></p>
-        <p style="margin-left:2em;">• <b>Características de hardware idénticas</b></p>
+        <p style="margin-left:2em;">• Arquitectura de CPU exactamente igual (ARMv7, ARM64, x86, etc.)</p>
+        <p style="margin-left:2em;">• Misma densidad de pantalla y resolución</p>
+        <p style="margin-left:2em;">• Idioma y región configurados igual</p>
+        <p style="margin-left:2em;">• Características de hardware idénticas</p>
 
-        <b>Consecuencia:</b> Si intentas instalar un Split APK en un dispositivo que no 
-        coincide exactamente en todas estas características, la instalación <b>FALLARÁ</b> 
-        o la aplicación <b>NO FUNCIONARÁ CORRECTAMENTE</b> aunque se instale.
+        Si intentas instalar un <b style="color: #3399DD;">Split APK</b> en un dispositivo que no 
+        coincide exactamente en todas estas características, la instalación fallará
+        o la aplicación no funcionará correctamente aunque se instale.
         """
         
         split_label = QLabel(split_content)
@@ -91,20 +91,20 @@ class ApkInstallationInfoDialog(QDialog):
         scroll_layout.addWidget(separator1)
         
         # Subtítulo para APK Universales (color verde) - CENTRADO
-        universal_subtitle = QLabel("APK universal (Universal APK)")
+        universal_subtitle = QLabel("APK Universal (Universal APK)")
         universal_subtitle.setObjectName("subtitle_green")
         universal_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(universal_subtitle)
         
         # Contenido de APK Universales
         universal_content = """
-        Un <b>APK universal</b> está diseñado para funcionar en la mayoría de los dispositivos compatibles, 
+        Un <b style="color: #3399DD;">APK Universal</b> está diseñado para funcionar en la <b style="color: #3399DD;">mayoría de los dispositivos</b> compatibles, 
         pero su contenido exacto depende de cómo lo haya creado el desarrollador. Esto puede incluir recursos, 
         idiomas y funcionalidades básicas, pero no siempre todos los posibles.<br><br>
-        
-        Este tipo de APK es el más recomendable al instalar aplicaciones manualmente mediante ADB, 
+
+        Este tipo de APK es el más recomendable al instalar aplicaciones manualmente, 
         ya que evita errores de compatibilidad o dependencias faltantes que suelen presentarse 
-        con los Split APKs.
+        con los <b style="color: #3399DD;">Split APKs</b>.
         """
 
         universal_label = QLabel(universal_content)
@@ -128,16 +128,15 @@ class ApkInstallationInfoDialog(QDialog):
         # Contenido de Consejos
         tips_content = """
         Si experimentas errores de instalación frecuentes con un APK específico, 
-        es muy probable que sea un Split APK. Busca un APK universal alternativo.<br><br>
-        
-        Los APKs extraídos de tiendas de aplicaciones generalmente son splits APK 
-        diseñados específicamente para el dispositivo de origen.<br><br>
-        
-        Verifica que el APK no esté corrupto descargándolo nuevamente o desde 
+        es muy probable que sea un <b style="color: #3399DD;">Split APK</b>. Busca un <b style="color: #3399DD;">APK Universal</b> alternativo.<br><br>
+
+        Los APKs obtenidos de <b style="color: #3399DD;">dispositivos con aplicaciones instaladas desde tiendas de aplicaciones</b> generalmente son <b style="color: #3399DD;">Split APKs</b>, 
+        diseñados para el <b style="color: #3399DD;">dispositivo original</b>.<br><br>
+
+        Verifica que el <b style="color: #3399DD;">APK</b> no esté corrupto descargándolo nuevamente o desde 
         una fuente diferente.<br><br>
-        
-        Algunas aplicaciones requieren versiones específicas de Android o 
-        permisos especiales. Verifica los requisitos antes de instalar.
+
+        Algunas aplicaciones requieren versiones específicas de Android. Verifica los requisitos antes de instalar.
         """
         
         tips_label = QLabel(tips_content)
