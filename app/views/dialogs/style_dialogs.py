@@ -2,7 +2,7 @@ DIALOG_STYLES = """
     /* Estilos base para diálogos */
     QDialog {
         background-color: #1a1a1a;
-        color: #e0e0e0;
+        color: #ffffff;
         border: none;
         border-radius: 12px;
     }
@@ -18,7 +18,7 @@ DIALOG_STYLES = """
     
     /* Estilos para etiquetas */
     QLabel {
-        color: #e0e0e0;
+        color: #ffffff;
         background-color: transparent;
     }
     
@@ -72,7 +72,7 @@ DIALOG_STYLES = """
     }
     
     QLabel#description {
-        color: #b0b0b0;
+        color: #dcdcdc;
         line-height: 1.5;
         padding: 8px 0px;
         font-size: 14px;

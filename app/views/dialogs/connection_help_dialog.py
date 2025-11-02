@@ -109,19 +109,19 @@ class ConnectionHelpDialog(QDialog):
         
         # Contenido de Consejos
         tips_content = """
-        <p style="color: #b0b0b0;">
-            Algunos dispositivos requieren <b style="color: #3399DD;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga
+        <p>
+            Algunos dispositivos requieren <b style="color: #90caf9;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga
         </p>
 
-        <p style="color: #b0b0b0;">
-            Si no encuentras alguna opción, <b style="color: #3399DD;">busca en el menú de ajustes</b> ya que puede variar
+        <p>
+            Si no encuentras alguna opción, <b style="color: #90caf9;">busca en el menú de ajustes</b> ya que puede variar
         </p>
 
-        <p style="color: #b0b0b0;">
-            Si no funciona, prueba <b style="color: #3399DD;">reiniciar ambos dispositivos</b> (PC y dispositivo)
+        <p>
+            Si no funciona, prueba <b style="color: #90caf9;">reiniciar ambos dispositivos</b> (PC y dispositivo)
         </p>
 
-        <p style="color: #b0b0b0;">
+        <p>
             La primera conexión puede tardar unos segundos en ser detectada
         </p>
         """
@@ -146,24 +146,24 @@ class ConnectionHelpDialog(QDialog):
         
         # Contenido de Problemas
         problems_content = """
-        <p style="color: #b0b0b0;">
-            <b style="color: #90caf9;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)
+        <p>
+            <b style="color: #3399DD;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)
         </p>
 
-        <p style="color: #b0b0b0;">
-            <b style="color: #90caf9;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"
+        <p>
+            <b style="color: #3399DD;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"
         </p>
 
-        <p style="color: #b0b0b0;">
-            <b style="color: #90caf9;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el dispositivo
+        <p>
+            <b style="color: #3399DD;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el dispositivo
         </p>
 
-        <p style="color: #b0b0b0;">
-            <b style="color: #90caf9;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el dispositivo, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa. En algunos dispositivos, esta opción o ventana aparece automáticamente al conectar el cable USB
+        <p>
+            <b style="color: #3399DD;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el dispositivo, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa. En algunos dispositivos, esta opción o ventana aparece automáticamente al conectar el cable USB
         </p>
 
-        <p style="color: #b0b0b0;">
-            <b style="color: #90caf9;">No encuentras las opciones:</b> La ubicación puede variar — busca en Internet específicamente para tu modelo
+        <p>
+            <b style="color: #3399DD;">No encuentras las opciones:</b> La ubicación puede variar — busca en Internet específicamente para tu modelo
         </p>
         """
 
