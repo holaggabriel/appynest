@@ -138,14 +138,14 @@ class ADBHelpDialog(QDialog):
     def get_setup_instructions_content(self):
         return """
         <p><b style="color:#90caf9;">Opción 1:</b></p> 
-        <p style="margin-left:2em;">• Dentro de la <span style="color:#3399DD; font-weight:bold;">Sección Configuración</span>, presiona el botón <span style="color:#3399DD; font-weight:bold;">Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
+        <p style="margin-left:2em;">• Dentro de la <span style="color:#3399DD; font-weight:bold;">Sección Configuración</span>, presiona el <span style="color:#3399DD; font-weight:bold;">Botón de Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
         <p style="margin-left:2em;">• Funciona si tienes Android Studio instalado o ADB se instaló mediante paquetes del sistema.</p>
         <p style="margin-left:2em;">• Si la verificación tiene éxito, la ruta y el estado de ADB se mostrarán en la sección de Configuración.</p>
         <p style="margin-left:2em;">• Si la verificación falla, no te preocupes: puedes usar la opción 2.</p>
 
         <p><b style="color:#90caf9;">Opción 2:</b></p> 
         <p style="margin-left:2em;">• Descarga SDK Platform Tools desde la página oficial si aún no lo tienes.</p>
-        <p style="margin-left:2em;">• En la sección <span style="color:#3399DD; font-weight:bold;">Sección Configuración</span>, presiona el botón <span style="color:#3399DD; font-weight:bold;">Seleccionar</span> y elige manualmente el archivo ejecutable <code>adb</code> dentro de la carpeta correspondiente.</p>
+        <p style="margin-left:2em;">• En la sección <span style="color:#3399DD; font-weight:bold;">Sección Configuración</span>, presiona el <span style="color:#3399DD; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente el archivo ejecutable <code>adb</code> dentro de la carpeta correspondiente.</p>
         <p style="margin-left:2em;">• Esta opción es útil si ADB está en una ruta no estándar o la detección automática no funcionó.</p>
         """
     
