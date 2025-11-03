@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
+from app.views.dialogs.style_dialogs import DIALOG_STYLES
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -12,84 +13,7 @@ class AboutDialog(QDialog):
         self.init_ui()
     
     def setup_styles(self):
-        """Configura el estilo oscuro minimalista"""
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #1e1e1e;
-                color: #e0e0e0;
-                border: 1px solid #333;
-            }
-            QLabel {
-                color: #e0e0e0;
-                background-color: transparent;
-            }
-            QLabel#title {
-                font-size: 16px;
-                font-weight: bold;
-                color: #ffffff;
-            }
-            QLabel#version {
-                color: #888;
-                font-size: 12px;
-            }
-            QLabel#description {
-                color: #b0b0b0;
-                line-height: 1.4;
-            }
-            QPushButton {
-                background-color: #2d2d2d;
-                color: #e0e0e0;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 8px 16px;
-                font-weight: 500;
-                min-width: 80px;
-            }
-            QPushButton:hover {
-                background-color: #3d3d3d;
-                border-color: #555;
-            }
-            QPushButton:pressed {
-                background-color: #1a1a1a;
-            }
-            QPushButton#repo_button {
-                background-color: #252525;
-                border: 1px solid #333;
-                border-radius: 6px;
-                padding: 8px 16px;
-                text-align: left;
-            }
-            QPushButton#repo_button:hover {
-                background-color: #2d2d2d;
-                border-color: #444;
-            }
-            QPushButton#repo_button:pressed {
-                background-color: #1e1e1e;
-            }
-            QFrame#separator {
-                background-color: #333;
-                border: none;
-                max-height: 1px;
-                min-height: 1px;
-            }
-            QLabel#credit {
-                color: #666;
-                font-size: 10px;
-            }
-            QLabel#copyright {
-                color: #888;
-                font-size: 10px;
-                line-height: 1.4;
-            }
-            QLabel a {
-                color: #4dabf7;
-                text-decoration: none;
-            }
-            QLabel a:hover {
-                color: #74c0fc;
-                text-decoration: underline;
-            }
-        """)
+        self.setStyleSheet(DIALOG_STYLES)
     
     def open_github_repo(self):
         """Abre el repositorio de GitHub en el navegador con manejo de errores"""
@@ -111,11 +35,11 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Acerca de Easy ADB")
-        self.setFixedSize(450, 440)
+        self.setFixedSize(450, 430)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         layout = QVBoxLayout(self)
-        layout.setSpacing(16)
+        layout.setSpacing(0)
         layout.setContentsMargins(24, 24, 24, 24)
         
         # Header con nombre de la aplicación
@@ -125,6 +49,7 @@ class AboutDialog(QDialog):
         app_name = AppName()
         header_layout.addWidget(app_name, alignment=Qt.AlignmentFlag.AlignCenter)
         header_layout.addSpacing(20)
+        
         version_label = QLabel("Version 1.0.0")
         version_label.setObjectName("version")
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -147,7 +72,9 @@ class AboutDialog(QDialog):
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
         
-        # 👇 BOTÓN COMPLETO PARA EL REPOSITORIO (click en toda el área)
+        layout.addSpacing(12)
+        
+        # Botón del repositorio - ahora usa solo ObjectName sin estilos inline
         repo_button = QPushButton()
         repo_button.setObjectName("repo_button")
         repo_button.setFixedHeight(50)
@@ -161,7 +88,7 @@ class AboutDialog(QDialog):
         
         # Icono del repositorio
         repo_icon = QLabel("📁")
-        repo_icon.setStyleSheet("font-size: 18px; background-color: transparent;")
+        repo_icon.setObjectName("repo_icon")
         repo_icon.setCursor(Qt.CursorShape.PointingHandCursor)
         
         # Texto del repositorio
@@ -170,21 +97,11 @@ class AboutDialog(QDialog):
         repo_text_layout.setContentsMargins(0, 0, 0, 0)
         
         repo_title = QLabel("Repositorio oficial")
-        repo_title.setStyleSheet("""
-            color: #e0e0e0; 
-            font-size: 12px; 
-            font-weight: bold; 
-            background-color: transparent;
-        """)
+        repo_title.setObjectName("repo_title")
         repo_title.setCursor(Qt.CursorShape.PointingHandCursor)
         
         repo_link = QLabel("github.com/holaggabriel/easy-adb")
-        repo_link.setStyleSheet("""
-            color: #4dabf7; 
-            font-size: 11px; 
-            font-weight: 500;
-            background-color: transparent;
-        """)
+        repo_link.setObjectName("repo_link")
         repo_link.setCursor(Qt.CursorShape.PointingHandCursor)
         
         repo_text_layout.addWidget(repo_title)
@@ -204,7 +121,7 @@ class AboutDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         layout.addWidget(separator2)
         
-        # NUEVO: Copyright y licencia
+        # Copyright y licencia
         copyright_text = """
         <p style='margin: 0;'>
         Copyright © 2019–2025 holaggabriel<br>
@@ -223,7 +140,7 @@ class AboutDialog(QDialog):
         
         # Créditos de iconos con licencia CC BY
         icon_credit = """
-        <p style='font-size:10px; color:gray;'>
+        <p style='margin: 0;'>
         Design elements derived from "Alphanumeric (50 Icons)" by 
         <a href='https://creativemarket.com/pixelbazaar'>Pixelbazaar</a>, 
         from <a href='https://icon-icons.com/pack/Alphanumeric/4130'>icon-icons.com</a>, 

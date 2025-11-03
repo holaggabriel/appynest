@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.styles import DarkTheme
 import webbrowser
+from app.views.dialogs.style_dialogs import DIALOG_STYLES
 
 class FeedbackDialog(QDialog):
     def __init__(self, parent=None):
@@ -18,94 +19,7 @@ class FeedbackDialog(QDialog):
         self.button_timer.timeout.connect(self.enable_open_button)
     
     def setup_styles(self):
-        """Configura el estilo oscuro minimalista"""
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #1e1e1e;
-                color: #e0e0e0;
-                border: 1px solid #333;
-            }
-            QLabel {
-                color: #e0e0e0;
-                background-color: transparent;
-            }
-            QLabel#title {
-                font-size: 18px;
-                font-weight: bold;
-                color: #ffffff;
-                padding: 5px;
-            }
-            QLabel#subtitle {
-                color: #888;
-                font-size: 13px;
-                padding: 2px;
-            }
-            QLabel#description {
-                color: #b0b0b0;
-                line-height: 1.4;
-                padding: 5px;
-            }
-            QLabel#thank_you {
-                color: #4CAF50;
-                font-size: 14px;
-                font-weight: bold;
-                line-height: 1.4;
-                padding: 5px;
-            }
-            QLabel#status_error {
-                color: #f44336;
-                font-size: 12px;
-                background-color: #2d1b1b;
-                border: 1px solid #5d2a2a;
-                border-radius: 4px;
-                padding: 8px;
-                margin-top: 5px;
-            }
-            QPushButton {
-                background-color: #2d2d2d;
-                color: #e0e0e0;
-                border: 1px solid #444;
-                border-radius: 4px;
-                padding: 8px 16px;
-                font-weight: 500;
-                min-width: 80px;
-            }
-            QPushButton:hover {
-                background-color: #3d3d3d;
-                border-color: #555;
-            }
-            QPushButton:pressed {
-                background-color: #1a1a1a;
-            }
-            QPushButton#primary {
-                background-color: #1976D2;
-                border-color: #1976D2;
-                color: white;
-            }
-            QPushButton#primary:hover {
-                background-color: #1565C0;
-                border-color: #1565C0;
-            }
-            QPushButton:disabled {
-                background-color: #1a1a1a;
-                color: #666;
-                border-color: #333;
-            }
-            QFrame#separator {
-                background-color: #333;
-                border: none;
-                max-height: 1px;
-                min-height: 1px;
-            }
-            QLabel a {
-                color: #4dabf7;
-                text-decoration: none;
-            }
-            QLabel a:hover {
-                color: #74c0fc;
-                text-decoration: underline;
-            }
-        """)
+        self.setStyleSheet(DIALOG_STYLES)
     
     def init_ui(self):
         self.setWindowTitle("Comentarios")
@@ -144,7 +58,7 @@ class FeedbackDialog(QDialog):
         
         # Mensaje de agradecimiento
         thank_you_text = """
-        <p>¡Gracias por ayudarnos a mejorar Easy ADB! Tus comentarios son muy valiosos.</p>
+        <p>¡Gracias por ayudarnos a mejorar Easy ADB!<br> Tus comentarios son muy valiosos.</p>
         """
         
         thank_you_label = QLabel(thank_you_text)
@@ -164,24 +78,23 @@ class FeedbackDialog(QDialog):
         
         # Nota adicional
         note_label = QLabel("<i>Haz clic abajo para abrir el formulario en el navegador</i>")
-        note_label.setObjectName("description")
+        note_label.setObjectName("subtitle")
         note_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         note_label.setWordWrap(True)
         note_label.setMinimumWidth(200)
         layout.addWidget(note_label)
         
-        # Boton
-        
+        # Botón - ahora usa propiedad en lugar de stylesheet directo
         self.open_btn = QPushButton("Abrir Formulario")
         self.open_btn.setStyleSheet(self.styles['button_primary_default'])
         self.open_btn.clicked.connect(self.open_feedback_form)
-
         layout.addWidget(self.open_btn)
     
     def open_feedback_form(self):
         """Abre el formulario de Google Forms y deshabilita el botón temporalmente"""
         # Deshabilitar el botón inmediatamente
         self.open_btn.setEnabled(False)
+        self.open_btn.setText("Abriendo...")
         
         google_form_url = "https://docs.google.com/forms/d/e/your-form-id/viewform"
         
