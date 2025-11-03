@@ -45,9 +45,8 @@ class ConnectionHelpDialog(QDialog):
         separator_top.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator_top)
         
-        # Subtítulo para Pasos (color azul) - CENTRADO
         steps_subtitle = QLabel("Pasos para conectar")
-        steps_subtitle.setObjectName("subtitle_blue")
+        steps_subtitle.setObjectName("subtitle_base")
         steps_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(steps_subtitle)
         
@@ -101,24 +100,23 @@ class ConnectionHelpDialog(QDialog):
         separator1.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator1)
         
-        # Subtítulo para Consejos (color verde) - CENTRADO
         tips_subtitle = QLabel("Consejos útiles")
-        tips_subtitle.setObjectName("subtitle_green")
+        tips_subtitle.setObjectName("subtitle_base")
         tips_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(tips_subtitle)
         
         # Contenido de Consejos
         tips_content = """
         <p>
-            Algunos dispositivos requieren <b style="color: #90caf9;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga
+            Algunos dispositivos requieren <b style="color: #4DBD8B;">modo MTP (Transferencia de archivos)</b> en lugar de solo carga
         </p>
 
         <p>
-            Si no encuentras alguna opción, <b style="color: #90caf9;">busca en el menú de ajustes</b> ya que puede variar
+            Si no encuentras alguna opción, <b style="color: #4DBD8B;">busca en el menú de ajustes</b> ya que puede variar
         </p>
 
         <p>
-            Si no funciona, prueba <b style="color: #90caf9;">reiniciar ambos dispositivos</b> (PC y dispositivo)
+            Si no funciona, prueba <b style="color: #4DBD8B;">reiniciar ambos dispositivos</b> (PC y dispositivo)
         </p>
 
         <p>
@@ -138,32 +136,31 @@ class ConnectionHelpDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         scroll_layout.addWidget(separator2)
         
-        # Subtítulo para Solución de Problemas (color naranja) - CENTRADO
         problems_subtitle = QLabel("Solución de problemas comunes")
-        problems_subtitle.setObjectName("subtitle_orange")
+        problems_subtitle.setObjectName("subtitle_base")
         problems_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         scroll_layout.addWidget(problems_subtitle)
         
         # Contenido de Problemas
         problems_content = """
         <p>
-            <b style="color: #3399DD;">Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)
+            <b>Dispositivo no detectado:</b> Prueba con otro cable USB (los cables de solo carga no funcionan)
         </p>
 
         <p>
-            <b style="color: #3399DD;">No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"
+            <b>No aparece Opciones de Desarrollador:</b> Verifica que hayas tocado 7 veces "Número de compilación"
         </p>
 
         <p>
-            <b style="color: #3399DD;">Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el dispositivo
+            <b>Error de permisos:</b> Asegúrate de marcar "Permitir" en la ventana de confirmación que aparece en el dispositivo
         </p>
 
         <p>
-            <b style="color: #3399DD;">Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el dispositivo, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa. En algunos dispositivos, esta opción o ventana aparece automáticamente al conectar el cable USB
+            <b>Solo carga:</b> Cambia el modo USB a "Transferencia de archivos (MTP)" en el dispositivo, esta opción por lo general aparece en el panel de notificaciones como una notificación silenciosa. En algunos dispositivos, esta opción o ventana aparece automáticamente al conectar el cable USB
         </p>
 
         <p>
-            <b style="color: #3399DD;">No encuentras las opciones:</b> La ubicación puede variar — busca en Internet específicamente para tu modelo
+            <b>No encuentras las opciones:</b> La ubicación puede variar — busca en Internet específicamente para tu modelo
         </p>
         """
 

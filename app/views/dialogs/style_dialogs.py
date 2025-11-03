@@ -31,6 +31,16 @@ DIALOG_STYLES = """
         letter-spacing: -0.5px;
     }
     
+    QLabel#subtitle_base {
+            font-size: 16px;
+            font-weight: 600;
+            color: #90caf9;
+            background-color: rgba(52, 152, 219, 0.12);
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin: 4px 0px;
+    }
+
     QLabel#subtitle_green {
         font-size: 16px;
         font-weight: 600;
