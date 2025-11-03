@@ -13,14 +13,14 @@ class ADBManager:
         return self.config_manager.get_adb_path()
     
     def is_available(self) -> bool:
-        """Verifica si ADB está disponible en el sistema"""
-        try:
-            result = subprocess.run(
-                [self.resolve_adb_path(), "version"],
-                capture_output=True, text=True, timeout=10
-            )
-            return result.returncode == 0
-        except Exception:
+        # """Verifica si ADB está disponible en el sistema"""
+        # try:
+        #     result = subprocess.run(
+        #         [self.resolve_adb_path(), "version"],
+        #         capture_output=True, text=True, timeout=10
+        #     )
+        #     return result.returncode == 0
+        # except Exception:
             return False
     
     def find_adb_executable(self):

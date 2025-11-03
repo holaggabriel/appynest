@@ -191,7 +191,6 @@ class UIDevicePanel:
         self.selected_device = None
         self.selected_device_info = {}
         self.selected_device_banner.setText("No hay dispositivo seleccionado")
-        self.device_details_banner.setVisible(False)
 
     def show_devices_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
@@ -327,30 +326,6 @@ class UIDevicePanel:
             # Fallback si no hay información detallada
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
             self.details_container.setVisible(False)
-        
-    def _copy_device_details_to_clipboard(self, event):
-        """Copia la información del dispositivo al portapapeles al hacer doble clic"""
-        if not self.selected_device_info:
-            return
-            
-        # Construir texto formateado para copiar
-        clipboard_text = self._format_device_info_for_clipboard()
-        
-        # Copiar al portapapeles
-        clipboard = QApplication.clipboard()
-        clipboard.setText(clipboard_text)
-        
-        # Feedback visual
-        original_style = self.device_details_banner.styleSheet()
-        self.device_details_banner.setStyleSheet(original_style + """
-            QLabel {
-                background-color: rgba(76, 175, 80, 0.3);
-                border: 1px solid #4CAF50;
-            }
-        """)
-        
-        # Restaurar estilo después de 500ms
-        execute_after_delay(lambda: self.device_details_banner.setStyleSheet(original_style), 500)
 
     def _format_device_info_for_clipboard(self):
         """Formatea la información del dispositivo para el portapapeles"""
