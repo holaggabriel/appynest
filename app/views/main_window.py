@@ -164,18 +164,18 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         nav_buttons_layout = QHBoxLayout()
         nav_buttons_layout.setSpacing(8)
         
-        self.install_btn_nav = QPushButton("📦 Instalación")
+        self.install_btn_nav = QPushButton("Instalación")
         self.install_btn_nav.setCheckable(True)
         self.install_btn_nav.setChecked(True)
         self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
         nav_buttons_layout.addWidget(self.install_btn_nav)
         
-        self.apps_btn_nav = QPushButton("🧩 Aplicaciones")
+        self.apps_btn_nav = QPushButton("Aplicaciones")
         self.apps_btn_nav.setCheckable(True)
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
         nav_buttons_layout.addWidget(self.apps_btn_nav)
         
-        self.config_btn_nav = QPushButton("⚙️ Ajustes")
+        self.config_btn_nav = QPushButton("Ajustes")
         self.config_btn_nav.setCheckable(True)
         self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
         nav_buttons_layout.addWidget(self.config_btn_nav)
@@ -236,16 +236,21 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
     
     def update_nav_buttons_style(self):
         buttons = [
-            (self.install_btn_nav, self.install_btn_nav.isChecked()),
-            (self.apps_btn_nav, self.apps_btn_nav.isChecked()),
-            (self.config_btn_nav, self.config_btn_nav.isChecked())
+            (self.install_btn_nav, self.install_btn_nav.isChecked(), self.install_btn_nav.isEnabled()),
+            (self.apps_btn_nav, self.apps_btn_nav.isChecked(), self.apps_btn_nav.isEnabled()),
+            (self.config_btn_nav, self.config_btn_nav.isChecked(), self.config_btn_nav.isEnabled())
         ]
         
-        for button, is_active in buttons:
-            button.setStyleSheet(
-                self.styles['nav_button_active_state'] if is_active 
-                else self.styles['nav_button_inactive_state']
-            )
+        for button, is_active, is_enabled in buttons:
+            if not is_enabled:
+                # Estado deshabilitado
+                button.setStyleSheet(self.styles['nav_button_disabled_state'])
+            elif is_active:
+                # Estado activo
+                button.setStyleSheet(self.styles['nav_button_active_state'])
+            else:
+                # Estado inactivo pero habilitado
+                button.setStyleSheet(self.styles['nav_button_inactive_state'])
 
     def disable_sections_and_show_config(self):
         """Deshabilita secciones y muestra configuración cuando ADB no está disponible"""
@@ -260,12 +265,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.install_btn_nav.setChecked(False)
         self.apps_btn_nav.setChecked(False)
         
-        # ACTUALIZAR SECCIÓN ACTUAL
         self.current_section = 'config'
         
-        # Actualizar estilos de botones
+        # Actualizar estilos de botones (usará el nuevo estado deshabilitado)
         self.update_nav_buttons_style()
         
         # Mostrar mensaje en panel de dispositivos
         self.show_devices_message("ADB no está configurado", "warning")
-    
+        
