@@ -40,82 +40,12 @@ DIALOG_STYLES = """
             padding: 10px 16px;
             margin: 4px 0px;
     }
-
-    QLabel#subtitle_green {
-        font-size: 16px;
-        font-weight: 600;
-        color: #2ecc71;
-        background-color: rgba(46, 204, 113, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin: 4px 0px;
-    }
-    
-    QLabel#subtitle_blue {
-        font-size: 16px;
-        font-weight: 600;
-        color: #3498db;
-        background-color: rgba(52, 152, 219, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin: 4px 0px;
-    }
-    
-    QLabel#subtitle_orange {
-        font-size: 16px;
-        font-weight: 600;
-        color: #e67e22;
-        background-color: rgba(230, 126, 34, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin: 4px 0px;
-    }
-    
-    QLabel#subtitle_purple {
-        font-size: 16px;
-        font-weight: 600;
-        color: #9b59b6;
-        background-color: rgba(155, 89, 182, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-        margin: 4px 0px;
-    }
     
     QLabel#description {
         color: #dcdcdc;
         line-height: 1.5;
         padding: 8px 0px;
         font-size: 14px;
-    }
-    
-    QLabel#warning {
-        color: #e74c3c;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 8px 0px;
-        background-color: rgba(231, 76, 60, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-    }
-    
-    QLabel#tip {
-        color: #2ecc71;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 8px 0px;
-        background-color: rgba(46, 204, 113, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
-    }
-    
-    QLabel#note {
-        color: #3498db;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 8px 0px;
-        background-color: rgba(52, 152, 219, 0.12);
-        border-radius: 6px;
-        padding: 10px 16px;
     }
     
     /* Estilos para botones */
@@ -136,11 +66,6 @@ DIALOG_STYLES = """
     
     QPushButton:pressed {
         background-color: #21618c;
-    }
-    
-    QPushButton#primary {
-        background-color: #27ae60;
-        color: white;
     }
     
     QPushButton#primary:hover {
@@ -178,16 +103,5 @@ DIALOG_STYLES = """
         border: none;
         background: none;
         height: 0px;
-    }
-    
-    /* Estilos para QTextEdit */
-    QTextEdit {
-        background-color: transparent;
-        color: #b0b0b0;
-        border: none;
-        padding: 0px;
-        font-size: 14px;
-        line-height: 1.5;
-        selection-background-color: #3949ab;
     }
 """
