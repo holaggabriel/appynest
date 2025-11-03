@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
-from app.views.dialogs.style_dialogs import DIALOG_STYLES
+from app.theme.dialog_theme import DialogTheme
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -13,7 +13,9 @@ class AboutDialog(QDialog):
         self.init_ui()
     
     def setup_styles(self):
-        self.setStyleSheet(DIALOG_STYLES)
+        DialogTheme.setup_dialog_palette(self)
+        all_styles = DialogTheme.get_dialog_styles()
+        self.setStyleSheet(all_styles)
     
     def open_github_repo(self):
         """Abre el repositorio de GitHub en el navegador con manejo de errores"""
@@ -37,6 +39,8 @@ class AboutDialog(QDialog):
         self.setWindowTitle("Acerca de Easy ADB")
         self.setFixedSize(450, 430)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
+        
+        self.setObjectName("dialog_base")
         
         layout = QVBoxLayout(self)
         layout.setSpacing(0)

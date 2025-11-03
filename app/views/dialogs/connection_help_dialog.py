@@ -2,13 +2,18 @@ from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QDialog,
                              QVBoxLayout, QPushButton, QApplication,
                              QScrollArea, QWidget, QFrame)
 from PyQt6.QtCore import Qt, QTimer
-from .style_dialogs import DIALOG_STYLES
+from app.theme.dialog_theme import DialogTheme
 
 class ConnectionHelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet(DIALOG_STYLES)
+        self.setup_styles()
         self.init_ui()
+    
+    def setup_styles(self):
+        DialogTheme.setup_dialog_palette(self)
+        all_styles = DialogTheme.get_dialog_styles()
+        self.setStyleSheet(all_styles)
         
     def init_ui(self):
         self.setWindowTitle("Ayuda - Conectar Dispositivo Android")
@@ -23,8 +28,10 @@ class ConnectionHelpDialog(QDialog):
         # Crear scroll area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
+        scroll_area.setObjectName("scroll_area")
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.verticalScrollBar().setObjectName("scrollbar_vertical")
         
         # Widget contenedor del scroll
         scroll_widget = QWidget()

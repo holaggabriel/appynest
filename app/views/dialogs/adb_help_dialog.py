@@ -2,18 +2,24 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel,
                             QScrollArea, QWidget, 
                             QFrame)
 from PyQt6.QtCore import Qt
-from .style_dialogs import DIALOG_STYLES
+from app.theme.dialog_theme import DialogTheme
 
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet(DIALOG_STYLES)
+        self.setup_styles()
         self.init_ui()
-    
+        
+    def setup_styles(self):
+        DialogTheme.setup_dialog_palette(self)
+        all_styles = DialogTheme.get_dialog_styles()
+        self.setStyleSheet(all_styles)
+        
     def init_ui(self):
         self.setWindowTitle("Ayuda - Configuración de ADB")
         self.setFixedSize(700, 600)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
+        self.setObjectName("dialog_base")
         
         # Layout principal
         self.main_layout = QVBoxLayout(self)
@@ -23,8 +29,10 @@ class ADBHelpDialog(QDialog):
         # Crear scroll area (único scroll global)
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setObjectName("scroll_area")
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area.verticalScrollBar().setObjectName("scrollbar_vertical")
         
         # Widget contenedor del scroll
         self.scroll_widget = QWidget()
@@ -39,10 +47,9 @@ class ADBHelpDialog(QDialog):
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_layout.addWidget(self.title_label)
         
-        # Agregar secciones
-        self.add_adb_locations_section()
-        self.add_common_paths_section()
-        self.add_setup_instructions_section()
+        self.add_section("¿Dónde obtener ADB?", self.get_adb_locations_content)
+        self.add_section("Rutas típicas de ADB", self.get_common_paths_content)
+        self.add_section("Configurar la ruta de ADB", self.get_setup_instructions_content)
 
         self.scroll_area.setWidget(self.scroll_widget)
         self.main_layout.addWidget(self.scroll_area)
@@ -53,54 +60,22 @@ class ADBHelpDialog(QDialog):
         sep.setObjectName("separator")
         sep.setFrameShape(QFrame.Shape.HLine)
         self.scroll_layout.addWidget(sep)
-
-    def add_adb_locations_section(self):
-        """Agrega la sección de ubicaciones de ADB"""
+    
+    def add_section(self, title, content_method):
+        """Agrega una sección con título y contenido"""
         self.add_separator()
         
-        self.subtitle_locations = QLabel("¿Dónde obtener ADB?")
-        self.subtitle_locations.setObjectName("subtitle_base")
-        self.subtitle_locations.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_layout.addWidget(self.subtitle_locations)
+        subtitle = QLabel(title)
+        subtitle.setObjectName("subtitle_base")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_layout.addWidget(subtitle)
 
-        self.content_locations = QLabel()
-        self.content_locations.setObjectName("description")
-        self.content_locations.setTextFormat(Qt.TextFormat.RichText)
-        self.content_locations.setWordWrap(True)
-        self.content_locations.setText(self.get_adb_locations_content())
-        self.scroll_layout.addWidget(self.content_locations)
-
-    def add_common_paths_section(self):
-        """Agrega la sección de rutas comunes"""
-        self.add_separator()
-        
-        self.subtitle_paths = QLabel("Rutas típicas de ADB según tu sistema")
-        self.subtitle_paths.setObjectName("subtitle_base")
-        self.subtitle_paths.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_layout.addWidget(self.subtitle_paths)
-
-        self.content_paths = QLabel()
-        self.content_paths.setObjectName("description")
-        self.content_paths.setTextFormat(Qt.TextFormat.RichText)
-        self.content_paths.setWordWrap(True)
-        self.content_paths.setText(self.get_common_paths_content())
-        self.scroll_layout.addWidget(self.content_paths)
-
-    def add_setup_instructions_section(self):
-        """Agrega la sección de instrucciones de configuración"""
-        self.add_separator()
-        
-        self.subtitle_setup = QLabel("Configurar la ruta de ADB")
-        self.subtitle_setup.setObjectName("subtitle_base")
-        self.subtitle_setup.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_layout.addWidget(self.subtitle_setup)
-
-        self.content_setup = QLabel()
-        self.content_setup.setObjectName("description")
-        self.content_setup.setTextFormat(Qt.TextFormat.RichText)
-        self.content_setup.setWordWrap(True)
-        self.content_setup.setText(self.get_setup_instructions_content())
-        self.scroll_layout.addWidget(self.content_setup)
+        content = QLabel()
+        content.setObjectName("description")
+        content.setTextFormat(Qt.TextFormat.RichText)
+        content.setWordWrap(True)
+        content.setText(content_method())
+        self.scroll_layout.addWidget(content)
 
     def get_adb_locations_content(self):
         return """        

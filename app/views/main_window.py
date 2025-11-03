@@ -10,7 +10,7 @@ from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from .styles import DarkTheme
+from ..theme.app_theme import AppTheme
 from app.views.ui_devices_panel import UIDevicePanel
 from app.views.ui_install_section import UIInstallSection
 from app.views.ui_apps_section import UIAppsSection
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.selected_device = None
         self.preselected_device = None
         self.active_device = None
-        self.styles = DarkTheme.get_all_styles()
+        self.styles = AppTheme.get_all_styles()
         self.last_device_selected = None
         self.last_section_index = None
         self.app_list_update_attempts = 0
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         
-        DarkTheme.setup_dark_palette(self)
+        AppTheme.setup_app_palette(self)
         
         central_widget = QWidget()
         central_widget.setStyleSheet(self.styles['app_main_window'])

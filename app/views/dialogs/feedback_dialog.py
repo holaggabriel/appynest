@@ -2,15 +2,14 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QFrame)
 from PyQt6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from app.views.styles import DarkTheme
+from app.theme.app_theme import AppTheme
+from app.theme.dialog_theme import DialogTheme
 import webbrowser
-from app.views.dialogs.style_dialogs import DIALOG_STYLES
 
 class FeedbackDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_styles()
-        self.styles = DarkTheme.get_all_styles()
         self.init_ui()
 
         # Timer para habilitar el botón
@@ -19,12 +18,17 @@ class FeedbackDialog(QDialog):
         self.button_timer.timeout.connect(self.enable_open_button)
     
     def setup_styles(self):
-        self.setStyleSheet(DIALOG_STYLES)
+        DialogTheme.setup_dialog_palette(self)
+        self.styles = AppTheme.get_all_styles()
+        all_styles = DialogTheme.get_dialog_styles()
+        self.setStyleSheet(all_styles)
     
     def init_ui(self):
         self.setWindowTitle("Comentarios")
         self.setFixedSize(370, 300)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
+        
+        self.setObjectName("dialog_base")
         
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
@@ -86,6 +90,7 @@ class FeedbackDialog(QDialog):
         
         # Botón - ahora usa propiedad en lugar de stylesheet directo
         self.open_btn = QPushButton("Abrir Formulario")
+        self.open_btn.setObjectName("button_primary")
         self.open_btn.setStyleSheet(self.styles['button_primary_default'])
         self.open_btn.clicked.connect(self.open_feedback_form)
         layout.addWidget(self.open_btn)

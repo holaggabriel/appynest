@@ -1,19 +1,18 @@
 # styles.py
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette, QColor
-from app.constants.colors import COLORS
+from app.theme.app_colors import COLORS
 
-
-class DarkTheme:
+class AppTheme:
     """Clase para gestionar el tema oscuro de manera modular sin sobrescribir estilos nativos"""
 
     COLORS = COLORS
 
     @staticmethod
-    def setup_dark_palette(app):
+    def setup_app_palette(app):
         """Configura solo la paleta base sin stylesheet global"""
         palette = QPalette()
-        colors = DarkTheme.COLORS
+        colors = AppTheme.COLORS
 
         role_colors = {
             QPalette.ColorRole.Window: colors["window"],
@@ -39,7 +38,7 @@ class DarkTheme:
     @staticmethod
     def get_component_styles():
         """Retorna diccionario con estilos modulares por componente"""
-        colors = DarkTheme.COLORS
+        colors = AppTheme.COLORS
 
         return {
             # ===== CONTENEDORES PRINCIPALES =====
@@ -441,7 +440,7 @@ class DarkTheme:
 
     @staticmethod
     def get_status_styles():
-        colors = DarkTheme.COLORS
+        colors = AppTheme.COLORS
 
         return {
             "status_success_message": f"""
@@ -501,7 +500,7 @@ class DarkTheme:
 
     @staticmethod
     def get_special_styles():
-        colors = DarkTheme.COLORS
+        colors = AppTheme.COLORS
         return {
             "banner_label": f"""
                 QLabel {{
@@ -597,7 +596,7 @@ class DarkTheme:
     def get_all_styles():
         """Combina todos los estilos en un diccionario"""
         all_styles = {}
-        all_styles.update(DarkTheme.get_component_styles())
-        all_styles.update(DarkTheme.get_status_styles())
-        all_styles.update(DarkTheme.get_special_styles())
+        all_styles.update(AppTheme.get_component_styles())
+        all_styles.update(AppTheme.get_status_styles())
+        all_styles.update(AppTheme.get_special_styles())
         return all_styles
