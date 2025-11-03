@@ -104,8 +104,8 @@ class ADBHelpDialog(QDialog):
 
     def get_adb_locations_content(self):
         return """        
-        <p><b>1. Descarga Directa</b>
-        <p style="margin-left:2em;">• Busca en Internet "ADB Platform Tools" y descárgalo desde la página oficial de Android Developers.</p>
+        <p><b>1. Descarga Directa (Platform Tools)</b>
+        <p style="margin-left:2em;">• Busca en Internet "SDK Platform Tools" y descárgalo desde la página oficial de Android Developers.</p>
         <p style="margin-left:2em;">• Extrae el paquete y asegúrate de que ADB permanezca junto con los demás archivos incluidos.</p>
         
         <p><b>2. Android Studio (Opcional)</b>
