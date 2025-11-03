@@ -11,7 +11,7 @@ class ConnectionHelpDialog(QDialog):
         self.init_ui()
         
     def init_ui(self):
-        self.setWindowTitle("Ayuda")
+        self.setWindowTitle("Ayuda - Conectar Dispositivo Android")
         self.setFixedSize(600, 540)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
