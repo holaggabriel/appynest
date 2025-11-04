@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout,
                              QWidget, QFrame, QApplication,QGridLayout )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QClipboard
+from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
@@ -232,6 +233,9 @@ class UIDevicePanel:
 
     def set_devices_section_enabled(self, enabled):
         """Habilita o deshabilita los controles de la sección de dispositivos"""
+        if enabled and self.is_thread_type_running(
+            [AppsLoadingThread, UninstallThread, ExtractThread, InstallationThread], mode="or"):
+            enabled = False
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled)
         self._update_device_ui_state()
