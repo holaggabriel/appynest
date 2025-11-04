@@ -72,9 +72,21 @@ class UIAppsSection:
         
         self.apps_list = QListWidget()
         self.apps_list.setObjectName('list_main_widget')
+
+        # Configurar políticas de scroll para asegurar que siempre estén visibles
+        self.apps_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.apps_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        # Opcional: Si quieres asignar objectName específico al scrollbar
+        vertical_scrollbar = self.apps_list.verticalScrollBar()
+        vertical_scrollbar.setObjectName('scrollbar_vertical')
+
+        horizontal_scrollbar = self.apps_list.horizontalScrollBar() 
+        horizontal_scrollbar.setObjectName('scrollbar_horizontal')
+
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         left_layout.addWidget(self.apps_list)
-        
+                
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)

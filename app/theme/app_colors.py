@@ -44,4 +44,9 @@ APP_COLORS = {
     'status_success_message': '#1F6F43',  # Verde oscuro - éxito
     'status_warning_message': '#B8860B',  # Dorado oscuro - advertencia
     'status_error_message': '#8B0000',    # Rojo oscuro - error
+    
+    # Colores para scrollbars
+    "scrollbar_background": "#2d2d2d",
+    "scrollbar_handle": "#555555",
+    "scrollbar_handle_hover": "#777777",
 }

@@ -159,41 +159,91 @@ class AppTheme:
                 outline: none;
                 font-size: 12px;
             }}
-            
+
             QListWidget#list_main_widget:disabled {{
                 background-color: {colors['window']};
                 color: {colors['text_disabled']};
                 border: 1px solid {colors['border_disabled']};
             }}
-            
+
             QListWidget#list_main_widget::item {{
                 padding: 8px;
                 border-bottom: 1px solid {colors['border']};
                 background-color: transparent;
             }}
-            
+
             QListWidget#list_main_widget::item:disabled {{
                 color: {colors['text_disabled']};
                 background-color: transparent;
                 border-bottom: 1px solid {colors['border_disabled']};
             }}
-            
+
             QListWidget#list_main_widget::item:selected {{
                 background-color: {colors['selected_item']};
                 color: white;
                 border-radius: 3px;
                 border-bottom: 1px solid {colors['selected_item_hover']};
             }}
-            
+
             QListWidget#list_main_widget::item:selected:disabled {{
                 background-color: {colors['selected_item_disabled']};
                 color: {colors['text_disabled']};
                 border-bottom: 1px solid {colors['border_disabled']};
             }}
-            
+
             QListWidget#list_main_widget::item:hover {{
                 background-color: {colors['selected_item_hover']};
                 border-radius: 3px;
+            }}
+
+            /* ===== SCROLLBAR VERTICAL ===== */
+            QScrollBar#scrollbar_vertical {{
+                background-color: {colors['scrollbar_background']};
+                width: 10px;
+                border-radius: 2px;
+                margin: 0px;
+            }}
+
+            QScrollBar#scrollbar_vertical::handle {{
+                background-color: {colors['scrollbar_handle']};
+                border-radius: 2px;
+                min-height: 20px;
+            }}
+
+            QScrollBar#scrollbar_vertical::handle:hover {{
+                background-color: {colors['scrollbar_handle_hover']};
+            }}
+
+            QScrollBar#scrollbar_vertical::add-line,
+            QScrollBar#scrollbar_vertical::sub-line {{
+                border: none;
+                background: none;
+                height: 0px;
+            }}
+
+            /* ===== SCROLLBAR HORIZONTAL (por si acaso) ===== */
+            QScrollBar#scrollbar_horizontal {{
+                background-color: {colors['scrollbar_background']};
+                height: 10px;
+                border-radius: 2px;
+                margin: 0px;
+            }}
+
+            QScrollBar#scrollbar_horizontal::handle {{
+                background-color: {colors['scrollbar_handle']};
+                border-radius: 2px;
+                min-width: 20px;
+            }}
+
+            QScrollBar#scrollbar_horizontal::handle:hover {{
+                background-color: {colors['scrollbar_handle_hover']};
+            }}
+
+            QScrollBar#scrollbar_horizontal::add-line,
+            QScrollBar#scrollbar_horizontal::sub-line {{
+                border: none;
+                background: none;
+                width: 0px;
             }}
             
             /* ===== BOTONES PRINCIPALES ===== */

@@ -68,6 +68,18 @@ class UIDevicePanel:
         # Lista de dispositivos
         self.device_list = QListWidget()
         self.device_list.setObjectName('list_main_widget')
+
+        # Configurar políticas de scroll para asegurar que siempre estén visibles
+        self.device_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.device_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        # Asignar objectName específico a los scrollbars
+        vertical_scrollbar = self.device_list.verticalScrollBar()
+        vertical_scrollbar.setObjectName('scrollbar_vertical')
+
+        horizontal_scrollbar = self.device_list.horizontalScrollBar() 
+        horizontal_scrollbar.setObjectName('scrollbar_horizontal')
+
         self.device_list.itemSelectionChanged.connect(self._update_device_ui_state)
         layout.addWidget(self.device_list)
         
@@ -233,7 +245,6 @@ class UIDevicePanel:
         if not self.selected_device:
             self.loading_details_label.setVisible(False)
             self.details_container.setVisible(False)
-
         
         # 1. Actualizar botón de confirmación
         if has_selection and self.selected_device:
@@ -369,7 +380,7 @@ class UIDevicePanel:
         # Recargar aplicaciones si estamos en esa sección
         if hasattr(self, 'current_section') and self.current_section == 'apps':
             self.handle_app_operations('load', force_load=True)
-
+    
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""
         dialog = ConnectionHelpDialog(self)

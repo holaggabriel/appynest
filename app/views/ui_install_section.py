@@ -49,6 +49,18 @@ class UIInstallSection:
         self.apk_list = QListWidget()
         self.apk_list.setObjectName('list_main_widget')
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
+
+        # Configurar políticas de scroll para asegurar que siempre estén visibles
+        self.apk_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.apk_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+        # Asignar objectName específico a los scrollbars
+        vertical_scrollbar = self.apk_list.verticalScrollBar()
+        vertical_scrollbar.setObjectName('scrollbar_vertical')
+
+        horizontal_scrollbar = self.apk_list.horizontalScrollBar() 
+        horizontal_scrollbar.setObjectName('scrollbar_horizontal')
+
         self.apk_list.itemSelectionChanged.connect(self._update_ui_state)
         layout.addWidget(self.apk_list)
         
