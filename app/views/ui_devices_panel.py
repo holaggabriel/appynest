@@ -25,6 +25,13 @@ class UIDevicePanel:
         self.selected_device_banner.setObjectName('banner_label')
         self.selected_device_banner.setMinimumHeight(40)
         layout.addWidget(self.selected_device_banner)
+        
+        # Indicador de carga de detalles
+        self.loading_details_label = QLabel("Cargando detalles del dispositivo...")
+        self.loading_details_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_details_label.setObjectName('status_info_message')
+        self.loading_details_label.setVisible(False)
+        layout.addWidget(self.loading_details_label)
 
         self.details_container = self._create_device_details_grid()
         layout.addWidget(self.details_container)
@@ -220,9 +227,13 @@ class UIDevicePanel:
     def _update_device_ui_state(self):
         """Método único para actualizar todo el estado de UI de dispositivos"""
         # Estado actual
-        has_devices = self.device_list.count() > 0
         has_selection = bool(self.device_list.selectedItems())
         is_section_enabled = self.device_list.isEnabled()
+        
+        if not self.selected_device:
+            self.loading_details_label.setVisible(False)
+            self.details_container.setVisible(False)
+
         
         # 1. Actualizar botón de confirmación
         if has_selection and self.selected_device:
@@ -267,23 +278,13 @@ class UIDevicePanel:
         
         self.selected_device = device_id
         
-        # Obtener y guardar la información del dispositivo una sola vez
-        try:
-            self.selected_device_info = self.device_manager.get_device_info(device_id)
-        except Exception as e:
-            print(f"Error al obtener información del dispositivo: {e}")
-            self.selected_device_info = {}
+        self.selected_device_banner.setText(device_text)
         
-        self._update_device_banner()
-        self._update_device_ui_state()
+        self.loading_details_label.setVisible(True)
+        self.details_container.setVisible(False)
         
-        # Actualizar estado de la sección de instalación
-        if hasattr(self, '_update_ui_state'):
-            self._update_ui_state()
-        
-        # Recargar aplicaciones si estamos en esa sección
-        if hasattr(self, 'current_section') and self.current_section == 'apps':
-            self.handle_app_operations('load', force_load=True)
+        # Obtener información detallada en segundo plano
+        execute_after_delay(lambda: self._load_device_details(device_id), 100)
 
     def _extract_device_id(self, device_text):
         """Extrae el ID del dispositivo del texto mostrado"""
@@ -294,17 +295,11 @@ class UIDevicePanel:
         if not self.selected_device:
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
             self.details_container.setVisible(False)
+            self.loading_details_label.setVisible(False)
             return
         
         if self.selected_device_info:
-            brand = self.selected_device_info.get('brand', 'Desconocido')
-            model = self.selected_device_info.get('model', 'Desconocido')
-            device_id = self.selected_device_info.get('device_id', 'Desconocido')
-            
-            # Banner principal
-            self.selected_device_banner.setText(f"{brand} {model} - {device_id}")
-            
-            # ✅ ACTUALIZAR TODOS LOS CARDS DEL GRID
+            # Actualizar los cards del grid con la información detallada
             for field, card_label in self.detail_cards.items():
                 value = self.selected_device_info.get(field, 'Desconocido')
                 
@@ -312,7 +307,6 @@ class UIDevicePanel:
                 if field == 'resolution':
                     value = value.split(' ')[0] if ' ' in value else value
                 
-                # ✅ ACTUALIZAR EL TEXTO DEL CARD (nombre + valor)
                 display_name = {
                     'model': 'Modelo', 'brand': 'Marca', 'android_version': 'Android',
                     'sdk_version': 'SDK', 'manufacturer': 'Fabricante', 'resolution': 'Pantalla',
@@ -323,11 +317,6 @@ class UIDevicePanel:
                 card_label.setText(f"<b>{display_name}:</b>\n{value}")
             
             self.details_container.setVisible(True)
-            
-        else:
-            # Fallback si no hay información detallada
-            self.selected_device_banner.setText("No hay dispositivo seleccionado")
-            self.details_container.setVisible(False)
 
     def _format_device_info_for_clipboard(self):
         """Formatea la información del dispositivo para el portapapeles"""
@@ -358,6 +347,28 @@ class UIDevicePanel:
             lines.append(f"{display_name}: {value}")
         
         return "\n".join(lines)
+
+    def _load_device_details(self, device_id):
+        """Carga los detalles del dispositivo y actualiza la UI"""
+        try:
+            self.selected_device_info = self.device_manager.get_device_info(device_id)
+        except Exception as e:
+            print(f"Error al obtener información del dispositivo: {e}")
+            self.selected_device_info = {}
+        
+        self.loading_details_label.setVisible(False)
+        
+        self._update_device_banner()
+        
+        # Actualizar estado general de la UI
+        self._update_device_ui_state()
+        
+        if hasattr(self, '_update_ui_state'):
+            self._update_ui_state()
+        
+        # Recargar aplicaciones si estamos en esa sección
+        if hasattr(self, 'current_section') and self.current_section == 'apps':
+            self.handle_app_operations('load', force_load=True)
 
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""
