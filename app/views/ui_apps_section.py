@@ -363,7 +363,7 @@ class UIAppsSection:
         
         if operation_type == 'extract':
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Guardar APK", f"{app_data['package_name']}.apk", "APK Files (*.apk)"
+                self, "Extraer APK", f"{app_data['package_name']}.apk", "APK Files (*.apk)"
             )
             if not file_path: 
                 return
@@ -394,11 +394,11 @@ class UIAppsSection:
         self.set_ui_state(True)
         
         if success:
-            QMessageBox.information(self, "✅ Éxito", message)
+            QMessageBox.information(self, "Éxito", message)
             if operation_type == 'uninstall':
                 self.handle_app_operations('load', force_load=True)
         else:
-            QMessageBox.critical(self, "❌ Error", f"Error al {operation_type}:\n{message}")
+            QMessageBox.critical(self, "Error", f"Error al {operation_type}:\n{message}")
 
     def show_operation_status(self, message):
         """Muestra el estado de la operación en curso"""
@@ -422,7 +422,7 @@ class UIAppsSection:
     def _confirm_operation(self, operation_name, app_name):
         """Muestra diálogo de confirmación para operaciones"""
         reply = QMessageBox.question(
-            self, f"⚠️ Confirmar {operation_name.capitalize()}",
+            self, f"{operation_name.capitalize()}",
             f"¿Estás seguro de que quieres {operation_name} <b>{app_name}</b>?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )

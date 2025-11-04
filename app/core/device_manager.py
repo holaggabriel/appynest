@@ -59,7 +59,6 @@ class DeviceManager:
         try:
             adb_path = self.adb_manager.get_adb_path()
             
-            # ✅ INFORMACIÓN ESENCIAL
             model_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.model"],
                 capture_output=True, text=True, timeout=10
@@ -95,31 +94,25 @@ class DeviceManager:
                 capture_output=True, text=True, timeout=10
             )
             
-            # ✅ MEMORIA RAM
             memory_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "cat", "/proc/meminfo"],
                 capture_output=True, text=True, timeout=10
             )
             
-            # ✅ ALMACENAMIENTO
             storage_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "df", "/data"],
                 capture_output=True, text=True, timeout=10
             )
             
-            # ✅ PROCESADOR
             cpu_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.cpu.abi"],
                 capture_output=True, text=True, timeout=10
             )
             
-            # ✅ NÚMERO DE SERIE
             serial_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.serialno"],
                 capture_output=True, text=True, timeout=10
             )
-            
-            # ✅ PROCESAR INFORMACIÓN
             
             # Procesar memoria RAM
             total_ram = "Desconocida"

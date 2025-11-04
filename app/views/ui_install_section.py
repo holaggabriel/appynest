@@ -185,13 +185,13 @@ class UIInstallSection:
         self.set_devices_section_enabled(True)
         
         if success:
-            QMessageBox.information(self, "✅ Éxito", message)
+            QMessageBox.information(self, "Éxito", message)
             self.status_label.setText("Instalación completada exitosamente")
             self.status_label.setObjectName('status_info_message')
         else:
             if not self.property("closing"):
-                QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
-                self.status_label.setText("❌ Error en la instalación")
+                QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
+                self.status_label.setText("Error en la instalación")
                 self.status_label.setObjectName('status_error_message')
 
     def install_section_drag_enter_event(self, event: QDragEnterEvent):

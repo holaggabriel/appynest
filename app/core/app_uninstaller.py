@@ -14,10 +14,12 @@ class AppUninstaller(BaseAppManager):
         )
         
         if result['success']:
-            return True, result['stdout']
+            mensaje_exito = f"La aplicación {package_name} fue desinstalada del dispositivo {device_id}"
+            return True, mensaje_exito
         else:
-            error_msg = result.get('error') or result['stderr']
-            return False, error_msg
+            error_msg = result.get('error') or 'Error inesperado'
+            mensaje_error = f"No se pudo desinstalar {package_name} del dispositivo {device_id}. Error: {error_msg}"
+            return False, mensaje_error
     
     def uninstall_multiple_apps(self, device_id, package_list):
         """Desinstala múltiples aplicaciones"""

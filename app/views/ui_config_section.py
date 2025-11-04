@@ -188,7 +188,7 @@ class UIConfigSection:
             
             self.update_adb_status()
             self.load_devices()
-            QMessageBox.information(self, "✅ Configuración", "Ruta de ADB actualizada correctamente")
+            QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada correctamente")
 
     def enable_all_sections(self):
         """Habilita todas las secciones cuando ADB está disponible"""

@@ -68,7 +68,7 @@ class APKInstaller:
         """Instala un APK en el dispositivo especificado con mensajes de error amigables"""
         try:
             if not os.path.exists(apk_path):
-                return False, "❌ El archivo APK no existe o no se puede acceder a él."
+                return False, "El archivo APK no existe o no se puede acceder a él."
             
             apk_name = os.path.basename(apk_path)
             adb_path = self.adb_manager.get_adb_path()
@@ -89,22 +89,22 @@ class APKInstaller:
             )
             
             if install_result.returncode == 0:
-                return True, f"✅ {apk_name} instalado correctamente"
+                return True, f"{apk_name} instalado correctamente"
             else:
                 simple_error = self._get_simple_error_message(
                     install_result.stderr, 
                     install_result.stdout
                 )
-                return False, f"❌ Error instalando {apk_name}:\n{simple_error}"
+                return False, f"Error instalando {apk_name}:\n{simple_error}"
                 
         except subprocess.TimeoutExpired:
-            return False, "⏰ Tiempo de espera agotado. La instalación tardó demasiado."
+            return False, "Tiempo de espera agotado. La instalación tardó demasiado."
         except FileNotFoundError:
-            return False, "🔧 ADB no encontrado. Verifica la configuración del programa."
+            return False, "ADB no encontrado. Verifica la configuración del programa."
         except PermissionError:
-            return False, "🔒 Permisos insuficientes para acceder al archivo APK."
+            return False, "Permisos insuficientes para acceder al archivo APK."
         except Exception as e:
-            return False, f"⚠️ Error inesperado: {str(e)}"
+            return False, f"Error inesperado: {str(e)}"
 
     def install_multiple_apks(self, apk_paths, device_id):
         """Instala múltiples APKs y devuelve un resumen consolidado"""
@@ -127,21 +127,21 @@ class APKInstaller:
             failed_count = len(failed_installs)
             
             if success_count == total_apks:
-                return True, f"✅ Todas las {total_apks} aplicaciones se instalaron correctamente"
+                return True, f"Todas las {total_apks} aplicaciones se instalaron correctamente"
             
             elif success_count > 0 and failed_count > 0:
-                summary = f"📊 Resultado de la instalación:\n"
-                summary += f"✅ {success_count} de {total_apks} aplicaciones instaladas correctamente\n\n"
-                summary += "❌ Errores encontrados:\n"
+                summary = f"Resultado de la instalación:\n"
+                summary += f"{success_count} de {total_apks} aplicaciones instaladas correctamente\n\n"
+                summary += "Errores encontrados:\n"
                 for error in failed_installs:
                     summary += f"• {error}\n"
                 return False, summary
                 
             else:  # Todas fallaron
-                summary = f"❌ No se pudo instalar ninguna aplicación:\n"
+                summary = f"No se pudo instalar ninguna aplicación:\n"
                 for error in failed_installs:
                     summary += f"• {error}\n"
                 return False, summary
                 
         except Exception as e:
-            return False, f"⚠️ Error durante la instalación múltiple: {str(e)}"
+            return False, f"Error durante la instalación múltiple: {str(e)}"
