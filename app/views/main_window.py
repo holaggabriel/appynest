@@ -105,28 +105,42 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         """
         Detiene todos los threads activos de manera segura
         """
-        # Hacer una copia de la lista para evitar problemas de modificación
+        if not self.active_threads:
+            return
+            
         threads_to_stop = self.active_threads.copy()
         
         for thread in threads_to_stop:
-            if thread.isRunning():
-                print_in_debug_mode(f"Deteniendo thread: {thread.__class__.__name__}")
-                if hasattr(thread, 'stop'):
-                    thread.stop()
-                
-                # Esperar un tiempo razonable para que el thread termine
-                if not thread.wait(2000):  # Esperar hasta 2 segundos
-                    print_in_debug_mode(f"Thread {thread.__class__.__name__} no respondió, terminando...")
-                    thread.terminate()  # Último recurso
-                    thread.wait()
+            try:
+                if thread.isRunning():
+                    print_in_debug_mode(f"Deteniendo thread: {thread.__class__.__name__}")
+                    if hasattr(thread, 'stop'):
+                        thread.stop()
+                    
+                    # Esperar con timeout
+                    if not thread.wait(2000):
+                        print_in_debug_mode(f"Thread {thread.__class__.__name__} no respondió, terminando...")
+                        thread.terminate()
+                        thread.wait(1000)  # Esperar después de terminar
+                        
+                    self.unregister_thread(thread)  # Asegurar desregistro
+                    
+            except Exception as e:
+                print_in_debug_mode(f"Error deteniendo thread {thread.__class__.__name__}: {e}")
         
+        # Limpiar cualquier thread restante
         self.active_threads.clear()
     
     def register_thread(self, thread):
         """
         Registra un thread para poder gestionarlo al cerrar
         """
-        if not self.cleaning_up:
+        if self.cleaning_up or self.property("closing"):
+            print_in_debug_mode("No se registra thread - aplicación cerrando")
+            return
+            
+        # Verificar que no esté ya registrado
+        if thread not in self.active_threads:
             self.active_threads.append(thread)
             
             # Conectar para auto-eliminar cuando termine
@@ -136,11 +150,37 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
     
     def unregister_thread(self, thread):
         """
-        Elimina un thread de la lista de activos
+        Elimina un thread de la lista de activos de manera segura
         """
-        if thread in self.active_threads:
-            self.active_threads.remove(thread)
-    
+        try:
+            if thread in self.active_threads:
+                self.active_threads.remove(thread)
+        except ValueError:
+            # El thread ya fue eliminado por otro proceso
+            pass
+
+    def is_thread_type_running(self, thread_classes, mode="or"):
+        """
+        Devuelve True si hay threads de los tipos indicados ejecutándose.
+
+        :param thread_classes: Clase o lista/tupla de clases de threads a verificar.
+                            Ej: AppsLoadingThread o [AppsLoadingThread, UninstallThread]
+        :param mode: "or" → devuelve True si *alguno* está corriendo (por defecto)
+                    "and" → devuelve True solo si *todos* están corriendo
+        """
+        if not isinstance(thread_classes, (list, tuple)):
+            thread_classes = [thread_classes]
+
+        running_status = [
+            any(isinstance(thread, cls) and thread.isRunning()
+                for thread in self.active_threads)
+            for cls in thread_classes
+        ]
+
+        if mode == "and":
+            return all(running_status)
+        return any(running_status)
+
     def init_ui(self):
         self.setWindowTitle("Easy ADB")
         self.setGeometry(100, 100, 1000, 850)
