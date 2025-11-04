@@ -20,13 +20,13 @@ class UIConfigSection:
         layout.setContentsMargins(0, 0, 0, 0)
         
         adb_title = QLabel("ADB")
-        adb_title.setStyleSheet(self.styles['title_container'])
+        adb_title.setObjectName('title_container')
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
         
         # Label para indicar que se está verificando (inicialmente oculto)
         self.verifying_label = QLabel("Verificando disponibilidad del ADB...")
-        self.verifying_label.setStyleSheet(self.styles['status_info_message'])
+        self.verifying_label.setObjectName('status_info_message')
         self.verifying_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.verifying_label.setVisible(False)
         layout.addWidget(self.verifying_label)
@@ -37,13 +37,13 @@ class UIConfigSection:
         
         # Label de estado ADB
         self.adb_status_label = QLabel("Estado ADB: Verificando...")
-        self.adb_status_label.setStyleSheet(self.styles['banner_label'])
+        self.adb_status_label.setObjectName('banner_label')
         self.adb_status_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         status_container.addWidget(self.adb_status_label)
 
         # Botón de actualizar/verificar
         self.update_adb_btn = QPushButton("Verificar")
-        self.update_adb_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.update_adb_btn.setObjectName('button_primary_default')
         self.update_adb_btn.setFixedWidth(100)
         self.update_adb_btn.setToolTip("Verificar estado ADB")
         self.update_adb_btn.clicked.connect(self.update_adb_status)
@@ -53,8 +53,7 @@ class UIConfigSection:
         
         # CONTENEDOR 1: Info button y label (con borde)
         adb_frame = QFrame()
-        adb_frame.setObjectName("adbFrame")
-        adb_frame.setStyleSheet(self.styles['banner_label_container'])
+        adb_frame.setObjectName('banner_label_container')
 
         # Layout interno para el primer contenedor
         info_label_layout = QHBoxLayout(adb_frame)
@@ -69,7 +68,7 @@ class UIConfigSection:
         info_label_layout.addSpacing(10)
 
         self.adb_path_label = QLabel("Ruta: No detectada")
-        self.adb_path_label.setStyleSheet(self.styles['normal_label'])
+        self.adb_path_label.setObjectName('normal_label')
         self.adb_path_label.setWordWrap(True)
         info_label_layout.addWidget(self.adb_path_label)
 
@@ -82,7 +81,7 @@ class UIConfigSection:
         
         # Agregar el botón seleccionar al contenedor principal
         self.folder_adb_btn = QPushButton("Seleccionar")
-        self.folder_adb_btn.setStyleSheet(self.styles['button_success_default'])
+        self.folder_adb_btn.setObjectName('button_success_default')
         self.folder_adb_btn.setFixedWidth(100)
         self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
         self.folder_adb_btn.clicked.connect(self.select_custom_adb)
@@ -92,7 +91,7 @@ class UIConfigSection:
         layout.addLayout(main_container)
         
         about_tittle = QLabel("INFORMACIÓN")
-        about_tittle.setStyleSheet(self.styles['title_container'])
+        about_tittle.setObjectName('title_container')
         about_tittle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(about_tittle)
         
@@ -101,13 +100,13 @@ class UIConfigSection:
         
         # Botón de información
         self.info_btn = QPushButton("Acerca de")
-        self.info_btn.setStyleSheet(self.styles['button_tertiary_default'])
+        self.info_btn.setObjectName('button_tertiary_default')
         self.info_btn.clicked.connect(self.show_about_dialog)
         about_buttons_layout.addWidget(self.info_btn)
         
         # Botón de sugerencias
         self.feedback_btn = QPushButton("Comentarios")
-        self.feedback_btn.setStyleSheet(self.styles['button_tertiary_default'])
+        self.feedback_btn.setObjectName('button_tertiary_default')
         self.feedback_btn.clicked.connect(self.show_feedback_dialog)
         about_buttons_layout.addWidget(self.feedback_btn)
         
@@ -120,7 +119,7 @@ class UIConfigSection:
     def _show_verifying_status(self, message="Verificando disponibilidad del ADB..."):
         """Muestra el estado de verificación"""
         self.verifying_label.setText(message)
-        self.verifying_label.setStyleSheet(self.styles['status_info_message'])
+        self.apply_style_update(self.verifying_label, 'status_info_message')
         self.verifying_label.setVisible(True)
 
     def _set_adb_status(self, status, path_text, status_type="success"):
@@ -129,13 +128,13 @@ class UIConfigSection:
         self.adb_path_label.setText(f"Ruta: {path_text}")
         
         if status_type == "success":
-            self.verifying_label.setStyleSheet(self.styles['status_success_message'])
+            self.apply_style_update(self.verifying_label, 'status_success_message')
             self.verifying_label.setVisible(False)
         elif status_type == "warning":
-            self.verifying_label.setStyleSheet(self.styles['status_warning_message'])
+            self.apply_style_update(self.verifying_label, 'status_warning_message')
             self.verifying_label.setVisible(True)
         elif status_type == "error":
-            self.verifying_label.setStyleSheet(self.styles['status_error_message'])
+            self.apply_style_update(self.verifying_label, 'status_error_message')
             self.verifying_label.setVisible(True)
 
     @contextlib.contextmanager

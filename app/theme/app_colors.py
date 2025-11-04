@@ -1,4 +1,4 @@
-COLORS = {
+APP_COLORS = {
     'window': '#1a1a1a',
     'window_text': '#f0f0f0',
     'base': '#161616',

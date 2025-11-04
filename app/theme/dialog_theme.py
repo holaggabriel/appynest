@@ -1,7 +1,7 @@
 # dialog_theme.py
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette, QColor
-from app.theme.app_colors import COLORS
+from app.theme.app_colors import APP_COLORS
 from app.theme.dialog_colors import DialogColors
 
 class DialogTheme:

@@ -29,7 +29,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.selected_device = None
         self.preselected_device = None
         self.active_device = None
-        self.styles = AppTheme.get_all_styles()
+        self.setup_styles()
         self.last_device_selected = None
         self.last_section_index = None
         self.app_list_update_attempts = 0
@@ -46,6 +46,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         if not self.adb_manager.is_available():
             self.disable_sections_and_show_config()
+    
+    def setup_styles(self):
+        AppTheme.setup_app_palette(self)
+        self.styles = AppTheme.get_app_styles()
+        self.setStyleSheet(self.styles)
         
     def closeEvent(self, event):
         """
@@ -143,10 +148,8 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         
-        AppTheme.setup_app_palette(self)
-        
         central_widget = QWidget()
-        central_widget.setStyleSheet(self.styles['app_main_window'])
+        central_widget.setObjectName("app_main_window") 
         self.setCentralWidget(central_widget)
         
         main_layout = QHBoxLayout(central_widget)
@@ -183,7 +186,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         right_layout.addLayout(nav_buttons_layout)
         
         self.stacked_widget = QStackedWidget()
-        self.stacked_widget.setStyleSheet(self.styles['content_main_frame'])
+        self.stacked_widget.setObjectName("content_main_frame")
         
         self.install_section = self.setup_install_section()
         self.apps_section = self.setup_apps_section()
@@ -243,14 +246,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         for button, is_active, is_enabled in buttons:
             if not is_enabled:
-                # Estado deshabilitado
-                button.setStyleSheet(self.styles['nav_button_disabled_state'])
+                self.apply_style_update(button, "nav_button_disabled_state")
             elif is_active:
-                # Estado activo
-                button.setStyleSheet(self.styles['nav_button_active_state'])
+                self.apply_style_update(button, "nav_button_active_state")
             else:
-                # Estado inactivo pero habilitado
-                button.setStyleSheet(self.styles['nav_button_inactive_state'])
+                self.apply_style_update(button, "nav_button_inactive_state")
 
     def disable_sections_and_show_config(self):
         """Deshabilita secciones y muestra configuración cuando ADB no está disponible"""
@@ -272,4 +272,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         # Mostrar mensaje en panel de dispositivos
         self.show_devices_message("ADB no está configurado", "warning")
+
+    def apply_style_update(self, widget, object_name=None):
+        """Actualiza el estilo de un widget después de cambiar objectName"""
+        if object_name:
+            widget.setObjectName(object_name)
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
         

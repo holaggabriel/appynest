@@ -34,7 +34,7 @@ class UIInstallSection:
         title_section_layout.addSpacing(10)
 
         self.apk_title = QLabel("ARCHIVOS APK")
-        self.apk_title.setStyleSheet(self.styles['title_container'])
+        self.apk_title.setObjectName('title_container')
         self.apk_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_section_layout.addWidget(self.apk_title)
 
@@ -43,11 +43,11 @@ class UIInstallSection:
 
         self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet(self.styles['status_info_message'])
+        self.status_label.setObjectName('status_info_message')
         layout.addWidget(self.status_label)
 
         self.apk_list = QListWidget()
-        self.apk_list.setStyleSheet(self.styles['list_main_widget'])
+        self.apk_list.setObjectName('list_main_widget')
         self.apk_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.apk_list.itemSelectionChanged.connect(self._update_ui_state)
         layout.addWidget(self.apk_list)
@@ -56,18 +56,18 @@ class UIInstallSection:
         apk_buttons_layout.setSpacing(8)
         
         self.select_apk_btn = QPushButton("Agregar APKs")
-        self.select_apk_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.select_apk_btn.setObjectName('button_primary_default')
         self.select_apk_btn.clicked.connect(self.select_apk)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
         self.remove_apk_btn = QPushButton("Eliminar")
-        self.remove_apk_btn.setStyleSheet(self.styles['button_warning_default'])
+        self.remove_apk_btn.setObjectName('button_warning_default')
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
         self.clear_apk_btn = QPushButton("Limpiar")
-        self.clear_apk_btn.setStyleSheet(self.styles['button_danger_default'])
+        self.clear_apk_btn.setObjectName('button_danger_default')
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         self.clear_apk_btn.setEnabled(False)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
@@ -75,7 +75,7 @@ class UIInstallSection:
         layout.addLayout(apk_buttons_layout)
         
         self.install_btn = QPushButton("Instalar APKs")
-        self.install_btn.setStyleSheet(self.styles['button_success_default'])
+        self.install_btn.setObjectName('button_success_default')
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
         layout.addWidget(self.install_btn)
@@ -128,13 +128,13 @@ class UIInstallSection:
         # 2. Actualizar mensaje de estado
         if not has_apks:
             self.status_label.setText("Selecciona al menos un APK")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
+            self.status_label.setObjectName('status_info_message')
         elif not has_device:
             self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
+            self.status_label.setObjectName('status_info_message')
         else:
             self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
+            self.status_label.setObjectName('status_info_message')
 
     def _update_apk_list(self):
         """Actualizar la visualización de la lista de APKs"""
@@ -150,14 +150,14 @@ class UIInstallSection:
         # VERIFICAR SI EL DISPOSITivo ESTÁ DISPONIBLE
         if not self.device_manager.is_device_available(self.selected_device):
             self.status_label.setText("Dispositivo no disponible")
-            self.status_label.setStyleSheet(self.styles['status_error_message'])
+            self.status_label.setObjectName('status_error_message')
             return
             
         # Bloquear controles durante instalación
         self.set_install_section_enabled(False)
         self.set_devices_section_enabled(False)
         
-        self.status_label.setStyleSheet(self.styles['status_info_message'])
+        self.status_label.setObjectName('status_info_message')
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(
@@ -187,12 +187,12 @@ class UIInstallSection:
         if success:
             QMessageBox.information(self, "✅ Éxito", message)
             self.status_label.setText("Instalación completada exitosamente")
-            self.status_label.setStyleSheet(self.styles['status_info_message'])
+            self.status_label.setObjectName('status_info_message')
         else:
             if not self.property("closing"):
                 QMessageBox.critical(self, "❌ Error", f"Error durante la instalación:\n{message}")
                 self.status_label.setText("❌ Error en la instalación")
-                self.status_label.setStyleSheet(self.styles['status_error_message'])
+                self.status_label.setObjectName('status_error_message')
 
     def install_section_drag_enter_event(self, event: QDragEnterEvent):
         """Manejar arrastre sobre la sección"""

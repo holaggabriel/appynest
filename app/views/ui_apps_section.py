@@ -24,24 +24,24 @@ class UIAppsSection:
         controls_layout.setSpacing(8)
         
         self.refresh_apps_btn = QPushButton("Actualizar")
-        self.refresh_apps_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.refresh_apps_btn.setObjectName('button_primary_default')
         self.refresh_apps_btn.clicked.connect(lambda: self.handle_app_operations('load', force_load=True))
         controls_layout.addWidget(self.refresh_apps_btn)
         
         radio_layout = QHBoxLayout()
         self.all_apps_radio = QRadioButton("Todas")
-        self.all_apps_radio.setStyleSheet(self.styles['radio_button_default'])
+        self.all_apps_radio.setObjectName('radio_button_default')
         self.all_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.all_apps_radio)
         
         self.user_apps_radio = QRadioButton("Usuario")
         self.user_apps_radio.setChecked(True)
-        self.user_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
+        self.user_apps_radio.setObjectName('radio_button_default') 
         self.user_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.user_apps_radio)
         
         self.system_apps_radio = QRadioButton("Sistema")
-        self.system_apps_radio.setStyleSheet(self.styles['radio_button_default']) 
+        self.system_apps_radio.setObjectName('radio_button_default') 
         self.system_apps_radio.toggled.connect(self.on_radio_button_changed)
         radio_layout.addWidget(self.system_apps_radio)
         
@@ -56,7 +56,7 @@ class UIAppsSection:
         
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar por nombre o paquete...")
-        self.search_input.setStyleSheet(self.styles['text_input_default'])
+        self.search_input.setObjectName('text_input_default')
         self.search_input.textChanged.connect(self.filter_apps_list)
         search_layout.addWidget(self.search_input)
         
@@ -65,13 +65,13 @@ class UIAppsSection:
         # Indicador de carga y mensajes
         self.apps_message_label = QLabel()
         self.apps_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apps_message_label.setStyleSheet(self.styles['status_info_message'])
+        self.apps_message_label.setObjectName('status_info_message')
         self.apps_message_label.setVisible(False)
         self.apps_message_label.setWordWrap(True)
         left_layout.addWidget(self.apps_message_label)
         
         self.apps_list = QListWidget()
-        self.apps_list.setStyleSheet(self.styles['list_main_widget'])
+        self.apps_list.setObjectName('list_main_widget')
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         left_layout.addWidget(self.apps_list)
         
@@ -80,7 +80,7 @@ class UIAppsSection:
         right_layout.setContentsMargins(0, 0, 0, 0)
         
         info_title = QLabel("DETALLES")
-        info_title.setStyleSheet(self.styles['title_container'])
+        info_title.setObjectName('title_container')
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info_title.setFixedHeight(30)
         info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -88,7 +88,7 @@ class UIAppsSection:
         
         self.initial_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.initial_info_label.setWordWrap(True)
-        self.initial_info_label.setStyleSheet(self.styles['status_info_message'])
+        self.initial_info_label.setObjectName('status_info_message')
         self.initial_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.initial_info_label.setFixedHeight(60)
         self.initial_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -102,26 +102,25 @@ class UIAppsSection:
         self.app_info_label = QLabel()
         self.app_info_label.setWordWrap(True)
         self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.app_info_label.setStyleSheet(self.styles['status_info_message'])
-        self.app_info_label.mouseDoubleClickEvent = self.on_app_info_double_click
+        self.app_info_label.setObjectName('status_info_message')
         self.app_info_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         app_details_layout.addWidget(self.app_info_label)
         
         self.uninstall_btn = QPushButton("Desinstalar")
-        self.uninstall_btn.setStyleSheet(self.styles['button_danger_default'])
+        self.uninstall_btn.setObjectName('button_danger_default')
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
         app_details_layout.addWidget(self.uninstall_btn)
         
         self.extract_apk_btn = QPushButton("Extraer APK")
-        self.extract_apk_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.extract_apk_btn.setObjectName('button_primary_default')
         self.extract_apk_btn.clicked.connect(self.extract_app_apk)
         self.extract_apk_btn.setEnabled(False)
         app_details_layout.addWidget(self.extract_apk_btn)
         
         self.operation_status_label = QLabel()
         self.operation_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.operation_status_label.setStyleSheet(self.styles['status_info_message'])
+        self.operation_status_label.setObjectName('status_info_message')
         self.operation_status_label.setVisible(False)
         app_details_layout.addWidget(self.operation_status_label)
         
@@ -253,24 +252,6 @@ class UIAppsSection:
         selected_items = self.apps_list.selectedItems()
         return selected_items[0].data(Qt.ItemDataRole.UserRole) if selected_items else None
 
-    def on_app_info_double_click(self, event):
-        app_data = self.get_selected_app_data()
-        if not app_data: 
-            return
-        
-        app_info_text = f"""🧩 Aplicación: {app_data['name']}\n📦 Paquete: {app_data['package_name']}\n🏷️ Versión: {app_data['version']}\n📁 Ruta APK: {app_data['apk_path']}"""
-        
-        from PyQt6.QtWidgets import QApplication
-        clipboard = QApplication.clipboard()
-        clipboard.setText(app_info_text)
-        
-        original_style = self.app_info_label.styleSheet()
-        self.app_info_label.setStyleSheet(self.styles['copy_feedback_style'])
-        
-        QTimer.singleShot(800, lambda: self.app_info_label.setStyleSheet(original_style))
-        
-        super(QLabel, self.app_info_label).mouseDoubleClickEvent(event)
-
     def filter_apps_list(self):
         """Filtra la lista de aplicaciones según el texto de búsqueda"""
         if not getattr(self, 'all_apps_data', None):
@@ -328,14 +309,17 @@ class UIAppsSection:
     def show_apps_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre radio buttons y lista"""
         style_map = {
-            "info": self.styles['status_info_message'],
-            "warning": self.styles['status_warning_message'], 
-            "error": self.styles['status_error_message'],
-            "success": self.styles['status_success_message']
+            "info": 'status_info_message',
+            "warning": 'status_warning_message', 
+            "error": 'status_error_message',
+            "success": 'status_success_message'
         }
         
+        object_name = style_map.get(message_type, 'status_info_message')
+        
         self.apps_message_label.setText(message)
-        self.apps_message_label.setStyleSheet(style_map.get(message_type, self.styles['status_info_message']))
+        self.apps_message_label.setObjectName(object_name)
+        self.apply_style_update(self.apps_message_label)
         self.apps_message_label.setVisible(True)
 
     def hide_apps_message(self):

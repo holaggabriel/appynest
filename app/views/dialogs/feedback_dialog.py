@@ -19,7 +19,8 @@ class FeedbackDialog(QDialog):
     
     def setup_styles(self):
         DialogTheme.setup_dialog_palette(self)
-        self.styles = AppTheme.get_all_styles()
+        AppTheme.setup_app_palette(self)
+        self.styles = AppTheme.get_app_styles()
         all_styles = DialogTheme.get_dialog_styles()
         self.setStyleSheet(all_styles)
     
@@ -90,8 +91,7 @@ class FeedbackDialog(QDialog):
         
         # Botón - ahora usa propiedad en lugar de stylesheet directo
         self.open_btn = QPushButton("Abrir Formulario")
-        self.open_btn.setObjectName("button_primary")
-        self.open_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.open_btn.setObjectName("button_primary_default")
         self.open_btn.clicked.connect(self.open_feedback_form)
         layout.addWidget(self.open_btn)
     

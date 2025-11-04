@@ -16,13 +16,13 @@ class UIDevicePanel:
         
         section_title = QLabel("DISPOSITIVOS")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        section_title.setStyleSheet(self.styles['title_container'])
+        section_title.setObjectName('title_container')
         layout.addWidget(section_title)
         
         # Banner del dispositivo seleccionado
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setStyleSheet(self.styles['banner_label'])
+        self.selected_device_banner.setObjectName('banner_label')
         self.selected_device_banner.setMinimumHeight(40)
         layout.addWidget(self.selected_device_banner)
 
@@ -32,7 +32,6 @@ class UIDevicePanel:
         # Contenedor de título con botón de información
         title_widget = QWidget()
         title_widget.setObjectName("my_container")
-        title_widget.setStyleSheet(self.styles['my_container'])
 
         title_layout = QHBoxLayout(title_widget)
         title_layout.setContentsMargins(10, 10, 10, 10)
@@ -42,7 +41,7 @@ class UIDevicePanel:
         info_button.clicked.connect(self.show_connection_help_dialog)
 
         device_label = QLabel("Dispositivos Conectados:")
-        device_label.setStyleSheet(self.styles['title'])
+        device_label.setObjectName('title')
 
         title_layout.addWidget(info_button)
         title_layout.addSpacing(10)
@@ -54,14 +53,14 @@ class UIDevicePanel:
         # Mensaje de estado
         self.devices_message_label = QLabel()
         self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.devices_message_label.setStyleSheet(self.styles['status_info_message'])
+        self.devices_message_label.setObjectName('status_info_message')
         self.devices_message_label.setVisible(False)
         self.devices_message_label.setWordWrap(True)
         layout.addWidget(self.devices_message_label)
         
         # Lista de dispositivos
         self.device_list = QListWidget()
-        self.device_list.setStyleSheet(self.styles['list_main_widget'])
+        self.device_list.setObjectName('list_main_widget')
         self.device_list.itemSelectionChanged.connect(self._update_device_ui_state)
         layout.addWidget(self.device_list)
         
@@ -70,12 +69,12 @@ class UIDevicePanel:
         device_buttons_layout.setSpacing(8)
         
         self.refresh_devices_btn = QPushButton("Actualizar")
-        self.refresh_devices_btn.setStyleSheet(self.styles['button_primary_default'])
+        self.refresh_devices_btn.setObjectName('button_primary_default')
         self.refresh_devices_btn.clicked.connect(self.load_devices)
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
         self.confirm_device_btn = QPushButton("Seleccionar")
-        self.confirm_device_btn.setStyleSheet(self.styles['button_success_default'])
+        self.confirm_device_btn.setObjectName('button_success_default')
         self.confirm_device_btn.setEnabled(False)
         self.confirm_device_btn.clicked.connect(self._confirm_device_selection)
         device_buttons_layout.addWidget(self.confirm_device_btn)
@@ -123,17 +122,17 @@ class UIDevicePanel:
             
             # Aplicar estilo según la posición
             if row == 0 and col == 0:
-                card_label.setStyleSheet(self.styles['detail_card_top_left'])
+                card_label.setObjectName('detail_card_top_left')
             elif row == 0 and col == 1:
-                card_label.setStyleSheet(self.styles['detail_card_top_right'])
+                card_label.setObjectName('detail_card_top_right')
             elif row == 5 and col == 0:
-                card_label.setStyleSheet(self.styles['detail_card_bottom_left'])
+                card_label.setObjectName('detail_card_bottom_left')
             elif row == 5 and col == 1:
-                card_label.setStyleSheet(self.styles['detail_card_bottom_right'])
+                card_label.setObjectName('detail_card_bottom_right')
             elif col == 0:  # Columna izquierda (no esquinas)
-                card_label.setStyleSheet(self.styles['detail_card_left'])
+                card_label.setObjectName('detail_card_left')
             else:  # Columna derecha (no esquinas)
-                card_label.setStyleSheet(self.styles['detail_card_right'])
+                card_label.setObjectName('detail_card_right')
             
             # Guardar referencia al card
             self.detail_cards[field] = card_label
@@ -195,14 +194,17 @@ class UIDevicePanel:
     def show_devices_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
         style_map = {
-            "info": self.styles['status_info_message'],
-            "warning": self.styles['status_warning_message'], 
-            "error": self.styles['status_error_message'],
-            "success": self.styles['status_success_message']
+            "info": 'status_info_message',
+            "warning": 'status_warning_message', 
+            "error": 'status_error_message',
+            "success": 'status_success_message'
         }
         
+        object_name = style_map.get(message_type, 'status_info_message')
+        
         self.devices_message_label.setText(message)
-        self.devices_message_label.setStyleSheet(style_map.get(message_type, self.styles['status_info_message']))
+        self.devices_message_label.setObjectName(object_name)
+        self.apply_style_update(self.devices_message_label)
         self.devices_message_label.setVisible(True)
 
     def hide_devices_message(self):
