@@ -47,6 +47,10 @@ DIALOG_COLORS = {
     "repo_button_border": "#333333",
     "version_text": "#888888",
     "credit_text": "#666666",
+    
+    "alternate_base": "#252525",
+    "highlighted_text": "#ffffff",
+    "repo_title": "#e0e0e0",
 }
 
 class DialogColors:

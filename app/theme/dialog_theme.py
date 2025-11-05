@@ -20,12 +20,12 @@ class DialogTheme:
         palette.setColor(QPalette.ColorRole.Button, QColor(colors["button_secondary"]))
         palette.setColor(QPalette.ColorRole.ButtonText, QColor(colors["dialog_text"]))
         palette.setColor(QPalette.ColorRole.Base, QColor(colors["dialog_background"]))
-        palette.setColor(QPalette.ColorRole.AlternateBase, QColor("#252525"))
+        palette.setColor(QPalette.ColorRole.AlternateBase, QColor(colors["alternate_base"]))
         palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(colors["dialog_background"]))
         palette.setColor(QPalette.ColorRole.ToolTipText, QColor(colors["dialog_text"]))
         palette.setColor(QPalette.ColorRole.Link, QColor(colors["link_primary"]))
         palette.setColor(QPalette.ColorRole.Highlight, QColor(colors["button_primary"]))
-        palette.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+        palette.setColor(QPalette.ColorRole.HighlightedText, QColor(colors["highlighted_text"]))
         
         dialog.setPalette(palette)
 
@@ -158,7 +158,7 @@ class DialogTheme:
             /* ===== ESTILOS PARA BOTONES ===== */
             QPushButton#button_primary {{
                 background-color: {colors['button_primary']};
-                color: white;
+                color: {colors['dialog_text']};
                 border: none;
                 border-radius: 6px;
                 padding: 10px 20px;
@@ -204,7 +204,7 @@ class DialogTheme:
             }}
             
             QLabel#repo_title {{
-                color: #e0e0e0;
+                color: {colors['repo_title']};
                 font-size: 12px;
                 font-weight: bold;
                 background-color: transparent;
