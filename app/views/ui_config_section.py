@@ -69,6 +69,7 @@ class UIConfigSection:
 
         self.adb_path_label = QLabel("Ruta: No detectada")
         self.adb_path_label.setObjectName('normal_label')
+        self.adb_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.adb_path_label.setWordWrap(True)
         info_label_layout.addWidget(self.adb_path_label)
 
