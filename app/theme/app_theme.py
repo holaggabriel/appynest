@@ -544,15 +544,6 @@ class AppTheme:
                 border: none;
             }}
             
-            QLabel#copy_feedback_style {{
-                background-color: #2e3630;
-                color: #a4d4a0;
-                padding: 10px;
-                border-radius: 4px;
-                font-size: 11px;
-                border: none;
-            }}
-            
             /* ===== ESTILOS ESPECIALES ===== */
             QLabel#banner_label {{
                 background-color: {colors['banner']};
