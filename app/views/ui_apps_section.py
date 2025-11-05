@@ -135,6 +135,7 @@ class UIAppsSection:
         self.app_info_label.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
+        self.app_info_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         app_details_layout.addWidget(self.app_info_label)
 
         self.uninstall_btn = QPushButton("Desinstalar")
@@ -277,8 +278,7 @@ class UIAppsSection:
         <b>🧩 Aplicación:</b> {app_data['name']}<br>
         <b>📦 Paquete:</b> {app_data['package_name']}<br>
         <b>🏷️ Versión:</b> {app_data['version']}<br>
-        <b>📁 Ruta APK:</b> {app_data['apk_path']}
-        """
+        <b>📁 Ruta APK:</b> {app_data['apk_path']}"""
         self.app_info_label.setText(info_text)
         self.uninstall_btn.setEnabled(True)
         self.extract_apk_btn.setEnabled(True)
