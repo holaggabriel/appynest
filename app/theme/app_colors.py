@@ -35,25 +35,49 @@ APP_COLORS = {
     'disabled': '#666666',
     'accent': '#BB86FC',
     'secondary_accent': '#03DAC6',
+    
     # ITEMS DE LAS LISTAS
     'selected_item': '#404040',
     'selected_item_hover': '#4a4a4a',
     'selected_item_disabled': '#2f2f2f',
     'selected_item_hover_disabled': '#3a3a3a',
-
     'unselected_item': '#1a1a1a',
     'unselected_item_hover': '#262627',       
     'unselected_item_disabled': '#161616',  
     'unselected_item_hover_disabled': '#202021',
-    #
-    'banner':'#323233',
-    'status_info_message': '#262627',  # Info (gris oscuro)
-    'status_success_message': '#1F6F43',  # Verde oscuro - éxito
-    'status_warning_message': '#B8860B',  # Dorado oscuro - advertencia
-    'status_error_message': '#8B0000',    # Rojo oscuro - error
     
-    # Colores para scrollbars
-    "scrollbar_background": "#2d2d2d",
-    "scrollbar_handle": "#555555",
-    "scrollbar_handle_hover": "#777777",
+    # BANNER Y ESTADOS
+    'banner': '#323233',
+    'status_info_message': '#262627',
+    'status_success_message': '#1F6F43',
+    'status_warning_message': '#B8860B',
+    'status_error_message': '#8B0000',
+    
+    # SCROLLBARS
+    'scrollbar_background': '#2d2d2d',
+    'scrollbar_handle': '#555555',
+    'scrollbar_handle_hover': '#777777',
+    
+    # NUEVOS COLORES EXTRAÍDOS DEL THEME
+    'button_secondary_hover': '#505050',
+    'button_secondary_hover_border': '#606060',
+    'button_secondary_pressed': '#404040',
+    'tertiary_button': '#6A4C93',
+    'tertiary_button_hover': '#8561C5',
+    'tertiary_button_pressed': '#4C2A75',
+    'tertiary_button_disabled': '#5A5A6E',
+    'tertiary_button_disabled_text': '#C8C8C8',
+    'nav_button_active': '#404040',
+    'nav_button_active_hover': '#4a4a4a',
+    'nav_button_active_pressed': '#2d2d2d',
+    'nav_button_inactive': '#2d2d2d',
+    'nav_button_inactive_text': '#a0a0a0',
+    'nav_button_inactive_hover': '#363636',
+    'nav_button_inactive_hover_text': '#c0c0c0',
+    'nav_button_inactive_pressed': '#252525',
+    'nav_button_disabled': '#1f1f1f',
+    'nav_button_disabled_text': '#707070',
+    'title_text': '#cccccc',
+    'bright_text': '#ff4444',
+    'highlighted_text': '#000000',
 }

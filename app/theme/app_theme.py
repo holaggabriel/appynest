@@ -24,10 +24,10 @@ class AppTheme:
             QPalette.ColorRole.Text: colors["text"],
             QPalette.ColorRole.Button: colors["button"],
             QPalette.ColorRole.ButtonText: colors["button_text"],
-            QPalette.ColorRole.BrightText: Qt.GlobalColor.red,
+            QPalette.ColorRole.BrightText: colors["bright_text"],
             QPalette.ColorRole.Link: colors["highlight"],
             QPalette.ColorRole.Highlight: colors["highlight"],
-            QPalette.ColorRole.HighlightedText: Qt.GlobalColor.black,
+            QPalette.ColorRole.HighlightedText: colors["highlighted_text"],
         }
 
         for role, color in role_colors.items():
@@ -40,7 +40,6 @@ class AppTheme:
         """Retorna string con todos los estilos concatenados"""
         colors = AppTheme.COLORS
         
-        # Retornar directamente el string concatenado
         return f"""
             /* ===== CONTENEDORES PRINCIPALES ===== */
             QMainWindow#app_main_window {{
@@ -57,7 +56,7 @@ class AppTheme:
             }}
             
             QWidget#my_container {{
-                color: #cccccc;
+                color: {colors['title_text']};
                 font-weight: bold;
                 font-size: 12px;
                 padding: 5px;
@@ -180,7 +179,7 @@ class AppTheme:
 
             QListWidget#list_main_widget::item:selected {{
                 background-color: {colors['selected_item']};
-                color: white;
+                color: {colors['text']};
                 border-radius: 3px;
                 border-bottom: 1px solid {colors['selected_item']};
             }}
@@ -201,7 +200,6 @@ class AppTheme:
                 background-color: {colors['selected_item_hover']};
                 border-bottom: 1px solid {colors['selected_item_hover']};
             }}
-
 
             /* ===== SCROLLBAR VERTICAL ===== */
             QScrollBar#scrollbar_vertical {{
@@ -228,7 +226,7 @@ class AppTheme:
                 height: 0px;
             }}
 
-            /* ===== SCROLLBAR HORIZONTAL (por si acaso) ===== */
+            /* ===== SCROLLBAR HORIZONTAL ===== */
             QScrollBar#scrollbar_horizontal {{
                 background-color: {colors['scrollbar_background']};
                 height: 10px;
@@ -256,7 +254,7 @@ class AppTheme:
             /* ===== BOTONES PRINCIPALES ===== */
             QPushButton#button_primary_default {{
                 background-color: {colors['highlight']};
-                color: white;
+                color: {colors['text']};
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
@@ -289,17 +287,17 @@ class AppTheme:
             }}
             
             QPushButton#button_secondary_default:hover {{
-                background-color: #505050;
-                border: 1px solid #606060;
+                background-color: {colors['button_secondary_hover']};
+                border: 1px solid {colors['button_secondary_hover_border']};
             }}
             
             QPushButton#button_secondary_default:pressed {{
-                background-color: #404040;
+                background-color: {colors['button_secondary_pressed']};
             }}
             
             QPushButton#button_danger_default {{
                 background-color: {colors['danger']};
-                color: white;
+                color: {colors['text']};
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
@@ -322,7 +320,7 @@ class AppTheme:
             
             QPushButton#button_warning_default {{
                 background-color: {colors['warning']};
-                color: white;
+                color: {colors['text']};
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
@@ -345,7 +343,7 @@ class AppTheme:
             
             QPushButton#button_success_default {{
                 background-color: {colors['success']};
-                color: white;
+                color: {colors['text']};
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
@@ -367,8 +365,8 @@ class AppTheme:
             }}
             
             QPushButton#button_tertiary_default {{
-                background-color: #6A4C93;
-                color: white;
+                background-color: {colors['tertiary_button']};
+                color: {colors['text']};
                 border: none;
                 padding: 8px 16px;
                 border-radius: 4px;
@@ -377,20 +375,20 @@ class AppTheme:
             }}
             
             QPushButton#button_tertiary_default:hover {{
-                background-color: #8561C5;
+                background-color: {colors['tertiary_button_hover']};
             }}
             
             QPushButton#button_tertiary_default:pressed {{
-                background-color: #4C2A75;
+                background-color: {colors['tertiary_button_pressed']};
             }}
             
             QPushButton#button_tertiary_default:disabled {{
-                background-color: #5A5A6E;
-                color: #C8C8C8;
+                background-color: {colors['tertiary_button_disabled']};
+                color: {colors['tertiary_button_disabled_text']};
             }}
             
             QLabel#title_container {{
-                color: #cccccc;
+                color: {colors['title_text']};
                 font-weight: bold;
                 font-size: 12px;
                 padding: 5px;
@@ -400,7 +398,7 @@ class AppTheme:
             }}
             
             QLabel#title {{
-                color: #cccccc;
+                color: {colors['title_text']};
                 font-weight: bold;
                 font-size: 12px;
                 background-color: {colors['window']};
@@ -507,7 +505,7 @@ class AppTheme:
             /* ===== ESTILOS DE ESTADO ===== */
             QLabel#status_success_message {{
                 background-color: {colors['status_success_message']};
-                color: white;
+                color: {colors['text']};
                 padding: 10px;
                 border-radius: 4px;
                 font-size: 11px;
@@ -517,7 +515,7 @@ class AppTheme:
             
             QLabel#status_error_message {{
                 background-color: {colors['status_error_message']};
-                color: white;
+                color: {colors['text']};
                 padding: 10px;
                 border-radius: 4px;
                 font-size: 11px;
@@ -536,7 +534,7 @@ class AppTheme:
             
             QLabel#status_warning_message {{
                 background-color: {colors['status_warning_message']};
-                color: white;
+                color: {colors['text']};
                 padding: 10px;
                 border-radius: 4px;
                 font-size: 11px;
@@ -565,8 +563,8 @@ class AppTheme:
             }}
             
             QPushButton#nav_button_active_state {{
-                background-color: #404040;      
-                color: #ffffff;           
+                background-color: {colors['nav_button_active']};
+                color: {colors['text']};
                 border: none;
                 border-radius: 4px;
                 padding: 10px 15px;
@@ -575,17 +573,17 @@ class AppTheme:
             }}
             
             QPushButton#nav_button_active_state:hover {{
-                background-color: #4a4a4a;     
+                background-color: {colors['nav_button_active_hover']};
                 border: none;
             }}
             
             QPushButton#nav_button_active_state:pressed {{
-                background-color: #2d2d2d;  
+                background-color: {colors['nav_button_active_pressed']};
             }}
             
             QPushButton#nav_button_inactive_state {{
-                background-color: #2d2d2d;    
-                color: #a0a0a0;   
+                background-color: {colors['nav_button_inactive']};
+                color: {colors['nav_button_inactive_text']};
                 border: none;
                 border-radius: 4px;
                 padding: 10px 15px;
@@ -594,19 +592,19 @@ class AppTheme:
             }}
             
             QPushButton#nav_button_inactive_state:hover {{
-                background-color: #363636; 
-                color: #c0c0c0;
+                background-color: {colors['nav_button_inactive_hover']};
+                color: {colors['nav_button_inactive_hover_text']};
                 border: none;
             }}
             
             QPushButton#nav_button_inactive_state:pressed {{
-                background-color: #252525; 
-                color: #c0c0c0;
+                background-color: {colors['nav_button_inactive_pressed']};
+                color: {colors['nav_button_inactive_hover_text']};
             }}
             
             QPushButton#nav_button_disabled_state {{
-                background-color: #1f1f1f; 
-                color: #707070;  
+                background-color: {colors['nav_button_disabled']};
+                color: {colors['nav_button_disabled_text']};
                 border: none;
                 border-radius: 4px;
                 padding: 10px 15px;
@@ -615,13 +613,13 @@ class AppTheme:
             }}
             
             QPushButton#nav_button_disabled_state:hover {{
-                background-color: #1f1f1f; 
-                color: #707070;
+                background-color: {colors['nav_button_disabled']};
+                color: {colors['nav_button_disabled_text']};
                 border: none;
             }}
             
             QPushButton#nav_button_disabled_state:pressed {{
-                background-color: #1f1f1f;  
-                color: #707070;
+                background-color: {colors['nav_button_disabled']};
+                color: {colors['nav_button_disabled_text']};
             }}
         """
