@@ -28,31 +28,32 @@ class ADBManager:
         system = platform.system().lower()
         if system == "linux":
             common_paths = [
-                "/usr/bin/adb",
+                "/usr/bin/adb",  # la más común en distribuciones Linux
                 "/usr/local/bin/adb",
                 "/bin/adb",
-                "/opt/android-sdk/platform-tools/adb",
-                "/opt/android-sdk/tools/platform-tools/adb",
-                "/usr/lib/android-sdk/platform-tools/adb",
-                str(Path.home() / "Android/Sdk/platform-tools/adb"),
-                str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
-                str(Path.home() / "adb/platform-tools/adb"),
-                "/var/lib/flatpak/runtime/com.android.tools.flatpakref/platform-tools/adb"
+                "/opt/android-sdk/platform-tools/adb",  # SDK manual
+                "/usr/lib/android-sdk/platform-tools/adb",  # Linux Mint/Ubuntu con paquetes ADB
+                str(Path.home() / "Android/Sdk/platform-tools/adb"),  # instalación oficial de Android Studio
+                str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),  # instalación local por sdkmanager
+                str(Path.home() / "Android/platform-tools/adb"),  # instalación manual
+                "/var/lib/flatpak/app/com.android.adb/files/adb",  # Flatpak
+                "/snap/bin/adb",  # Snap
             ]
         elif system == "windows":
             common_paths = [
-                "C:\\Program Files\\Android\\platform-tools\\adb.exe",
-                "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",
-                str(Path.home() / "AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"),
-                str(Path.home() / "AppData\\Roaming\\Android\\Sdk\\platform-tools\\adb.exe")
+                "C:\\Program Files\\Android\\platform-tools\\adb.exe",            # instalación estándar en 64-bit
+                "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",     # instalación en 32-bit
+                "C:\\Android\\Sdk\\platform-tools\\adb.exe",                     # instalación manual común
+                str(Path.home() / "AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"),   # Android Studio
+                str(Path.home() / "AppData\\Roaming\\Android\\Sdk\\platform-tools\\adb.exe"), # posible ubicación alternativa
             ]
         else:
             common_paths = [
-                "/usr/local/bin/adb",
-                "/opt/homebrew/bin/adb",
-                "/usr/bin/adb",
-                str(Path.home() / "Library/Android/sdk/platform-tools/adb"),
-                "/opt/android-sdk/platform-tools/adb"
+                "/usr/local/bin/adb",  # instalación típica en macOS/Linux con Homebrew
+                "/opt/homebrew/bin/adb",  # Homebrew en Macs M1/M2
+                "/usr/bin/adb",  # ruta histórica
+                str(Path.home() / "Library/Android/sdk/platform-tools/adb"),  # instalación oficial de Android Studio
+                "/Applications/Android Studio.app/Contents/sdk/platform-tools/adb",  # Android Studio instalada en /Applications
             ]
         
         for path in common_paths:
@@ -64,7 +65,6 @@ class ADBManager:
             return adb_from_path
         
         return None
-
 
     def resolve_adb_path(self):
         """Obtiene o busca la ruta de ADB y la guarda si la encuentra"""
