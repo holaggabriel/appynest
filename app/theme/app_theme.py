@@ -169,7 +169,7 @@ class AppTheme:
             QListWidget#list_main_widget::item {{
                 padding: 8px;
                 border-bottom: 1px solid {colors['border']};
-                background-color: transparent;
+                background-color: {colors['unselected_item']};
             }}
 
             QListWidget#list_main_widget::item:disabled {{
@@ -182,7 +182,7 @@ class AppTheme:
                 background-color: {colors['selected_item']};
                 color: white;
                 border-radius: 3px;
-                border-bottom: 1px solid {colors['selected_item_hover']};
+                border-bottom: 1px solid {colors['selected_item']};
             }}
 
             QListWidget#list_main_widget::item:selected:disabled {{
@@ -192,9 +192,16 @@ class AppTheme:
             }}
 
             QListWidget#list_main_widget::item:hover {{
-                background-color: {colors['selected_item_hover']};
+                background-color: {colors['unselected_item_hover']};
                 border-radius: 3px;
+                border-bottom: 1px solid {colors['unselected_item_hover']};
             }}
+            
+            QListWidget#list_main_widget::item:selected:hover {{
+                background-color: {colors['selected_item_hover']};
+                border-bottom: 1px solid {colors['selected_item_hover']};
+            }}
+
 
             /* ===== SCROLLBAR VERTICAL ===== */
             QScrollBar#scrollbar_vertical {{
@@ -625,13 +632,5 @@ class AppTheme:
             QPushButton#nav_button_disabled_state:pressed {{
                 background-color: #1f1f1f;  
                 color: #707070;
-            }}
-            
-            QLabel#device_status_emoji_label {{
-                font-size: 18px;
-                padding: 5px;
-                background-color: #323233;
-                border-radius: 4px;
-                min-width: 30px;
             }}
         """

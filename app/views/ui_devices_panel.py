@@ -25,6 +25,7 @@ class UIDevicePanel:
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setObjectName('banner_label')
         self.selected_device_banner.setMinimumHeight(40)
+        self.selected_device_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         layout.addWidget(self.selected_device_banner)
         
         # Indicador de carga de detalles
