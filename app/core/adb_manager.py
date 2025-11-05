@@ -26,7 +26,20 @@ class ADBManager:
     def find_adb_executable(self):
         """Busca ADB en rutas comunes del sistema"""
         system = platform.system().lower()
-        if system == "windows":
+        if system == "linux":
+            common_paths = [
+                "/usr/bin/adb",
+                "/usr/local/bin/adb",
+                "/bin/adb",
+                "/opt/android-sdk/platform-tools/adb",
+                "/opt/android-sdk/tools/platform-tools/adb",
+                "/usr/lib/android-sdk/platform-tools/adb",
+                str(Path.home() / "Android/Sdk/platform-tools/adb"),
+                str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
+                str(Path.home() / "adb/platform-tools/adb"),
+                "/var/lib/flatpak/runtime/com.android.tools.flatpakref/platform-tools/adb"
+            ]
+        elif system == "windows":
             common_paths = [
                 "C:\\Program Files\\Android\\platform-tools\\adb.exe",
                 "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",
@@ -35,11 +48,11 @@ class ADBManager:
             ]
         else:
             common_paths = [
-                "/usr/bin/adb",
-                "/bin/adb",
                 "/usr/local/bin/adb",
-                "/opt/android-sdk/platform-tools/adb",
-                str(Path.home() / "Android/Sdk/platform-tools/adb")
+                "/opt/homebrew/bin/adb",
+                "/usr/bin/adb",
+                str(Path.home() / "Library/Android/sdk/platform-tools/adb"),
+                "/opt/android-sdk/platform-tools/adb"
             ]
         
         for path in common_paths:
