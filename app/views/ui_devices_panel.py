@@ -174,7 +174,7 @@ class UIDevicePanel:
         """Ejecuta el escaneo real de dispositivos"""
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "warning")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
             return
         
         try:
@@ -306,7 +306,7 @@ class UIDevicePanel:
         
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "warning")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
             return
             
         device_text = selected_items[0].text()

@@ -139,21 +139,16 @@ class UIConfigSection:
             self.verifying_label.setVisible(True)
 
     @contextlib.contextmanager
-    def _disable_buttons_context(self):
+    def _disable_buttons_context(self, enabled):
         """Context manager para manejar estado de botones durante verificación"""
-        try:
-            self.update_adb_btn.setEnabled(False)
-            self.folder_adb_btn.setEnabled(False)
-            yield
-        finally:
-            self.update_adb_btn.setEnabled(True)
-            self.folder_adb_btn.setEnabled(True)
+        self.update_adb_btn.setEnabled(enabled)
+        self.folder_adb_btn.setEnabled(enabled)
 
     def update_adb_status(self):
         """Inicia la verificación del estado de ADB"""
-        with self._disable_buttons_context():
-            self._show_verifying_status()
-            execute_after_delay(self._perform_adb_check, 500)
+        self._disable_buttons_context(False)
+        self._show_verifying_status()
+        execute_after_delay(self._perform_adb_check, 500)
 
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""
@@ -163,14 +158,16 @@ class UIConfigSection:
             if self.adb_manager.is_available():
                 adb_path = self.adb_manager.get_adb_path()
                 self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
-                self.set_sections_enabled(enabled=True,show_config_section=False, adb_vailability=True)
+                self.set_sections_enabled(enabled=True,show_config_section=False, adb_availability=True)
             else:
-                self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
+                self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
         
         except Exception as e:
             self._set_adb_status("No disponible", "No encontrada", "error")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
             self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
+        finally:
+            self._disable_buttons_context(True)
 
     def select_custom_adb(self):
         """Selecciona una ruta personalizada para ADB"""
