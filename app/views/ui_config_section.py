@@ -161,6 +161,8 @@ class UIConfigSection:
             adb_path = self.adb_manager.get_adb_path()
             
             if self.adb_manager.is_available():
+                # Volver a cargar la ruta actualizada después de verificar disponibilidad
+                adb_path = self.adb_manager.get_adb_path()
                 self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
                 self.enable_all_sections()
             else:
