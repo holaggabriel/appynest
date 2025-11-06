@@ -289,6 +289,11 @@ class UIDevicePanel:
         selected_items = self.device_list.selectedItems()
         if not selected_items:
             return
+        
+        if not self.adb_manager.is_available():
+            self.show_devices_message("ADB no está configurado", "warning")
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
+            return
             
         device_text = selected_items[0].text()
         device_id = self._extract_device_id(device_text)
