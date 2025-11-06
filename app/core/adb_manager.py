@@ -52,6 +52,7 @@ class ADBManager:
         return None
 
     def resolve_adb_path(self):
+        """Obtiene o busca la ruta de ADB y la guarda si la encuentra"""
         adb_path = self.config_manager.get_adb_path()
         if adb_path and os.path.exists(adb_path):
             return adb_path
