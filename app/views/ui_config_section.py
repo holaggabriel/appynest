@@ -161,18 +161,17 @@ class UIConfigSection:
             adb_path = self.adb_manager.get_adb_path()
             
             if self.adb_manager.is_available():
-                # Volver a cargar la ruta actualizada después de verificar disponibilidad
                 adb_path = self.adb_manager.get_adb_path()
                 self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
-                self.enable_all_sections()
+                self.set_sections_enabled(enabled=True)
             else:
                 self._set_adb_status("No disponible", "No encontrada", "warning")
-                self.disable_sections_and_show_config()
+                self.set_sections_enabled(enabled=False, show_config_section=True)
                 self.verifying_label.setText("ADB no disponible - Verifica la configuración")
         
         except Exception as e:
             self._set_adb_status("No disponible", "No encontrada", "error")
-            self.disable_sections_and_show_config()
+            self.set_sections_enabled(enabled=False, show_config_section=True)  # Unificado
             self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
 
     def select_custom_adb(self):
@@ -187,23 +186,8 @@ class UIConfigSection:
         if file_path:
             self.config_manager.set_adb_path(file_path)
             self.device_manager = DeviceManager(self.adb_manager)
-            self._show_verifying_status("Verificando nueva ruta de ADB...")
-            
             self.update_adb_status()
-            self.load_devices()
-            QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada correctamente")
-
-    def enable_all_sections(self):
-        """Habilita todas las secciones cuando ADB está disponible"""
-        self.install_btn_nav.setEnabled(True)
-        self.apps_btn_nav.setEnabled(True)
-        self.config_btn_nav.setEnabled(True)
-        
-        # Restaurar el estado anterior si existe, sino mostrar instalación
-        if self.last_section_index is not None:
-            self.show_section(self.last_section_index)
-        else:
-            self.show_section(0)  # Sección de instalación
+            QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada")
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)
