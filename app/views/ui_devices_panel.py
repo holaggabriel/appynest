@@ -241,6 +241,20 @@ class UIDevicePanel:
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled)
         self.confirm_device_btn.setEnabled(enabled)
+        # Verificación directa para el botón de confirmación
+        should_enable_confirm = False
+        if enabled:
+            has_selection = bool(self.device_list.selectedItems())
+            if has_selection and self.selected_device:
+                selected_item = self.device_list.selectedItems()[0].text()
+                device_id = self._extract_device_id(selected_item)
+                if device_id != self.selected_device:
+                    should_enable_confirm = True
+            elif has_selection and not self.selected_device:
+                # Habilitar si hay selección pero no hay dispositivo seleccionado actualmente
+                should_enable_confirm = True
+        
+        self.confirm_device_btn.setEnabled(should_enable_confirm)
 
     def _update_device_ui_state(self):
         """Método único para actualizar todo el estado de UI de dispositivos"""
