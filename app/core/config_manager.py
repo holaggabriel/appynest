@@ -10,7 +10,7 @@ class ConfigManager:
             "adb_path": ""
         }
         self.default_config = {
-            "_comment": "Configuración básica de Easy ADB. No modificar manualmente a menos que sepas lo que haces.",
+            "_comment": "Configuración básica de Easy ADB",
             "adb_path": ""
         }
         self.ensure_config()
@@ -25,6 +25,10 @@ class ConfigManager:
     def load_config(self):
         """Carga la configuración desde el archivo"""
         try:
+            if not self.config_file.exists():
+                # Si el archivo fue eliminado, lo recrea
+                self.save_config(self.default_config)
+            
             with open(self.config_file, 'r') as f:
                 return json.load(f)
         except:

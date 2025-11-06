@@ -1,6 +1,5 @@
 import subprocess
 import os
-import shutil
 import platform
 from pathlib import Path
 from .config_manager import ConfigManager
@@ -15,8 +14,12 @@ class ADBManager:
     def is_available(self) -> bool:
         """Verifica si ADB está disponible en el sistema"""
         try:
+            adb_path = self.resolve_adb_path()
+            if not adb_path:
+                return False
+
             result = subprocess.run(
-                [self.resolve_adb_path(), "version"],
+                [adb_path, "version"],
                 capture_output=True, text=True, timeout=10
             )
             return result.returncode == 0
@@ -46,14 +49,9 @@ class ADBManager:
             if os.path.exists(path) and os.access(path, os.X_OK):
                 return path
         
-        adb_from_path = shutil.which("adb")
-        if adb_from_path:
-            return adb_from_path
-        
         return None
 
     def resolve_adb_path(self):
-        """Obtiene o busca la ruta de ADB y la guarda si la encuentra"""
         adb_path = self.config_manager.get_adb_path()
         if adb_path and os.path.exists(adb_path):
             return adb_path
@@ -63,4 +61,4 @@ class ADBManager:
             self.config_manager.set_adb_path(adb_path)
             return adb_path
         
-        return "adb"
+        return None
