@@ -2,10 +2,15 @@ import json
 from pathlib import Path
 
 class ConfigManager:
+
     def __init__(self):
         self.config_dir = Path.home() / ".easy-adb"
         self.config_file = self.config_dir / "config.json"
         self.default_config = {
+            "adb_path": ""
+        }
+        self.default_config = {
+            "_comment": "Configuración básica de Easy ADB. No modificar manualmente a menos que sepas lo que haces.",
             "adb_path": ""
         }
         self.ensure_config()

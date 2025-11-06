@@ -122,6 +122,12 @@ class ADBHelpDialog(QDialog):
         <p style="margin-left:2em;">• Descarga SDK Platform Tools desde la página oficial si aún no lo tienes.</p>
         <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">Easy ADB</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente el archivo ejecutable <code>adb</code> dentro de la carpeta correspondiente.</p>
         <p style="margin-left:2em;">• Esta opción es útil si ADB está en una ruta no estándar o la detección automática no funcionó.</p>
+
+        <p>
+        <i><span style="color:#4DBD8B; font-weight:bold;">Easy ADB</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</i><br>
+        <code>~/.easy-adb/config.json</code><br>
+        <i>En este archivo se almacena la ruta del ADB y otros ajustes básicos de la aplicación.</i>
+        </p>
         """
     
     def keyPressEvent(self, event):
