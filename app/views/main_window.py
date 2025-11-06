@@ -45,7 +45,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.update_adb_status()
         
         if not self.adb_manager.is_available():
-            self.set_sections_enabled(enabled=False, show_config_section=True)
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
     
     def setup_styles(self):
         AppTheme.setup_app_palette(self)
@@ -292,7 +292,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             else:
                 self.apply_style_update(button, "nav_button_inactive_state")
         
-    def set_sections_enabled(self, enabled, show_config_section=False):
+    def set_sections_enabled(self, enabled, show_config_section, adb_vailability):
         """Método unificado para habilitar/deshabilitar secciones"""
         
         # Actualizar estado de los botones de navegación
@@ -319,14 +319,12 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         # Actualizar estilos
         self.update_nav_buttons_style()
         
-        if enabled:
-            # Verificar por el tipo de mensaje (objectName) en lugar del texto
+        if adb_vailability:
             if self.devices_message_label.objectName() == "status_warning_message":
                 self.hide_devices_message()
         else:
-            self.show_devices_message("ADB no está configurado", "warning")
-
-        self.set_devices_section_enabled(enabled)
+            self._set_adb_status("No disponible", "No encontrada", "warning")
+            self.verifying_label.setText("ADB no disponible - Verifica la configuración")
 
         self.set_devices_section_enabled(enabled)
 

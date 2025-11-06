@@ -163,15 +163,13 @@ class UIConfigSection:
             if self.adb_manager.is_available():
                 adb_path = self.adb_manager.get_adb_path()
                 self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
-                self.set_sections_enabled(enabled=True)
+                self.set_sections_enabled(enabled=True,show_config_section=False, adb_vailability=True)
             else:
-                self._set_adb_status("No disponible", "No encontrada", "warning")
-                self.set_sections_enabled(enabled=False, show_config_section=True)
-                self.verifying_label.setText("ADB no disponible - Verifica la configuración")
+                self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
         
         except Exception as e:
             self._set_adb_status("No disponible", "No encontrada", "error")
-            self.set_sections_enabled(enabled=False, show_config_section=True)  # Unificado
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
             self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
 
     def select_custom_adb(self):

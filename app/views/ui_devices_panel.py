@@ -174,6 +174,7 @@ class UIDevicePanel:
         """Ejecuta el escaneo real de dispositivos"""
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "warning")
+            self.set_sections_enabled(enabled=False, show_config_section=True, adb_vailability=False)
             return
         
         try:
@@ -239,7 +240,7 @@ class UIDevicePanel:
             enabled = False
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled)
-        self._update_device_ui_state()
+        self.confirm_device_btn.setEnabled(enabled)
 
     def _update_device_ui_state(self):
         """Método único para actualizar todo el estado de UI de dispositivos"""
