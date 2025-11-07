@@ -75,6 +75,29 @@ class AppTheme:
                 padding: 10px;
             }}
             
+            QPushButton#refresh_button_icon {{
+                background-color: {colors['refresh_button_icon']};
+                color: {colors['text']};
+                border-radius: 4px;
+                font-size:18px;
+                border: none;
+                margin: 0px 0px 0px 0px;
+                padding: 0px 0px 0px 0px;
+            }}
+            
+            QPushButton#refresh_button_icon:hover {{
+                background-color: {colors['refresh_button_icon_hover']};
+            }}
+
+            QPushButton#refresh_button_icon:pressed {{
+                background-color: {colors['refresh_button_icon_pressed']};
+            }}
+            
+            QPushButton#refresh_button_icon:disabled {{
+                background-color: {colors['refresh_button_icon_disabled']};
+                color: {colors['text_disabled']};
+            }}
+            
             QLabel#detail_card_left {{
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
@@ -547,6 +570,16 @@ class AppTheme:
                 background-color: {colors['banner']};
                 color: {colors['text']};
                 padding: 10px;
+                margin: 0px 0px 0px 0px;
+                border-radius: 4px;
+                font-size: 11px;
+                border: none;
+            }}
+            
+            QLabel#device_banner_label {{
+                background-color: {colors['banner']};
+                color: {colors['text']};
+                padding: 0px 0px 0px 0px;
                 margin: 0px 0px 0px 0px;
                 border-radius: 4px;
                 font-size: 11px;

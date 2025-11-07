@@ -15,18 +15,35 @@ class UIDevicePanel:
         layout.setSpacing(10)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        section_title = QLabel("DISPOSITIVOS")
+        section_title = QLabel("DISPOSITIVO")
         section_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         section_title.setObjectName('title_container')
         layout.addWidget(section_title)
         
+        # Contenedor para banner y botón de recargar
+        banner_container = QHBoxLayout()
+        banner_container.setContentsMargins(0, 0, 0, 0)
+        banner_container.setSpacing(10)
+
         # Banner del dispositivo seleccionado
         self.selected_device_banner = QLabel("No hay dispositivo seleccionado")
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.selected_device_banner.setObjectName('banner_label')
+        self.selected_device_banner.setObjectName('device_banner_label')
         self.selected_device_banner.setMinimumHeight(40)
         self.selected_device_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        layout.addWidget(self.selected_device_banner)
+        banner_container.addWidget(self.selected_device_banner)
+
+        # Botón de recargar detalles
+        self.refresh_details_btn = QPushButton("⟳")
+        self.refresh_details_btn.setObjectName('refresh_button_icon')
+        self.refresh_details_btn.setToolTip("Actualizar detalles del dispositivo")
+        self.refresh_details_btn.setFixedSize(40, 40)
+        self.refresh_details_btn
+        self.refresh_details_btn.clicked.connect(self._refresh_device_details)
+        self.refresh_details_btn.setEnabled(False)
+        banner_container.addWidget(self.refresh_details_btn)
+
+        layout.addLayout(banner_container)
         
         # Indicador de carga de detalles
         self.loading_details_label = QLabel("Cargando detalles del dispositivo...")
@@ -262,6 +279,8 @@ class UIDevicePanel:
         has_selection = bool(self.device_list.selectedItems())
         is_section_enabled = self.device_list.isEnabled()
         
+        self.refresh_details_btn.setEnabled(bool(self.selected_device))
+        
         if not self.selected_device:
             self.loading_details_label.setVisible(False)
             self.details_container.setVisible(False)
@@ -328,6 +347,8 @@ class UIDevicePanel:
 
     def _update_device_banner(self):
         """Actualiza los banners con la información del dispositivo guardada"""
+        self.refresh_details_btn.setEnabled(bool(self.selected_device))
+        
         if not self.selected_device:
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
             self.details_container.setVisible(False)
@@ -393,6 +414,7 @@ class UIDevicePanel:
             self.selected_device_info = {}
         
         self.loading_details_label.setVisible(False)
+        self.refresh_details_btn.setEnabled(True)
         
         self._update_device_banner()
         
@@ -405,6 +427,14 @@ class UIDevicePanel:
         # Recargar aplicaciones si estamos en esa sección
         if hasattr(self, 'current_section') and self.current_section == 'apps':
             self.handle_app_operations('load', force_load=True)
+
+    def _refresh_device_details(self):
+        """Actualiza los detalles del dispositivo seleccionado"""
+        if self.selected_device:
+            self.refresh_details_btn.setEnabled(False)
+            self.loading_details_label.setVisible(True)
+            self.details_container.setVisible(False)
+            execute_after_delay(lambda: self._load_device_details(self.selected_device), 100)
     
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""

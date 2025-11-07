@@ -80,4 +80,9 @@ APP_COLORS = {
     'title_text': '#cccccc',
     'bright_text': '#ff4444',
     'highlighted_text': '#000000',
+    
+    'refresh_button_icon': '#323233',
+    'refresh_button_icon_hover': '#444446',
+    'refresh_button_icon_pressed': '#2A2A2C',
+    'refresh_button_icon_disabled': '#232324',
 }
