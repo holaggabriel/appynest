@@ -10,6 +10,7 @@ from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay, _shorten_path
+from app.constants.delays import GLOBAL_ACTION_DELAY
 
 class UIConfigSection:
 
@@ -149,7 +150,7 @@ class UIConfigSection:
         """Inicia la verificación del estado de ADB"""
         self._disable_buttons_context(False)
         self._show_verifying_status()
-        execute_after_delay(self._perform_adb_check, 500)
+        execute_after_delay(self._perform_adb_check, GLOBAL_ACTION_DELAY)
 
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""

@@ -9,6 +9,7 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.core.threads import InstallationThread
 from app.views.dialogs.apk_installation_info_dialog import ApkInstallationInfoDialog
 from app.views.widgets.info_button import InfoButton
+from app.constants.delays import GLOBAL_ACTION_DELAY
         
 class UIInstallSection:
     def setup_install_section(self):
@@ -155,7 +156,7 @@ class UIInstallSection:
         
         if not self.selected_apks or not self.selected_device:
             # Agregar delay antes de reactivar en caso de validación fallida
-            execute_after_delay(self._enable_controls_after_delay, 500)
+            execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
             return
 
         # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
@@ -163,7 +164,7 @@ class UIInstallSection:
             self.status_label.setText(f"El dispositivo {self.selected_device} no está conectado o disponible")
             self.apply_style_update(self.status_label, 'status_error_message')
             # Agregar delay antes de reactivar en caso de validación fallida
-            execute_after_delay(self._enable_controls_after_delay, 500)
+            execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
             return
         
         self.installation_thread = InstallationThread(
@@ -197,7 +198,7 @@ class UIInstallSection:
                 QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
         
         # Agregar delay antes de reactivar después de la instalación
-        execute_after_delay(self._enable_controls_after_delay, 500)
+        execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
 
     def install_section_drag_enter_event(self, event: QDragEnterEvent):
         """Manejar arrastre sobre la sección"""

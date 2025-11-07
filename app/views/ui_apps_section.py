@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
-
+from app.constants.delays import GLOBAL_ACTION_DELAY
 
 class UIAppsSection:
 
@@ -202,7 +202,7 @@ class UIAppsSection:
         self.show_apps_message("Actualizando lista de aplicaciones...", "info")
 
         # Usar el método helper para el delay antes de iniciar el thread
-        execute_after_delay(self._perform_apps_loading, 500)
+        execute_after_delay(self._perform_apps_loading, GLOBAL_ACTION_DELAY)
 
     def _perform_apps_loading(self):
         if not self.selected_device:
@@ -347,7 +347,7 @@ class UIAppsSection:
             self._radio_timer.timeout.connect(
                 lambda: self.handle_app_operations("load", force_load=True)
             )
-            self._radio_timer.start(100)  # 100ms de delay anti-rebote
+            self._radio_timer.start(GLOBAL_ACTION_DELAY)  # 100ms de delay anti-rebote
 
     def show_apps_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre radio buttons y lista"""

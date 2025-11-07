@@ -7,6 +7,7 @@ from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.constants.delays import GLOBAL_ACTION_DELAY
 
 class UIDevicePanel:
     def setup_devices_panel(self):
@@ -185,7 +186,7 @@ class UIDevicePanel:
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
         
-        execute_after_delay(self._perform_devices_scan, 500)
+        execute_after_delay(self._perform_devices_scan, GLOBAL_ACTION_DELAY)
 
     def _perform_devices_scan(self):
         """Ejecuta el escaneo real de dispositivos"""
@@ -339,7 +340,7 @@ class UIDevicePanel:
         self.details_container.setVisible(False)
         
         # Obtener información detallada en segundo plano
-        execute_after_delay(lambda: self._load_device_details(device_id), 100)
+        execute_after_delay(lambda: self._load_device_details(device_id), GLOBAL_ACTION_DELAY)
 
     def _extract_device_id(self, device_text):
         """Extrae el ID del dispositivo del texto mostrado"""
@@ -434,7 +435,7 @@ class UIDevicePanel:
             self.refresh_details_btn.setEnabled(False)
             self.loading_details_label.setVisible(True)
             self.details_container.setVisible(False)
-            execute_after_delay(lambda: self._load_device_details(self.selected_device), 100)
+            execute_after_delay(lambda: self._load_device_details(self.selected_device), GLOBAL_ACTION_DELAY)
     
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""
