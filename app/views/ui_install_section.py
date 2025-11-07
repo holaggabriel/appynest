@@ -187,14 +187,14 @@ class UIInstallSection:
             return
         
         if success:
-            QMessageBox.information(self, "Éxito", message)
             self.status_label.setText("Instalación completada exitosamente")
-            self.status_label.setObjectName('status_info_message')
+            self.apply_style_update(self.status_label, 'status_success_message')
+            QMessageBox.information(self, "Éxito", message)
         else:
             if not self.property("closing"):
-                QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
                 self.status_label.setText("Error en la instalación")
                 self.apply_style_update(self.status_label, 'status_error_message')
+                QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
         
         # Agregar delay antes de reactivar después de la instalación
         execute_after_delay(self._enable_controls_after_delay, 500)
