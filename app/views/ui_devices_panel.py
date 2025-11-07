@@ -1,12 +1,12 @@
 from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
-                             QWidget, QFrame, QApplication,QGridLayout )
+                             QWidget, QFrame,QGridLayout )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QClipboard
 from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class UIDevicePanel:
     def setup_devices_panel(self):
@@ -410,7 +410,7 @@ class UIDevicePanel:
         try:
             self.selected_device_info = self.device_manager.get_device_info(device_id)
         except Exception as e:
-            print(f"Error al obtener información del dispositivo: {e}")
+            print_in_debug_mode(f"Error al obtener información del dispositivo: {e}")
             self.selected_device_info = {}
         
         self.loading_details_label.setVisible(False)

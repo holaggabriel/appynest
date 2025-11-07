@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QSpacerItem, QSizePoli
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter
 from PyQt6.QtSvg import QSvgRenderer
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class AppName(QWidget):
     def __init__(self, parent=None):
@@ -68,7 +69,7 @@ class AppName(QWidget):
                     layout.addWidget(letter_label)
                     return
                 
-            print(f"Archivo no encontrado o inválido: {letter_path}")
+            print_in_debug_mode(f"Archivo no encontrado o inválido: {letter_path}")
         
         # Fallback a texto
         self._create_text_label(letter, size, layout)

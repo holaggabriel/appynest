@@ -1,5 +1,6 @@
 import subprocess
 from .adb_manager import ADBManager
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class DeviceManager:
     def __init__(self, adb_manager: ADBManager):
@@ -50,7 +51,7 @@ class DeviceManager:
                             })
             
         except Exception as e:
-            print(f"Error al obtener dispositivos: {e}")
+            print_in_debug_mode(f"Error al obtener dispositivos: {e}")
         
         return devices
     
@@ -164,7 +165,7 @@ class DeviceManager:
             }
             
         except Exception as e:
-            print(f"Error al obtener información del dispositivo: {e}")
+            print_in_debug_mode(f"Error al obtener información del dispositivo: {e}")
             return {}
 
     def is_device_available(self, device_id):
@@ -205,8 +206,8 @@ class DeviceManager:
                 return False
                 
             except subprocess.TimeoutExpired:
-                print(f"Timeout al verificar disponibilidad del dispositivo {device_id}")
+                print_in_debug_mode(f"Timeout al verificar disponibilidad del dispositivo {device_id}")
                 return False
             except Exception as e:
-                print(f"Error al verificar disponibilidad del dispositivo {device_id}: {e}")
+                print_in_debug_mode(f"Error al verificar disponibilidad del dispositivo {device_id}: {e}")
                 return False

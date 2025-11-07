@@ -1,5 +1,6 @@
 import os
 from PyQt6.QtCore import QThread, pyqtSignal, QMutex
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class BaseThread(QThread):
     """Clase base para todos los threads con capacidad de interrupción"""
@@ -144,7 +145,7 @@ class AppsLoadingThread(BaseThread):
             if self.is_running():
                 self.finished_signal.emit(result)
         except Exception as e:
-            print(f"Error cargando aplicaciones: {e}")
+            print_in_debug_mode(f"Error cargando aplicaciones: {e}")
             if self.is_running():
                 self.finished_signal.emit({
                     'success': False,
