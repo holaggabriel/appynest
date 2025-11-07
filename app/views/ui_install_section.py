@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout,
                              QWidget, QFileDialog, QMessageBox)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDragEnterEvent, QDropEvent
+from app.utils.helpers import execute_after_delay
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.core.threads import InstallationThread
 from app.views.dialogs.apk_installation_info_dialog import ApkInstallationInfoDialog
@@ -127,26 +128,21 @@ class UIInstallSection:
     def _update_ui_state(self):
         """Método único para actualizar todo el estado de la UI"""
         # Estado actual
-        is_section_enabled = self.select_apk_btn.isEnabled()
         has_apks = bool(self.selected_apks)
-        has_selection = bool(self.apk_list.selectedItems())
         has_device = bool(self.selected_device)
         
         # 1. Actualizar botones
-        self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
-        self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
-        self.install_btn.setEnabled(is_section_enabled and has_apks and has_device)
+        self._update_buttons_state()
+        
+        self.apply_style_update(self.status_label, 'status_info_message') # Mismo estilo par estos 3 casos
         
         # 2. Actualizar mensaje de estado
         if not has_apks:
             self.status_label.setText("Selecciona al menos un APK")
-            self.status_label.setObjectName('status_info_message')
         elif not has_device:
             self.status_label.setText("Selecciona un dispositivo")
-            self.status_label.setObjectName('status_info_message')
         else:
             self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
-            self.status_label.setObjectName('status_info_message')
 
     def _update_apk_list(self):
         """Actualizar la visualización de la lista de APKs"""
@@ -156,19 +152,25 @@ class UIInstallSection:
 
     def install_apk(self):
         """Iniciar instalación de APKs"""
-        if not self.selected_apks or not self.selected_device:
-            return
-
-        # VERIFICAR SI EL DISPOSITivo ESTÁ DISPONIBLE
-        if not self.device_manager.is_device_available(self.selected_device):
-            self.status_label.setText("Dispositivo no disponible")
-            self.status_label.setObjectName('status_error_message')
-            return
-            
-        # Bloquear controles durante instalación
+        
+        # Bloquear controles durante instalación (INSTANTÁNEO)
         self.set_install_section_enabled(False)
         self.set_devices_section_enabled(False)
         
+        if not self.selected_apks or not self.selected_device:
+            # Agregar delay antes de reactivar en caso de validación fallida
+            execute_after_delay(self._enable_controls_after_delay, 500)
+            return
+
+        # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
+        if not self.device_manager.is_device_available(self.selected_device):
+            self.status_label.setText(f"El dispositivo {self.selected_device} no está conectado o disponible")
+            self.apply_style_update(self.status_label, 'status_error_message')
+            # Agregar delay antes de reactivar en caso de validación fallida
+            execute_after_delay(self._enable_controls_after_delay, 500)
+            return
+        
+        # Si pasa todas las validaciones, proceder con instalación
         self.status_label.setObjectName('status_info_message')
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
@@ -192,10 +194,6 @@ class UIInstallSection:
             print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
             return
         
-        # Desbloquear controles
-        self.set_install_section_enabled(True)
-        self.set_devices_section_enabled(True)
-        
         if success:
             QMessageBox.information(self, "Éxito", message)
             self.status_label.setText("Instalación completada exitosamente")
@@ -204,7 +202,10 @@ class UIInstallSection:
             if not self.property("closing"):
                 QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
                 self.status_label.setText("Error en la instalación")
-                self.status_label.setObjectName('status_error_message')
+                self.apply_style_update(self.status_label, 'status_error_message')
+        
+        # Agregar delay antes de reactivar después de la instalación
+        execute_after_delay(self._enable_controls_after_delay, 500)
 
     def install_section_drag_enter_event(self, event: QDragEnterEvent):
         """Manejar arrastre sobre la sección"""
@@ -234,11 +235,34 @@ class UIInstallSection:
         self.select_apk_btn.setEnabled(enabled)
         self.apk_list.setEnabled(enabled)
         self.install_section_widget.setAcceptDrops(enabled)
-        self._update_ui_state()  # Actualizar estado de todos los botones
+        
+        # Solo actualizar el estado de los botones, no el mensaje
+        self._update_buttons_state()
+
+    def _update_buttons_state(self):
+        """Actualizar solo el estado de los botones sin cambiar el mensaje"""
+        # Estado actual
+        is_section_enabled = self.select_apk_btn.isEnabled()
+        has_apks = bool(self.selected_apks)
+        has_selection = bool(self.apk_list.selectedItems())
+        has_device = bool(self.selected_device)
+        
+        # Actualizar solo botones
+        self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
+        self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
+        self.install_btn.setEnabled(is_section_enabled and has_apks and has_device)
 
     def _is_app_closing(self):
         """Verificar si la aplicación se está cerrando"""
         return self.cleaning_up or self.property("closing")
+
+    def _enable_controls_after_delay(self):
+        """Habilitar controles después del delay - método separado para claridad"""
+        if self._is_app_closing():
+            return
+        
+        self.set_install_section_enabled(True)
+        self.set_devices_section_enabled(True)
     
     def show_apk_installation_info_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""
