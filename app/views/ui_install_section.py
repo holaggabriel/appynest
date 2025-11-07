@@ -62,7 +62,7 @@ class UIInstallSection:
         horizontal_scrollbar = self.apk_list.horizontalScrollBar() 
         horizontal_scrollbar.setObjectName('scrollbar_horizontal')
 
-        self.apk_list.itemSelectionChanged.connect(self._update_ui_state)
+        self.apk_list.itemSelectionChanged.connect(self._update_buttons_state)
         layout.addWidget(self.apk_list)
         
         apk_buttons_layout = QHBoxLayout()
@@ -131,18 +131,11 @@ class UIInstallSection:
         has_apks = bool(self.selected_apks)
         has_device = bool(self.selected_device)
         
-        # 1. Actualizar botones
+        # 1. Actualizar solo botones (siempre se ejecuta)
         self._update_buttons_state()
         
-        self.apply_style_update(self.status_label, 'status_info_message') # Mismo estilo par estos 3 casos
-        
-        # 2. Actualizar mensaje de estado
-        if not has_apks:
-            self.status_label.setText("Selecciona al menos un APK")
-        elif not has_device:
-            self.status_label.setText("Selecciona un dispositivo")
-        else:
-            self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
+        # 2. Actualizar mensaje de estado solo si cambió el estado fundamental
+        self._update_status_message(has_apks, has_device)
 
     def _update_apk_list(self):
         """Actualizar la visualización de la lista de APKs"""
@@ -152,6 +145,9 @@ class UIInstallSection:
 
     def install_apk(self):
         """Iniciar instalación de APKs"""
+        
+        self.apply_style_update(self.status_label, 'status_info_message')
+        self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         # Bloquear controles durante instalación (INSTANTÁNEO)
         self.set_install_section_enabled(False)
@@ -169,10 +165,6 @@ class UIInstallSection:
             # Agregar delay antes de reactivar en caso de validación fallida
             execute_after_delay(self._enable_controls_after_delay, 500)
             return
-        
-        # Si pasa todas las validaciones, proceder con instalación
-        self.status_label.setObjectName('status_info_message')
-        self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
         
         self.installation_thread = InstallationThread(
             self.apk_installer, self.selected_apks, self.selected_device
@@ -240,8 +232,7 @@ class UIInstallSection:
         self._update_buttons_state()
 
     def _update_buttons_state(self):
-        """Actualizar solo el estado de los botones sin cambiar el mensaje"""
-        # Estado actual
+        """Actualizar solo el estado de los botones"""
         is_section_enabled = self.select_apk_btn.isEnabled()
         has_apks = bool(self.selected_apks)
         has_selection = bool(self.apk_list.selectedItems())
@@ -251,6 +242,22 @@ class UIInstallSection:
         self.remove_apk_btn.setEnabled(is_section_enabled and has_selection)
         self.clear_apk_btn.setEnabled(is_section_enabled and has_apks)
         self.install_btn.setEnabled(is_section_enabled and has_apks and has_device)
+
+    def _update_status_message(self, has_apks=None, has_device=None):
+        """Actualizar solo el mensaje de estado"""
+        if has_apks is None:
+            has_apks = bool(self.selected_apks)
+        if has_device is None:
+            has_device = bool(self.selected_device)
+        
+        self.apply_style_update(self.status_label, 'status_info_message')
+        
+        if not has_apks:
+            self.status_label.setText("Selecciona al menos un APK")
+        elif not has_device:
+            self.status_label.setText("Selecciona un dispositivo")
+        else:
+            self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
 
     def _is_app_closing(self):
         """Verificar si la aplicación se está cerrando"""
