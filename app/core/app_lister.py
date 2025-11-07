@@ -1,5 +1,4 @@
 import subprocess
-import logging
 from .base_app_manager import BaseAppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
 

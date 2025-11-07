@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QDialog, 
-                             QVBoxLayout, QPushButton, QApplication,
+from PyQt6.QtWidgets import (QLabel, QDialog, 
+                             QVBoxLayout,
                              QScrollArea, QWidget, QFrame)
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
 
 class ConnectionHelpDialog(QDialog):

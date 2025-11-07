@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import QToolButton, QMessageBox, QToolTip
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFontMetrics
 
-
 class EmojiButton(QToolButton):
     def __init__(
         self,

@@ -1,5 +1,3 @@
-# styles.py
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette, QColor
 from app.theme.app_colors import APP_COLORS
 
