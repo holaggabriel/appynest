@@ -135,6 +135,7 @@ class UIConfigSection:
             self.apply_style_update(self.verifying_label, 'status_warning_message')
             self.verifying_label.setVisible(True)
         elif status_type == "error":
+            self.verifying_label.setText("ADB no disponible - Verifica la configuración")
             self.apply_style_update(self.verifying_label, 'status_error_message')
             self.verifying_label.setVisible(True)
 

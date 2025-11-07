@@ -321,8 +321,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             if self.devices_message_label.objectName() == "status_warning_message":
                 self.hide_devices_message()
         else:
-            self._set_adb_status("No disponible", "No encontrada", "warning")
-            self.verifying_label.setText("ADB no disponible - Verifica la configuración")
+            self._set_adb_status("No disponible", "No encontrada", "error")
 
         self.set_devices_section_enabled(enabled)
 

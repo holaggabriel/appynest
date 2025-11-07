@@ -13,7 +13,7 @@ class APKInstaller:
         
         # Patrones de error comunes
         error_patterns = {
-            r'missing_split': "Esta aplicación requiere archivos adicionales que no están presentes. Es probable que sea un APK incompleto.",
+            r'missing_split': "Esta aplicación requiere archivos adicionales que no están presentes. Es probable que sea un Split APK.",
             r'install_failed_missing_split': "Faltan componentes de la aplicación. Necesitas instalar todos los archivos de la aplicación.",
             r'no_matching_abis': "La aplicación no es compatible con la arquitectura de tu dispositivo.",
             r'install_failed_no_matching_abis': "Incompatibilidad de arquitectura: la aplicación contiene código nativo que no funciona en tu dispositivo.",

@@ -256,6 +256,7 @@ class UIInstallSection:
             self.status_label.setText("Selecciona al menos un APK")
         elif not has_device:
             self.status_label.setText("Selecciona un dispositivo")
+            self.apply_style_update(self.status_label, 'status_warning_message')
         else:
             self.status_label.setText(f"Listo para instalar {len(self.selected_apks)} APK(s)")
 
