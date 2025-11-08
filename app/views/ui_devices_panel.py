@@ -424,10 +424,6 @@ class UIDevicePanel:
         
         if hasattr(self, '_update_ui_state'):
             self._update_ui_state()
-        
-        # Recargar aplicaciones si estamos en esa sección
-        if hasattr(self, 'current_section') and self.current_section == 'apps':
-            self.handle_app_operations('load', force_load=True)
 
     def _refresh_device_details(self):
         """Actualiza los detalles del dispositivo seleccionado"""
