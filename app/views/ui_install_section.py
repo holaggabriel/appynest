@@ -161,12 +161,11 @@ class UIInstallSection:
 
         # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
         if not self.device_manager.is_device_available(self.selected_device):
-            self.status_label.setText(f"El dispositivo {self.selected_device} no está conectado o disponible")
-            self.apply_style_update(self.status_label, 'status_error_message')
-            # Agregar delay antes de reactivar en caso de validación fallida
             execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
+            QMessageBox.critical(self, "Dispositivo no disponible", 
+                            f"El dispositivo {self.selected_device} no está conectado o disponible.")
             return
-        
+            
         self.installation_thread = InstallationThread(
             self.apk_installer, self.selected_apks, self.selected_device
         )
@@ -187,16 +186,14 @@ class UIInstallSection:
             print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
             return
         
+        # Mostrar el resultado en un messagebox
         if success:
-            self.status_label.setText("Instalación completada exitosamente")
-            self.apply_style_update(self.status_label, 'status_success_message')
-            QMessageBox.information(self, "Éxito", message)
+            title = self.get_operation_title("install", success=True, app_count=len(self.selected_apks))
+            QMessageBox.information(self, title, message)
         else:
-            if not self.property("closing"):
-                self.status_label.setText("Error en la instalación")
-                self.apply_style_update(self.status_label, 'status_error_message')
-                QMessageBox.critical(self, "Error", f"Error durante la instalación:\n{message}")
-        
+            title = self.get_operation_title("install", success=False, app_count=len(self.selected_apks))
+            QMessageBox.critical(self, title, message)
+
         # Agregar delay antes de reactivar después de la instalación
         execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
 
@@ -272,6 +269,22 @@ class UIInstallSection:
         
         self.set_install_section_enabled(True)
         self.set_devices_section_enabled(True)
+        self._update_ui_state()
+
+    def get_operation_title(self, operation_type, success=True, app_count=1):
+        singular_titles = {
+            "install": "Aplicación instalada" if success else "No se pudo instalar la aplicación",
+            "uninstall": "Aplicación desinstalada" if success else "No se pudo desinstalar la aplicación",
+            "extract": "APK extraído" if success else "No se pudo extraer el APK",
+        }
+
+        plural_titles = {
+            "install": "Aplicaciones instaladas" if success else "No se pudieron instalar las aplicaciones",
+            "uninstall": "Aplicaciones desinstaladas" if success else "No se pudieron desinstalar las aplicaciones",
+            "extract": "APKs extraídos" if success else "No se pudieron extraer los APKs",
+        }
+
+        return plural_titles[operation_type] if app_count > 1 else singular_titles[operation_type]
     
     def show_apk_installation_info_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""

@@ -14,7 +14,7 @@ class AppUninstaller(BaseAppManager):
         )
         
         if result['success']:
-            mensaje_exito = f"La aplicación {package_name} fue desinstalada del dispositivo {device_id}"
+            mensaje_exito = f"La aplicación {app_name} fue desinstalada del dispositivo {device_id}."
             return True, mensaje_exito
         else:
             error_msg = result.get('error') or 'Error inesperado.'

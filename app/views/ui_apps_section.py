@@ -16,6 +16,7 @@ from PyQt6.QtCore import Qt, QTimer
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
 from app.constants.delays import GLOBAL_ACTION_DELAY
+from app.constants.texts import OPERATION_LABELS
 
 class UIAppsSection:
 
@@ -411,7 +412,7 @@ class UIAppsSection:
             app_label = app_data.get("name") or app_data.get("package_name")
 
             if operation_type == "uninstall" and not self._confirm_operation(
-                "desinstalar", app_label
+                "uninstall", app_label
             ):
                 return
 
@@ -450,17 +451,19 @@ class UIAppsSection:
             # Restaurar estado UI
             self.set_ui_state(True, operation_in_progress=False)
 
+            # Obtener la operación traducida (con fallback al valor original)
+            operation_label = OPERATION_LABELS.get(operation_type, operation_type)
+
             # Mostrar mensaje amigable al usuario
             QMessageBox.critical(
                 self,
-                "Error",
-                f"Ocurrió un problema al intentar {operation_type} la aplicación.\n\n"
+                f"Error al {operation_label}",
+                f"Ocurrió un problema al intentar {operation_label} la aplicación.\n\n"
                 f"Detalle: {str(e)}"
-            )         
+            )  
 
     def _on_operation_finished(self, success, message, operation_type):
         """Maneja la finalización de operaciones"""
-        # Verificar si la aplicación se está cerrando
         if self.cleaning_up or self.property("closing"):
             return
 
@@ -468,13 +471,24 @@ class UIAppsSection:
         self.set_ui_state(True)
 
         if success:
-            QMessageBox.information(self, "Éxito", message)
-            if operation_type == "uninstall":
+            if operation_type == "extract":
+                title = "APK extraído correctamente"
+            elif operation_type == "uninstall":
+                title = "Aplicación desinstalada correctamente"
                 self.handle_app_operations("load", force_load=True)
+            else:
+                title = f"Operación completada"
+
+            QMessageBox.information(self, title, message)
         else:
-            QMessageBox.critical(
-                self, "Error", message
-            )
+            if operation_type == "extract":
+                title = "No se pudo extraer el APK"
+            elif operation_type == "uninstall":
+                title = "No se pudo desinstalar la aplicación"
+            else:
+                title = f"Error en la operación"
+
+            QMessageBox.critical(self, title, message)
 
     def show_operation_status(self, message):
         """Muestra el estado de la operación en curso"""
@@ -497,10 +511,11 @@ class UIAppsSection:
 
     def _confirm_operation(self, operation_name, app_name):
         """Muestra diálogo de confirmación para operaciones"""
+        operation_label = OPERATION_LABELS.get(operation_name, operation_name)
         reply = QMessageBox.question(
             self,
-            f"{operation_name.capitalize()}",
-            f"¿Estás seguro de que quieres {operation_name} <b>{app_name}</b>?",
+            f"{operation_label.capitalize()} aplicación",
+            f"¿Estás seguro de que quieres {operation_label} <b>{app_name}</b>?",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         return reply == QMessageBox.StandardButton.Yes
