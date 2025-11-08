@@ -160,13 +160,16 @@ class UIConfigSection:
             if self.adb_manager.is_available():
                 adb_path = self.adb_manager.get_adb_path()
                 self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
-                self.set_sections_enabled(enabled=True,show_config_section=False, adb_availability=True)
+                # ACTUALIZAR LA VARIABLE GLOBAL
+                self.update_adb_availability(True)
             else:
-                self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
+                # ACTUALIZAR LA VARIABLE GLOBAL
+                self.update_adb_availability(False)
         
         except Exception as e:
             self._set_adb_status("No disponible", "No encontrada", "error")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
+            # ACTUALIZAR LA VARIABLE GLOBAL
+            self.update_adb_availability(False)
             self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
         finally:
             self._disable_buttons_context(True)
@@ -185,6 +188,16 @@ class UIConfigSection:
             self.device_manager = DeviceManager(self.adb_manager)
             self.update_adb_status()
             QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada")
+
+    def update_adb_availability(self, available):
+        """Actualiza el estado de disponibilidad de ADB"""
+        self.adb_available = available
+        
+        # Habilitar/deshabilitar secciones según disponibilidad
+        self.set_sections_enabled(
+            enabled=available, 
+            adb_availability=available
+        )
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)

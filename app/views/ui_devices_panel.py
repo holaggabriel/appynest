@@ -192,7 +192,7 @@ class UIDevicePanel:
         """Ejecuta el escaneo real de dispositivos"""
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "error")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
+            self.update_adb_availability(False)
             return
         
         try:
@@ -252,6 +252,8 @@ class UIDevicePanel:
         self.devices_message_label.setVisible(False)
 
     def set_devices_section_enabled(self, enabled):
+        if not self.adb_available:
+            enabled = False
         """Habilita o deshabilita los controles de la sección de dispositivos"""
         if enabled and self.is_thread_type_running(
             [AppsLoadingThread, UninstallThread, ExtractThread, InstallationThread], mode="or"):
@@ -326,7 +328,7 @@ class UIDevicePanel:
         
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "error")
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
+            self.set_sections_enabled(enabled=False, adb_availability=False)
             return
             
         device_text = selected_items[0].text()

@@ -37,16 +37,13 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.filtered_apps_data = []  # Aplicaciones filtradas
         self.current_section = None  # Puede ser: 'install', 'apps', 'config'
         # Lista para trackear threads activos
+        self.adb_available = False  # Variable de estado ADB
         self.active_threads = []
         self.cleaning_up = False
         self.selected_device_info = {}
         self.init_ui()
         self.load_devices()
-        self.update_adb_status()
-        
-        if not self.adb_manager.is_available():
-            self.set_sections_enabled(enabled=False, show_config_section=True, adb_availability=False)
-    
+
     def setup_styles(self):
         AppTheme.setup_app_palette(self)
         self.styles = AppTheme.get_app_styles()
@@ -250,12 +247,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         if self.cleaning_up or self.property("closing"):
             return
         
-        # Prevenir cambiar de sección si ADB no está disponible
-        if not self.adb_manager.is_available() and index != 2:
-            QMessageBox.warning(self, "ADB no disponible", 
-                            "ADB no está configurado. Configura ADB primero en la sección de Configuración.")
-            return
-        
         self.stacked_widget.setCurrentIndex(index)
         
         # Si el ultimo indice es el mismo no hacer nada
@@ -292,29 +283,8 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             else:
                 self.apply_style_update(button, "nav_button_inactive_state")
         
-    def set_sections_enabled(self, enabled, show_config_section, adb_availability):
+    def set_sections_enabled(self, enabled, adb_availability):
         """Método unificado para habilitar/deshabilitar secciones"""
-        
-        # Actualizar estado de los botones de navegación
-        self.install_btn_nav.setEnabled(enabled)
-        self.apps_btn_nav.setEnabled(enabled)
-        self.config_btn_nav.setEnabled(True)
-        
-        # Lógica simplificada:
-        # - Si show_config_section es True: SIEMPRE ir a configuración
-        # - Si es False: mantener la posición actual (no cambiar forzadamente)
-        if show_config_section:
-            # Forzar sección de configuración y actualizar estado
-            self.stacked_widget.setCurrentIndex(2)
-            self.config_btn_nav.setChecked(True)
-            self.install_btn_nav.setChecked(False)
-            self.apps_btn_nav.setChecked(False)
-            self.current_section = 'config'
-            self.last_section_index = 2
-        # else: No hacer nada - mantener la sección actual donde esté
-        
-        # Actualizar estilos de navegación
-        self.update_nav_buttons_style()
         
         # Manejar mensajes de estado ADB
         if adb_availability:
