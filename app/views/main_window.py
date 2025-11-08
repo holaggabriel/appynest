@@ -318,7 +318,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         # Manejar mensajes de estado ADB
         if adb_availability:
-            if self.devices_message_label.objectName() == "status_warning_message":
+            if self.devices_message_label.objectName() == "status_error_message":
                 self.hide_devices_message()
         else:
             self._set_adb_status("No disponible", "No encontrada", "error")
