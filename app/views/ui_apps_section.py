@@ -473,7 +473,7 @@ class UIAppsSection:
                 self.handle_app_operations("load", force_load=True)
         else:
             QMessageBox.critical(
-                self, "Error", f"Error al {operation_type}:\n{message}"
+                self, "Error", message
             )
 
     def show_operation_status(self, message):

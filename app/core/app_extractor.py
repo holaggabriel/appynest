@@ -17,7 +17,7 @@ class AppExtractor(BaseAppManager):
         if result['success']:
             return True, f"APK guardado en: {output_path}"
         else:      
-            error_msg = result.get('error') or 'Error inesperado'
+            error_msg = result.get('error') or 'Error inesperado.'
             mensaje_error = f"No se pudo extraer {app_name} del dispositivo {device_id}. Error: {error_msg}"
             return False, mensaje_error
     
