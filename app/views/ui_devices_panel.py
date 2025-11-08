@@ -328,7 +328,7 @@ class UIDevicePanel:
         
         if not self.adb_manager.is_available():
             self.show_devices_message("ADB no está configurado", "error")
-            self.set_sections_enabled(enabled=False, adb_availability=False)
+            self.update_adb_availability(False)
             return
             
         device_text = selected_items[0].text()

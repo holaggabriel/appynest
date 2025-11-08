@@ -282,18 +282,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
                 self.apply_style_update(button, "nav_button_active_state")
             else:
                 self.apply_style_update(button, "nav_button_inactive_state")
-        
-    def set_sections_enabled(self, enabled, adb_availability):
-        """Método unificado para habilitar/deshabilitar secciones"""
-        
-        # Manejar mensajes de estado ADB
-        if adb_availability:
-            if self.devices_message_label.objectName() == "status_error_message":
-                self.hide_devices_message()
-        else:
-            self._set_adb_status("No disponible", "No encontrada", "error")
-
-        self.set_devices_section_enabled(enabled)
 
     def apply_style_update(self, widget, object_name=None):
         """Actualiza el estilo de un widget después de cambiar objectName"""

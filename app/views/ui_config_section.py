@@ -193,11 +193,14 @@ class UIConfigSection:
         """Actualiza el estado de disponibilidad de ADB"""
         self.adb_available = available
         
-        # Habilitar/deshabilitar secciones según disponibilidad
-        self.set_sections_enabled(
-            enabled=available, 
-            adb_availability=available
-        )
+        # Manejar mensajes de estado ADB
+        if self.adb_available:
+            if self.devices_message_label.objectName() == "status_error_message":
+                self.hide_devices_message()
+        else:
+            self._set_adb_status("No disponible", "No encontrada", "error")
+
+        self.set_devices_section_enabled(self.adb_available)
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)
