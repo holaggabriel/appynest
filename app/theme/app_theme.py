@@ -466,7 +466,7 @@ class AppTheme:
             QRadioButton#radio_button_default::indicator:enabled {{
                 width: 16px;
                 height: 16px;
-                border-radius: 8px;
+                border-radius: 10px;
                 border: 2px solid {colors['border']};
                 background-color: {colors['window']};
             }}
@@ -474,19 +474,19 @@ class AppTheme:
             QRadioButton#radio_button_default::indicator:enabled:hover {{
                 border: 2px solid {colors['highlight']};
                 background-color: {colors['window']};
-                border-radius: 8px;
+                border-radius: 10px;
             }}
             
             QRadioButton#radio_button_default::indicator:enabled:checked {{
                 border: 2px solid {colors['highlight']};
                 background-color: {colors['highlight']};
-                border-radius: 8px;
+                border-radius: 10px;
             }}
             
             QRadioButton#radio_button_default::indicator:enabled:checked:hover {{
                 border: 2px solid {colors['highlight_hover']};
                 background-color: {colors['highlight_hover']};
-                border-radius: 8px;
+                border-radius: 10px;
             }}
             
             QRadioButton#radio_button_default:focus {{
@@ -496,13 +496,13 @@ class AppTheme:
             
             QRadioButton#radio_button_default::indicator:focus {{
                 border: 2px solid {colors['highlight_hover']};
-                border-radius: 8px;
+                border-radius: 10px;
             }}
             
             QRadioButton#radio_button_default::indicator:pressed {{
                 border: 2px solid {colors['highlight_hover']};
                 background-color: {colors['highlight_hover']};
-                border-radius: 8px;
+                border-radius: 10px;
             }}
             
             QRadioButton#radio_button_default:disabled {{
@@ -512,14 +512,14 @@ class AppTheme:
             QRadioButton#radio_button_default::indicator:disabled {{
                 width: 16px;
                 height: 16px;
-                border-radius: 8px;
+                border-radius: 10px;
                 border: 2px solid {colors['border_disabled']};
                 background-color: {colors['window']};
             }}
             
             QRadioButton#radio_button_default::indicator:disabled:checked {{
-                border-radius: 8px;
-                border: 2px solid {colors['border_disabled']};
+                border-radius: 10px;
+                border: 2px solid {colors['highlight_disabled']};
                 background-color: {colors['highlight_disabled']};
             }}
             
