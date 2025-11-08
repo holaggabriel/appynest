@@ -4,7 +4,7 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 class AppExtractor(BaseAppManager):
     def __init__(self, adb_manager):
         super().__init__(adb_manager)
-    def extract_app_apk(self, device_id, apk_path, output_path):
+    def extract_app_apk(self, device_id, apk_path, app_name, output_path):
         """Extrae el APK de una aplicación instalada"""
         print_in_debug_mode(f"Extrayendo APK desde {apk_path} a {output_path}")
         
@@ -16,9 +16,10 @@ class AppExtractor(BaseAppManager):
         
         if result['success']:
             return True, f"APK guardado en: {output_path}"
-        else:
-            error_msg = result.get('error') or result['stderr']
-            return False, f"Error al extraer APK: {error_msg}"
+        else:      
+            error_msg = result.get('error') or 'Error inesperado'
+            mensaje_error = f"No se pudo extraer {app_name} del dispositivo {device_id}. Error: {error_msg}"
+            return False, mensaje_error
     
     def batch_extract_apps(self, device_id, apps_list, output_dir):
         """Extrae múltiples APKs en lote"""

@@ -403,45 +403,60 @@ class UIAppsSection:
 
     def _execute_operation(self, operation_type, app_data=None):
         """Método unificado para operaciones"""
-        if not app_data:
-            return
+        try:
+            if not app_data:
+                return
+            
+            # Obtener el nombre o, si no existe, usar el package_name
+            app_label = app_data.get("name") or app_data.get("package_name")
 
-        if operation_type == "uninstall" and not self._confirm_operation(
-            "desinstalar", app_data["name"]
-        ):
-            return
-
-        if operation_type == "extract":
-            file_path, _ = QFileDialog.getSaveFileName(
-                self,
-                "Extraer APK",
-                f"{app_data['package_name']}.apk",
-                "APK Files (*.apk)",
-            )
-            if not file_path:
+            if operation_type == "uninstall" and not self._confirm_operation(
+                "desinstalar", app_label
+            ):
                 return
 
-        # Configurar thread según operación
-        if operation_type == "uninstall":
-            thread = UninstallThread(
-                self.app_manager, self.selected_device, app_data["package_name"]
-            )
-        elif operation_type == "extract":
-            thread = ExtractThread(
-                self.app_manager, self.selected_device, app_data["apk_path"], file_path
-            )
-        else:
-            return
+            if operation_type == "extract":
+                file_path, _ = QFileDialog.getSaveFileName(
+                    self,
+                    "Extraer APK",
+                    f"{app_data['package_name']}.apk",
+                    "APK Files (*.apk)",
+                )
+                if not file_path:
+                    return
 
-        # Estado UI y ejecución
-        self.set_ui_state(False, operation_in_progress=True)
-        self.register_thread(thread)
-        thread.finished_signal.connect(
-            lambda success, msg: self._on_operation_finished(
-                success, msg, operation_type
+            # Configurar thread según operación
+            if operation_type == "uninstall":
+                thread = UninstallThread(
+                    self.app_manager, self.selected_device, app_data["package_name"], app_label
+                )
+            elif operation_type == "extract":
+                thread = ExtractThread(
+                    self.app_manager, self.selected_device, app_data["apk_path"], app_label, file_path
+                )
+            else:
+                return
+
+            # Estado UI y ejecución
+            self.set_ui_state(False, operation_in_progress=True)
+            self.register_thread(thread)
+            thread.finished_signal.connect(
+                lambda success, msg: self._on_operation_finished(
+                    success, msg, operation_type
+                )
             )
-        )
-        thread.start()
+            thread.start()
+        except Exception as e:
+            # Restaurar estado UI
+            self.set_ui_state(True, operation_in_progress=False)
+
+            # Mostrar mensaje amigable al usuario
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"Ocurrió un problema al intentar {operation_type} la aplicación.\n\n"
+                f"Detalle: {str(e)}"
+            )         
 
     def _on_operation_finished(self, success, message, operation_type):
         """Maneja la finalización de operaciones"""

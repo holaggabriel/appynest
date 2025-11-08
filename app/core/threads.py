@@ -25,11 +25,12 @@ class BaseThread(QThread):
 class UninstallThread(BaseThread):
     finished_signal = pyqtSignal(bool, str)
     
-    def __init__(self, app_manager, device_id, package_name):
+    def __init__(self, app_manager, device_id, package_name, app_name):
         super().__init__()
         self.app_manager = app_manager
         self.device_id = device_id
         self.package_name = package_name
+        self.app_name = app_name
     
     def run(self):
         if not self.is_running():
@@ -37,7 +38,8 @@ class UninstallThread(BaseThread):
             
         success, message = self.app_manager.uninstall_app(
             self.device_id, 
-            self.package_name
+            self.package_name,
+            self.app_name
         )
         
         if self.is_running():
@@ -46,12 +48,13 @@ class UninstallThread(BaseThread):
 class ExtractThread(BaseThread):
     finished_signal = pyqtSignal(bool, str)
     
-    def __init__(self, app_manager, device_id, apk_path, output_path):
+    def __init__(self, app_manager, device_id, apk_path, app_name, output_path):
         super().__init__()
         self.app_manager = app_manager
         self.device_id = device_id
         self.apk_path = apk_path
         self.output_path = output_path
+        self.app_name = app_name
     
     def run(self):
         if not self.is_running():
@@ -60,6 +63,7 @@ class ExtractThread(BaseThread):
         success, message = self.app_manager.extract_app_apk(
             self.device_id,
             self.apk_path,
+            self.app_name,
             self.output_path
         )
         
