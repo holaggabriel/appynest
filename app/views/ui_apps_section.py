@@ -119,6 +119,12 @@ class UIAppsSection:
         info_title.setFixedHeight(30)
         info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         right_layout.addWidget(info_title)
+        
+        self.operation_status_label = QLabel()
+        self.operation_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.operation_status_label.setObjectName("status_info_message")
+        self.operation_status_label.setVisible(False)
+        right_layout.addWidget(self.operation_status_label)
 
         self.initial_info_label = QLabel("Selecciona una aplicación para ver detalles")
         self.initial_info_label.setWordWrap(True)
@@ -156,12 +162,6 @@ class UIAppsSection:
         self.extract_apk_btn.clicked.connect(self.extract_app_apk)
         self.extract_apk_btn.setEnabled(False)
         app_details_layout.addWidget(self.extract_apk_btn)
-
-        self.operation_status_label = QLabel()
-        self.operation_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.operation_status_label.setObjectName("status_info_message")
-        self.operation_status_label.setVisible(False)
-        app_details_layout.addWidget(self.operation_status_label)
 
         right_layout.addWidget(self.app_details_widget)
         self.app_details_widget.setVisible(False)
