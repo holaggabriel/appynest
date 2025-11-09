@@ -340,6 +340,7 @@ class UIDevicePanel:
         
         self.selected_device_banner.setText(device_text)
         
+        self.confirm_device_btn.setEnabled(False)
         self.loading_details_label.setVisible(True)
         self.details_container.setVisible(False)
         
