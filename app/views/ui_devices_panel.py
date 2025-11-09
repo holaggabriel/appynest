@@ -254,9 +254,9 @@ class UIDevicePanel:
         self.devices_message_label.setVisible(False)
 
     def set_devices_section_enabled(self, enabled):
+        """Habilita o deshabilita los controles de la sección de dispositivos"""
         if not self.adb_available:
             enabled = False
-        """Habilita o deshabilita los controles de la sección de dispositivos"""
         if enabled and self.is_thread_type_running(
             [AppsLoadingThread, UninstallThread, ExtractThread, InstallationThread], mode="or"):
             enabled = False
