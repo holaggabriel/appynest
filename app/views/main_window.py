@@ -266,7 +266,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         self.update_nav_buttons_style()
         if index == 1:
-            self.handle_app_operations('load')
+            self.set_ui_state(True)
     
     def update_nav_buttons_style(self):
         buttons = [

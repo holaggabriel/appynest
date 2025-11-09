@@ -213,7 +213,6 @@ class UIAppsSection:
 
     def _perform_apps_loading(self):
         if not self.selected_device:
-            self.show_apps_message("Selecciona un dispositivo", "warning")
             self.set_ui_state(True)
             return
 
@@ -260,7 +259,6 @@ class UIAppsSection:
 
             has_apps = len(self.all_apps_data) > 0
             self.search_input.setEnabled(has_apps)
-            self.hide_apps_message()
 
         else:
             self.all_apps_data = []
@@ -332,6 +330,11 @@ class UIAppsSection:
     def update_apps_list_display(self):
         """Actualiza la visualización de la lista de aplicaciones"""
         self.apps_list.clear()
+        
+        # Mostrar mensajes según el estado actual
+        if not self.selected_device:
+            self.show_apps_message("Selecciona un dispositivo", "warning")
+            return
 
         for app in self.filtered_apps_data:
             item = QListWidgetItem()
@@ -390,7 +393,10 @@ class UIAppsSection:
         if enabled and self.is_thread_type_running(
             [AppsLoadingThread, UninstallThread, ExtractThread], mode="or"):
             enabled = False
-
+            
+        
+        self.update_apps_list_display()
+        
         # Controles de apps
         if enabled:
             execute_after_delay(lambda: self.enable_load_controls(enabled), GLOBAL_ACTION_DELAY)
