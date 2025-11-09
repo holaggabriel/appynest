@@ -190,9 +190,11 @@ class UIDevicePanel:
 
     def _perform_devices_scan(self):
         """Ejecuta el escaneo real de dispositivos"""
-        if not self.adb_manager.is_available():
+        
+        self.update_adb_availability(self.adb_manager.is_available())
+        
+        if not self.adb_available:
             self.show_devices_message("ADB no está configurado", "error")
-            self.update_adb_availability(False)
             return
         
         try:

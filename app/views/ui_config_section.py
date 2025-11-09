@@ -155,16 +155,7 @@ class UIConfigSection:
     def _perform_adb_check(self):
         """Realiza la verificación de ADB después del delay"""
         try:
-            adb_path = self.adb_manager.get_adb_path()
-            
-            if self.adb_manager.is_available():
-                adb_path = self.adb_manager.get_adb_path()
-                self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
-                # ACTUALIZAR LA VARIABLE GLOBAL
-                self.update_adb_availability(True)
-            else:
-                # ACTUALIZAR LA VARIABLE GLOBAL
-                self.update_adb_availability(False)
+            self.update_adb_availability(self.adb_manager.is_available())
         
         except Exception as e:
             self._set_adb_status("No disponible", "No encontrada", "error")
@@ -197,6 +188,8 @@ class UIConfigSection:
         if self.adb_available:
             if self.devices_message_label.objectName() == "status_error_message":
                 self.hide_devices_message()
+            adb_path = self.adb_manager.get_adb_path()
+            self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
         else:
             self._set_adb_status("No disponible", "No encontrada", "error")
 
