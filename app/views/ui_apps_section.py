@@ -411,9 +411,7 @@ class UIAppsSection:
         self.set_devices_section_enabled(enabled)
 
         # Estado de operación
-        if operation_in_progress:
-            self.show_operation_status("Operación en curso...")
-        else:
+        if not operation_in_progress:
             self.hide_operation_status()
 
     def _execute_operation(self, operation_type, app_data=None):
@@ -445,10 +443,12 @@ class UIAppsSection:
                 thread = UninstallThread(
                     self.app_manager, self.selected_device, app_data["package_name"], app_label
                 )
+                self.show_operation_status("Desinstalando...")
             elif operation_type == "extract":
                 thread = ExtractThread(
                     self.app_manager, self.selected_device, app_data["apk_path"], app_label, file_path
                 )
+                self.show_operation_status("Extrayendo...")
             else:
                 return
 
@@ -483,7 +483,8 @@ class UIAppsSection:
             return
 
         # Desbloquear controles después de la operación
-        self.set_ui_state(True)
+        if operation_type == "extract":
+            self.set_ui_state(True)
 
         if success:
             if operation_type == "extract":
