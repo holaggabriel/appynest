@@ -185,6 +185,7 @@ class UIDevicePanel:
         """Inicia la carga de dispositivos con estado visual"""
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
+        self.refresh_details_btn.setEnabled(False)
         
         execute_after_delay(self._perform_devices_scan, GLOBAL_ACTION_DELAY)
 
@@ -262,6 +263,7 @@ class UIDevicePanel:
             enabled = False
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled)
+        self.refresh_details_btn.setEnabled(enabled and bool(self.selected_device))
         self.confirm_device_btn.setEnabled(enabled)
         # Verificación directa para el botón de confirmación
         should_enable_confirm = False
