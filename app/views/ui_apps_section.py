@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QTimer
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
-from app.constants.delays import GLOBAL_ACTION_DELAY
+from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
 from app.constants.texts import OPERATION_LABELS
 
 class UIAppsSection:
@@ -71,7 +71,13 @@ class UIAppsSection:
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar por nombre o paquete...")
         self.search_input.setObjectName("text_input_default")
-        self.search_input.textChanged.connect(self.filter_apps_list)
+
+        # Configurar debounce timer
+        self.search_timer = QTimer()
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(self._perform_filter_apps)
+        self.search_input.textChanged.connect(self._schedule_filter)
+
         search_layout.addWidget(self.search_input)
 
         left_layout.addLayout(search_layout)
@@ -249,8 +255,8 @@ class UIAppsSection:
             # Guardar todas las aplicaciones cargadas
             self.all_apps_data = apps
 
-            # Aplicar filtros iniciales
-            self.filter_apps_list()
+            # Aplicar filtros iniciales - usar el método directo sin debounce
+            self._perform_filter_apps()
 
             has_apps = len(self.all_apps_data) > 0
             self.search_input.setEnabled(has_apps)
@@ -291,12 +297,20 @@ class UIAppsSection:
             selected_items[0].data(Qt.ItemDataRole.UserRole) if selected_items else None
         )
 
-    def filter_apps_list(self):
-        """Filtra la lista de aplicaciones según el texto de búsqueda"""
+    def _schedule_filter(self):
+        """Programa el filtrado con debounce"""
         if not getattr(self, "all_apps_data", None):
-            self.search_input.setEnabled(False)
             return
+            
+        # Cancelar timer anterior y programar uno nuevo
+        self.search_timer.stop()
+        self.search_timer.start(SEARCH_DEBOUNCE_DELAY)  # 300ms de delay
 
+    def _perform_filter_apps(self):
+        """Ejecuta el filtrado real después del debounce"""
+        if self.cleaning_up or self.property("closing"):
+            return
+            
         search_text = self.search_input.text().lower().strip()
         self.search_input.setEnabled(True)
 
@@ -310,6 +324,10 @@ class UIAppsSection:
         ]
 
         self.update_apps_list_display()
+
+    def filter_apps_list(self):
+        """Método mantenido por compatibilidad, ahora usa debounce"""
+        self._schedule_filter()
 
     def update_apps_list_display(self):
         """Actualiza la visualización de la lista de aplicaciones"""
@@ -442,7 +460,8 @@ class UIAppsSection:
                     success, msg, operation_type
                 )
             )
-            thread.start()
+            execute_after_delay(thread.start, GLOBAL_ACTION_DELAY)
+            
         except Exception as e:
             # Restaurar estado UI
             self.set_ui_state(True, operation_in_progress=False)
