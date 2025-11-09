@@ -331,24 +331,14 @@ class UIAppsSection:
             self.hide_apps_message()
 
     def on_radio_button_changed(self):
-        """Maneja el cambio de radio buttons, ejecutando solo cuando se activan"""
-        # Solo ejecutar si algún radio button está checked (evita ejecución durante inicialización)
-        if (
-            self.all_apps_radio.isChecked()
-            or self.user_apps_radio.isChecked()
-            or self.system_apps_radio.isChecked()
-        ):
-
-            # Usar un timer para evitar múltiples ejecuciones rápidas
-            if hasattr(self, "_radio_timer"):
-                self._radio_timer.stop()
-
-            self._radio_timer = QTimer()
-            self._radio_timer.setSingleShot(True)
-            self._radio_timer.timeout.connect(
-                lambda: self.handle_app_operations("load", force_load=True)
-            )
-            self._radio_timer.start(GLOBAL_ACTION_DELAY)  # 100ms de delay anti-rebote
+        """Maneja el cambio de radio buttons"""
+        # Verificar si algún radio button está activo
+        if any([
+            self.all_apps_radio.isChecked(),
+            self.user_apps_radio.isChecked(), 
+            self.system_apps_radio.isChecked()
+        ]):
+            self.handle_app_operations("load", force_load=True)
 
     def show_apps_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre radio buttons y lista"""
@@ -369,6 +359,12 @@ class UIAppsSection:
     def hide_apps_message(self):
         """Oculta el mensaje (cuando hay aplicaciones en la lista)"""
         self.apps_message_label.setVisible(False)
+        
+    def enable_load_controls(self, enabled):
+        self.all_apps_radio.setEnabled(enabled)
+        self.user_apps_radio.setEnabled(enabled)
+        self.system_apps_radio.setEnabled(enabled)
+        self.refresh_apps_btn.setEnabled(enabled)
 
     def set_ui_state(self, enabled, operation_in_progress=False):
         """Control centralizado del estado de la UI"""
@@ -378,15 +374,15 @@ class UIAppsSection:
             enabled = False
 
         # Controles de apps
-        self.all_apps_radio.setEnabled(enabled)
-        self.user_apps_radio.setEnabled(enabled)
-        self.system_apps_radio.setEnabled(enabled)
-        self.refresh_apps_btn.setEnabled(enabled)
-        self.apps_list.setEnabled(enabled)
+        if enabled:
+            execute_after_delay(lambda: self.enable_load_controls(enabled), GLOBAL_ACTION_DELAY)
+        else:
+            self.enable_load_controls(enabled)
 
         # Búsqueda solo si hay apps y UI habilitada
         has_apps = hasattr(self, "all_apps_data") and len(self.all_apps_data) > 0
         self.search_input.setEnabled(enabled and has_apps)
+        self.apps_list.setEnabled(enabled)
 
         # Botones de operación
         has_selection = enabled and bool(self.apps_list.selectedItems())
