@@ -219,7 +219,7 @@ class UIDevicePanel:
         if self.selected_device and self.selected_device not in [d['device'] for d in devices]:
             self.selected_device = None
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
-            self.handle_app_operations('load')
+            self.handle_app_operations('load', force_load=True)
 
         # Manejar mensajes de estado
         if devices:
@@ -349,7 +349,7 @@ class UIDevicePanel:
         # Verificar si es un cambio de dispositivo ANTES de asignar
         is_device_changed = self.selected_device != self.last_device_selected
         if is_device_changed:
-            self.handle_app_operations('load')
+            self.handle_app_operations('load', force_load=True)
         
         # Obtener información detallada en segundo plano
         execute_after_delay(lambda: self._load_device_details(device_id), GLOBAL_ACTION_DELAY)

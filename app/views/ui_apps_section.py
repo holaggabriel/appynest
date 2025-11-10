@@ -185,19 +185,6 @@ class UIAppsSection:
         operations.get(operation, lambda: None)()
 
     def _load_apps(self, force_load):
-        # Si NO es una carga forzada Y el dispositivo es el mismo que el último Y no son ambos None
-        if not force_load:
-            if self.selected_device is None and self.app_list_update_attempts == 0:
-                # Esto es para evitar que cada vez que se cambie de seccion
-                # se actualice la lista solo porque el dipositivo seleccionado es none
-                # así solo una vez se va a actualizar
-                self.app_list_update_attempts += 1
-                pass
-            else:
-                if self.last_device_selected == self.selected_device:
-                    self.set_ui_state(True)
-                    return
-
         # Asignamos el dispsotivo seleccionado actual como ultimo seleccionado
         self.last_device_selected = self.selected_device
 
@@ -205,6 +192,9 @@ class UIAppsSection:
         self.apps_list.clear()
         self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
         self.filtered_apps_data = []  # Aplicaciones filtradas
+        # Solo limpiar si se forzó la recarga
+        if force_load:
+            self.search_input.clear()
 
         # Bloquear controles durante la carga
         self.set_ui_state(False)
