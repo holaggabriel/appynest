@@ -135,7 +135,7 @@ class ApkInstallationInfoDialog(QDialog):
         Si experimentas errores de instalación frecuentes con un APK específico, 
         es muy probable que sea un <b style="color: #4DBD8B;">Split APK</b>. Busca un <b style="color: #4DBD8B;">APK Universal</b> alternativo.<br><br>
 
-        Los APKs obtenidos de <b style="color: #4DBD8B;">dispositivos con aplicaciones instaladas desde tiendas de aplicaciones</b> generalmente son <b style="color: #4DBD8B;">Split APKs</b>, 
+        Los APKs extraídos de <b style="color: #4DBD8B;">dispositivos con aplicaciones instaladas desde tiendas de aplicaciones</b> generalmente son <b style="color: #4DBD8B;">Split APKs</b>, 
         diseñados para el <b style="color: #4DBD8B;">dispositivo original</b>.<br><br>
 
         Verifica que el <b style="color: #4DBD8B;">APK</b> no esté corrupto descargándolo nuevamente o desde 
