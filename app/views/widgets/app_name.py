@@ -25,10 +25,10 @@ class AppName(QWidget):
         
         # Palabras separadas
         words = [
-            [("E", "letter-e-cropped.svg"), ("A", "letter-a-cropped.svg"), 
-             ("S", "letter-s-cropped.svg"), ("Y", "letter-y-cropped.svg")],
-            [("A", "letter-a-cropped.svg"), ("D", "letter-d-cropped.svg"), 
-             ("B", "letter-b-cropped.svg")]
+            [("A", "alphabet_letter_a.svg"), ("P", "alphabet_letter_p.svg"), 
+             ("P", "alphabet_letter_p.svg"), ("Y", "alphabet_letter_y.svg")],
+            [("N", "alphabet_letter_n.svg"), ("E", "alphabet_letter_e.svg"), 
+             ("S", "alphabet_letter_s.svg"), ("T", "alphabet_letter_t.svg")]
         ]
         
         # Aplicar espaciado entre letras
@@ -48,14 +48,25 @@ class AppName(QWidget):
                 layout.addSpacerItem(spacer)
     
     def _add_letter(self, letter, filename, size, assets_path, layout):
-        """Agregar una letra individual"""
+        """Agregar una letra individual preservando proporciones"""
         if filename:
             letter_path = os.path.join(assets_path, filename)
             
             if os.path.exists(letter_path):
                 renderer = QSvgRenderer(letter_path)
                 if renderer.isValid():
-                    pixmap = QPixmap(size, size)
+                    # Obtener las dimensiones originales del SVG
+                    svg_size = renderer.defaultSize()
+                    
+                    # Calcular proporción manteniendo el alto fijo
+                    if svg_size.width() > 0 and svg_size.height() > 0:
+                        aspect_ratio = svg_size.width() / svg_size.height()
+                        width = int(size * aspect_ratio)
+                    else:
+                        width = size
+                    
+                    # Crear pixmap con dimensiones calculadas
+                    pixmap = QPixmap(width, size)
                     pixmap.fill(Qt.GlobalColor.transparent)
                     
                     painter = QPainter(pixmap)
@@ -64,12 +75,12 @@ class AppName(QWidget):
                     
                     letter_label = QLabel()
                     letter_label.setPixmap(pixmap)
-                    letter_label.setFixedSize(size, size)
-                    letter_label.setStyleSheet("margin: 0; padding: 0; border: none;")
+                    letter_label.setFixedSize(width, size)  # Tamaño variable según proporción
+                    letter_label.setStyleSheet("margin: 0; padding: 0; border: none; background: transparent;")
                     layout.addWidget(letter_label)
                     return
                 
-            print_in_debug_mode(f"Archivo no encontrado o inválido: {letter_path}")
+                print_in_debug_mode(f"Archivo no encontrado o inválido: {letter_path}")
         
         # Fallback a texto
         self._create_text_label(letter, size, layout)
