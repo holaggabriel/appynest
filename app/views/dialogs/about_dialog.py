@@ -5,7 +5,7 @@ import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
-from app.constants.texts import APP_NAME, APP_DESCRIPTION
+from app.constants.texts import APP_NAME, APP_DESCRIPTION, APP_VERSION
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -55,7 +55,7 @@ class AboutDialog(QDialog):
         header_layout.addWidget(app_name, alignment=Qt.AlignmentFlag.AlignCenter)
         header_layout.addSpacing(20)
         
-        version_label = QLabel("Version 1.0.0")
+        version_label = QLabel(f"Versión {APP_VERSION}")
         version_label.setObjectName("version")
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(version_label)
