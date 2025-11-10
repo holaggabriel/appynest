@@ -5,7 +5,7 @@ import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
-from app.constants.texts import APP_NAME, APP_DESCRIPTION, APP_VERSION
+from app.constants.texts import APP_NAME, APP_DESCRIPTION, APP_VERSION, APP_REPOSITORY_URL
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -102,7 +102,7 @@ class AboutDialog(QDialog):
         repo_title.setObjectName("repo_title")
         repo_title.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        repo_link = QLabel("github.com/holaggabriel/easy-adb")
+        repo_link = QLabel(APP_REPOSITORY_URL)
         repo_link.setObjectName("repo_link")
         repo_link.setCursor(Qt.CursorShape.PointingHandCursor)
         
