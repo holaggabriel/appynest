@@ -42,6 +42,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.cleaning_up = False
         self.selected_device_info = {}
         self.init_ui()
+        self.set_ui_state(True)
         self.load_devices()
 
     def setup_styles(self):
@@ -265,8 +266,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.config_btn_nav.setChecked(index == 2)
         
         self.update_nav_buttons_style()
-        if index == 1:
-            self.set_ui_state(True)
     
     def update_nav_buttons_style(self):
         buttons = [

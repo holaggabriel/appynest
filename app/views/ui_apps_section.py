@@ -201,8 +201,10 @@ class UIAppsSection:
         # Asignamos el dispsotivo seleccionado actual como ultimo seleccionado
         self.last_device_selected = self.selected_device
 
-        # Limpiar lista y mostrar mensaje inmediatamente
+        # Limpiar listas
         self.apps_list.clear()
+        self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
+        self.filtered_apps_data = []  # Aplicaciones filtradas
 
         # Bloquear controles durante la carga
         self.set_ui_state(False)
