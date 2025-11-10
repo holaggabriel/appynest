@@ -17,7 +17,10 @@ def main():
 
     # Crear QIcon con múltiples resoluciones
     icon = QIcon()
-    sizes = [32, 48, 64, 72, 96, 128, 256, 512]
+    # Usar la lista así, en linux siempre usa 96 hacia arriba en el panel de aplicaciones
+    # Para priorizar la maxima calidad eliminamos los tamaños intermediarios
+    # sizes = [32, 48, 64, 72, 96, 128, 256, 512] 
+    sizes = [32, 48, 64, 72, 512]
     for size in sizes:
         path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
         if os.path.exists(path):
