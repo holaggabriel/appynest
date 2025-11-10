@@ -1,9 +1,9 @@
 import sys
 import os
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon
 from app.constants.texts import APP_NAME, APP_VERSION
 from app.views.main_window import MainWindow
-from PyQt6.QtGui import QIcon
 
 def main():
     # Agregar el directorio src al path
@@ -14,8 +14,16 @@ def main():
     app.setApplicationVersion(APP_VERSION)
     
     window = MainWindow()
-    logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.svg")
-    window.setWindowIcon(QIcon(logo_path))
+
+    # Crear QIcon con múltiples resoluciones
+    icon = QIcon()
+    sizes = [32, 48, 64, 72, 96, 128, 256, 512]
+    for size in sizes:
+        path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
+        if os.path.exists(path):
+            icon.addFile(path)
+    
+    window.setWindowIcon(icon)
     window.show()
     
     sys.exit(app.exec())
