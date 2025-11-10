@@ -13,7 +13,7 @@ def main():
     app.setApplicationVersion("1.0.0")
     
     window = MainWindow()
-    logo_path = os.path.join(os.path.dirname(__file__), "assets", "letter-e-cropped.svg")
+    logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.svg")
     window.setWindowIcon(QIcon(logo_path))
     window.show()
     
