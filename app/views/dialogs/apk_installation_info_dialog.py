@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, 
                             QFrame, QScrollArea, QWidget)
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
 
 class ApkInstallationInfoDialog(QDialog):

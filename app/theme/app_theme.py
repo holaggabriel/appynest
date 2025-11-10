@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QPalette, QColor
+from PySide6.QtGui import QPalette, QColor
 from app.theme.app_colors import APP_COLORS
 
 class AppTheme:

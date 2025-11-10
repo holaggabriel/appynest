@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, 
                             QPushButton, QFrame)
-from PyQt6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.app_theme import AppTheme
 from app.theme.dialog_theme import DialogTheme

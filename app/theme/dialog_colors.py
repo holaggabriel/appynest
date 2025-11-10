@@ -1,5 +1,5 @@
 # dialog_colors.py
-from PyQt6.QtGui import QColor
+from PySide6.QtGui import QColor
 
 DIALOG_COLORS = {
     # Colores base para diálogos

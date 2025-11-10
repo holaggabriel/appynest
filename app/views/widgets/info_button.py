@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QToolButton
-from PyQt6.QtCore import Qt, QSize
+from PySide6.QtWidgets import QToolButton
+from PySide6.QtCore import Qt, QSize
 
 class InfoButton(QToolButton):
     def __init__(self, parent=None, size=20, bg_color="#3498DB", text_color="#FFFFFF"):

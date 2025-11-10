@@ -1,5 +1,5 @@
 import os
-from PyQt6.QtCore import QThread, pyqtSignal, QMutex
+from PySide6.QtCore import QThread, Signal, QMutex
 from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class BaseThread(QThread):
@@ -23,7 +23,7 @@ class BaseThread(QThread):
         return running
 
 class UninstallThread(BaseThread):
-    finished_signal = pyqtSignal(bool, str)
+    finished_signal = Signal(bool, str)
     
     def __init__(self, app_manager, device_id, package_name, app_name):
         super().__init__()
@@ -46,7 +46,7 @@ class UninstallThread(BaseThread):
             self.finished_signal.emit(success, message)
 
 class ExtractThread(BaseThread):
-    finished_signal = pyqtSignal(bool, str)
+    finished_signal = Signal(bool, str)
     
     def __init__(self, app_manager, device_id, apk_path, app_name, output_path):
         super().__init__()
@@ -71,8 +71,8 @@ class ExtractThread(BaseThread):
             self.finished_signal.emit(success, message)
 
 class InstallationThread(BaseThread):
-    progress_update = pyqtSignal(str)
-    finished_signal = pyqtSignal(bool, str)
+    progress_update = Signal(str)
+    finished_signal = Signal(bool, str)
     
     def __init__(self, apk_installer, apk_paths, device_id):
         super().__init__()
@@ -131,7 +131,7 @@ class InstallationThread(BaseThread):
                 self.finished_signal.emit(False, f"Error general en la instalación: {str(e)}")
             
 class AppsLoadingThread(BaseThread):
-    finished_signal = pyqtSignal(dict)
+    finished_signal = Signal(dict)
     
     def __init__(self, app_manager, device_id, app_type="all"):
         super().__init__()

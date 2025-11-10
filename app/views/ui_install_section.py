@@ -1,9 +1,9 @@
 import os
-from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
+from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFileDialog, QMessageBox)
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QDragEnterEvent, QDropEvent
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from app.utils.helpers import execute_after_delay
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.core.threads import InstallationThread

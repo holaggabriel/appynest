@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
+from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFrame,QGridLayout )
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton

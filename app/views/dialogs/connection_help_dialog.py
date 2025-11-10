@@ -1,7 +1,7 @@
-from PyQt6.QtWidgets import (QLabel, QDialog, 
+from PySide6.QtWidgets import (QLabel, QDialog, 
                              QVBoxLayout,
                              QScrollArea, QWidget, QFrame)
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
 from app.constants.texts import APP_NAME
 

@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
     QLineEdit,
 )
-from PyQt6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY

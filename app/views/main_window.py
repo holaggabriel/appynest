@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
+from PySide6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QPushButton, 
                              QWidget, QMessageBox,
                              QStackedWidget)
-from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QFont
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QFont
 from app.core.apk_installer import APKInstaller
 from app.core.device_manager import DeviceManager
 from app.core.adb_manager import ADBManager

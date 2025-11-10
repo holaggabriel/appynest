@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QTimer
+from PySide6.QtCore import QTimer
        
 def execute_after_delay(callback, delay_ms=500):
         """Ejecuta un callback después de un delay especificado"""
