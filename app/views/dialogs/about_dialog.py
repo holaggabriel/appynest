@@ -5,6 +5,7 @@ import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
+from app.constants.texts import APP_NAME, APP_DESCRIPTION
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -36,7 +37,7 @@ class AboutDialog(QDialog):
             print_in_debug_mode(f"✗ {error_msg}")
     
     def init_ui(self):
-        self.setWindowTitle("Acerca de Easy ADB")
+        self.setWindowTitle(f"Acerca de {APP_NAME}")
         self.setFixedSize(450, 430)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
@@ -66,11 +67,8 @@ class AboutDialog(QDialog):
         separator.setObjectName("separator")
         separator.setFrameShape(QFrame.Shape.HLine)
         layout.addWidget(separator)
-        
-        # Descripción
-        description = "Easy ADB es una herramienta que facilita la instalación y gestión de aplicaciones en dispositivos Android. Permite instalar archivos APK desde la computadora y ofrece opciones para ver, desinstalar o extraer las aplicaciones del dispositivo."
-        
-        info_label = QLabel(description)
+  
+        info_label = QLabel(APP_DESCRIPTION)
         info_label.setObjectName("description")
         info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         info_label.setWordWrap(True)

@@ -15,6 +15,7 @@ from app.views.ui_devices_panel import UIDevicePanel
 from app.views.ui_install_section import UIInstallSection
 from app.views.ui_apps_section import UIAppsSection
 from app.views.ui_config_section import UIConfigSection
+from app.constants.texts import APP_NAME
 
 class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection):
     
@@ -180,7 +181,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         return any(running_status)
 
     def init_ui(self):
-        self.setWindowTitle("Easy ADB")
+        self.setWindowTitle(APP_NAME)
         self.setGeometry(100, 100, 1000, 850)
         
         font = QFont("Segoe UI", 9)

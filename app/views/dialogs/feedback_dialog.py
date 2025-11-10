@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.app_theme import AppTheme
 from app.theme.dialog_theme import DialogTheme
+from app.constants.texts import APP_NAME
 import webbrowser
 
 class FeedbackDialog(QDialog):
@@ -62,8 +63,8 @@ class FeedbackDialog(QDialog):
         layout.addWidget(separator)
         
         # Mensaje de agradecimiento
-        thank_you_text = """
-        <p>¡Gracias por ayudarnos a mejorar Easy ADB!<br> Tus comentarios son muy valiosos.</p>
+        thank_you_text = f"""
+        <p>¡Gracias por ayudarnos a mejorar {APP_NAME}!<br> Tus comentarios son muy valiosos.</p>
         """
         
         thank_you_label = QLabel(thank_you_text)
