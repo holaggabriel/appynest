@@ -101,7 +101,7 @@ class FeedbackDialog(QDialog):
         self.open_btn.setEnabled(False)
         self.open_btn.setText("Abriendo...")
         
-        google_form_url = "https://docs.google.com/forms/d/e/your-form-id/viewform"
+        google_form_url = "https://forms.gle/LFJCeutHFTiYwAHt8"
         
         try:
             webbrowser.open(google_form_url)
