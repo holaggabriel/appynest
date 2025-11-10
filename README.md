@@ -1,2 +1,2 @@
-# easy-adb
-Easy ADB simplifica la instalación y desinstalación de aplicaciones APK en dispositivos Android.
+# Appy Nest
+Appy Nest es una aplicación de escritorio que facilita la gestión de dispositivos y aplicaciones Android. Permite realizar tareas comunes como instalar, desinstalar o extraer aplicaciones de forma sencilla mediante ADB.
