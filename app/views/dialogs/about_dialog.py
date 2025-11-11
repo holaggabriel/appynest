@@ -20,11 +20,10 @@ class AboutDialog(QDialog):
     
     def open_github_repo(self):
         """Abre el repositorio de GitHub en el navegador con manejo de errores"""
-        github_url = "https://github.com/holaggabriel/easy-adb"
         
         try:
             # Intentar abrir el enlace en el navegador
-            webbrowser.open(github_url)
+            webbrowser.open(APP_REPOSITORY_URL)
             
         except webbrowser.Error as e:
             # Error específico del módulo webbrowser
