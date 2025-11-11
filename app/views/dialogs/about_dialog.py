@@ -38,7 +38,7 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle(f"Acerca de {APP_NAME}")
-        self.setFixedSize(450, 430)
+        self.setFixedSize(450, 450)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")
@@ -74,7 +74,12 @@ class AboutDialog(QDialog):
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
         
-        layout.addSpacing(12)
+         # Separador
+        separator2 = QFrame()
+        separator2.setObjectName("separator")
+        separator2.setFrameShape(QFrame.Shape.HLine)
+        layout.addWidget(separator2)
+        
         
         # Botón del repositorio - ahora usa solo ObjectName sin estilos inline
         repo_button = QPushButton()
@@ -139,9 +144,10 @@ class AboutDialog(QDialog):
         copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         copyright_label.setWordWrap(True)
         layout.addWidget(copyright_label)
+        layout.addSpacing(10)
         
         # Créditos de iconos con licencia CC BY
-        icon_credit = """
+        pixelbazzar_credit = """
         <p style='margin: 0;'>
         Design elements derived from "Alphanumeric (50 Icons)" by 
         <a href='https://creativemarket.com/pixelbazaar'>Pixelbazaar</a>, 
@@ -149,8 +155,25 @@ class AboutDialog(QDialog):
         licensed under CC Attribution.
         </p>
         """
+        
+        nilkanth_sheta_credit = """
+            <p style='margin: 0;'>
+            Design elements derived from "Information Technologies (45 Icons)" by 
+            <a href='https://www.iconfinder.com/nilkanth-sheta/icon-sets'>Nilkanth Sheta</a>, 
+            from <a href='https://icon-icons.com/pack/Information-Technologies/3951'>icon-icons.com</a>, 
+            licensed under CC Attribution.
+            </p>
+            """
 
-        credit_label = QLabel(icon_credit)
+        credit_label = QLabel(pixelbazzar_credit)
+        credit_label.setObjectName("credit")
+        credit_label.setOpenExternalLinks(True)
+        credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        credit_label.setWordWrap(True)
+        layout.addWidget(credit_label)
+        layout.addSpacing(10)
+        
+        credit_label = QLabel(nilkanth_sheta_credit)
         credit_label.setObjectName("credit")
         credit_label.setOpenExternalLinks(True)
         credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
