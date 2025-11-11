@@ -33,7 +33,7 @@ def main():
     # Estrategia diferente por plataforma
     if current_platform == Platform.LINUX:
         # Cargar iconos de múltiples resoluciones
-        sizes = [32, 48, 64, 72, 96, 128, 256, 512]  # resoluciones prioritarias
+        sizes = [32, 48, 64, 72, 512]  # resoluciones prioritarias
         loaded_sizes = []
         for size in sizes:
             path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
@@ -50,7 +50,7 @@ def main():
             print_in_debug_mode(f"Icono ICO cargado para Windows: {icon_path}")
         else:
             # Fallback a múltiples resoluciones PNG como en Linux
-            sizes = [32, 48, 64, 72, 96, 128, 256, 512]
+            sizes = [32, 48, 64, 72, 512]
             loaded_sizes = []
             for size in sizes:
                 path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
