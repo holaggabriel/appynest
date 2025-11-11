@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.app_theme import AppTheme
 from app.theme.dialog_theme import DialogTheme
-from app.constants.texts import APP_NAME
+from app.constants.config import APP_NAME, FORM_URL
 import webbrowser
 
 class FeedbackDialog(QDialog):
@@ -102,10 +102,8 @@ class FeedbackDialog(QDialog):
         self.open_btn.setEnabled(False)
         self.open_btn.setText("Abriendo...")
         
-        google_form_url = "https://forms.gle/LFJCeutHFTiYwAHt8"
-        
         try:
-            webbrowser.open(google_form_url)
+            webbrowser.open(FORM_URL)
             # raise Exception("Error simulado: No se pudo abrir el navegador")
         except Exception as e:
             # Mostrar error en la etiqueta de estado

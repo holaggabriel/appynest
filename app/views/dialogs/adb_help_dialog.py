@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel,
                             QFrame)
 from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
-from app.constants.texts import APP_NAME
+from app.constants.config import APP_NAME
 
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):

@@ -16,7 +16,7 @@ from PySide6.QtCore import Qt, QTimer
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
-from app.constants.texts import OPERATION_LABELS
+from app.constants.labels import OPERATION_LABELS
 
 class UIAppsSection:
 

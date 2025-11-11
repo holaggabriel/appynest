@@ -5,7 +5,8 @@ import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
-from app.constants.texts import APP_NAME, APP_DESCRIPTION, APP_VERSION, APP_REPOSITORY_URL
+from app.constants.labels import APP_DESCRIPTION
+from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):

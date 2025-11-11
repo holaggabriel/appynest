@@ -1,0 +1,5 @@
+APP_NAME = "Appy Nest"
+APP_VERSION = "1.0.0"
+APP_REPOSITORY_URL="https://github.com/holaggabriel/appynest"
+APP_ID = "com.holaggabriel.appynest"
+FORM_URL = "https://forms.gle/LFJCeutHFTiYwAHt8"
