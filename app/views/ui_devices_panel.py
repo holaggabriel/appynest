@@ -31,6 +31,7 @@ class UIDevicePanel:
         self.selected_device_banner.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selected_device_banner.setObjectName('device_banner_label')
         self.selected_device_banner.setMinimumHeight(40)
+        self.selected_device_banner.setWordWrap(True)
         self.selected_device_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         banner_container.addWidget(self.selected_device_banner)
 

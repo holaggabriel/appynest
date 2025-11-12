@@ -182,7 +182,8 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
 
     def init_ui(self):
         self.setWindowTitle(APP_NAME)
-        self.setGeometry(100, 100, 1000, 850)
+        self.setGeometry(100, 100, 1000, 700)
+        self.setMinimumSize(800, 600)
         
         font = QFont("Segoe UI", 9)
         self.setFont(font)
