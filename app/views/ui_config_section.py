@@ -9,7 +9,7 @@ from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
-from app.utils.helpers import execute_after_delay, _shorten_path
+from app.utils.helpers import execute_after_delay, shorten_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 
 class UIConfigSection:
@@ -190,7 +190,7 @@ class UIConfigSection:
             if self.devices_message_label.objectName() == "status_error_message":
                 self.hide_devices_message()
             adb_path = self.adb_manager.get_adb_path()
-            self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
+            self._set_adb_status("Disponible", shorten_path(adb_path), "success")
             self.adb_path_label.setToolTip(adb_path)
             
         else:
