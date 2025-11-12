@@ -3,7 +3,7 @@ import os
 import ctypes
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
-from app.constants.config import APP_NAME, APP_VERSION, APP_ID
+from app.constants.config import APP_NAME, APP_VERSION, APP_ID, ORGANIZATION_NAME, ORGANIZATION_DOMAIN
 from app.constants.enums import Platform
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.main_window import MainWindow
@@ -23,6 +23,8 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
+    app.setOrganizationName(ORGANIZATION_NAME)
+    app.setOrganizationDomain(ORGANIZATION_DOMAIN)
     app.setStyle("Fusion")
 
     window = MainWindow()
@@ -65,6 +67,7 @@ def main():
     # Establecer el icono en la aplicación y ventana
     app.setWindowIcon(icon)
     window.setWindowIcon(icon)
+    window.setWindowTitle(APP_NAME)
 
     window.show()
     sys.exit(app.exec())
