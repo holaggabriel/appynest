@@ -156,14 +156,15 @@ class AboutDialog(QDialog):
         </p>
         """
         
-        nilkanth_sheta_credit = """
-            <p style='margin: 0;'>
-            Design elements derived from "Information Technologies (45 Icons)" by 
-            <a href='https://www.iconfinder.com/nilkanth-sheta/icon-sets'>Nilkanth Sheta</a>, 
-            from <a href='https://icon-icons.com/pack/Information-Technologies/3951'>icon-icons.com</a>, 
-            licensed under CC Attribution.
-            </p>
-            """
+
+        kerismaker_credit = """
+        <p style='margin: 0;'>
+        Design elements derived from "Animal Flat Colors (25 Icons)" by 
+        <a href='https://dribbble.com/kerismaker'>kerismaker</a>, 
+        from <a href='https://icon-icons.com/pack/Animal-Flat-Colors/1929'>icon-icons.com</a>, 
+        available for free for commercial use.
+        </p>
+        """
 
         credit_label = QLabel(pixelbazzar_credit)
         credit_label.setObjectName("credit")
@@ -173,7 +174,7 @@ class AboutDialog(QDialog):
         layout.addWidget(credit_label)
         layout.addSpacing(10)
         
-        credit_label = QLabel(nilkanth_sheta_credit)
+        credit_label = QLabel(kerismaker_credit)
         credit_label.setObjectName("credit")
         credit_label.setOpenExternalLinks(True)
         credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
