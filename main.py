@@ -36,28 +36,22 @@ def main():
         sizes = [32, 48, 64, 72, 512]  # resoluciones prioritarias
         loaded_sizes = []
         for size in sizes:
-            path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
+            path = os.path.join(os.path.dirname(__file__), f"assets/logo/png/logo_{size}.png")
             if os.path.exists(path):
                 icon.addFile(path)
                 loaded_sizes.append(size)
         print_in_debug_mode(f"Icono Linux cargado con resoluciones: {loaded_sizes}")
 
     elif current_platform == Platform.WIN32:
-        # Windows: usar ICO si existe, si no fallback a múltiples PNGs como en Linux
-        icon_path = os.path.join(os.path.dirname(__file__), "assets", "logo", "logo.ico")
-        if os.path.exists(icon_path):
-            icon = QIcon(icon_path)
-            print_in_debug_mode(f"Icono ICO cargado para Windows: {icon_path}")
-        else:
-            # Fallback a múltiples resoluciones PNG como en Linux
-            sizes = [32, 48, 64, 72, 512]
-            loaded_sizes = []
-            for size in sizes:
-                path = os.path.join(os.path.dirname(__file__), f"assets/logo/logo_{size}.png")
-                if os.path.exists(path):
-                    icon.addFile(path)
-                    loaded_sizes.append(size)
-            print_in_debug_mode(f"Icono PNG fallback cargado para Windows con resoluciones: {loaded_sizes}")
+        # Windows: usar múltiples PNGs como en Linux
+        sizes = [32, 48, 64, 72, 128]  # resoluciones para Windows
+        loaded_sizes = []
+        for size in sizes:
+            path = os.path.join(os.path.dirname(__file__), f"assets/logo/ico/logo_{size}.ico")
+            if os.path.exists(path):
+                icon.addFile(path)
+                loaded_sizes.append(size)
+        print_in_debug_mode(f"Icono Windows cargado con resoluciones: {loaded_sizes}")
 
     # Fallback general si no se cargó ningún icono
     if icon.isNull():
