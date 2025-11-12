@@ -73,6 +73,7 @@ class UIConfigSection:
         self.adb_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.adb_path_label.setWordWrap(True)
         info_label_layout.addWidget(self.adb_path_label)
+        self.adb_path_label.setToolTip("Ruta completa del ADB")
 
         # CONTENEDOR 2: Contenedor principal que incluye el frame anterior + botón seleccionar
         main_container = QHBoxLayout()
@@ -190,8 +191,11 @@ class UIConfigSection:
                 self.hide_devices_message()
             adb_path = self.adb_manager.get_adb_path()
             self._set_adb_status("Disponible", _shorten_path(adb_path), "success")
+            self.adb_path_label.setToolTip(adb_path)
+            
         else:
             self._set_adb_status("No disponible", "No encontrada", "error")
+            self.adb_path_label.setToolTip("Ruta no disponible")
 
         self.set_devices_section_enabled(self.adb_available)
        
