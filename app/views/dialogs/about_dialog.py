@@ -155,7 +155,6 @@ class AboutDialog(QDialog):
         licensed under CC Attribution.
         </p>
         """
-        
 
         kerismaker_credit = """
         <p style='margin: 0;'>
