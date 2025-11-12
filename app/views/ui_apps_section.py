@@ -116,7 +116,6 @@ class UIAppsSection:
         info_title = QLabel("DETALLES")
         info_title.setObjectName("title_container")
         info_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_title.setFixedHeight(30)
         info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         right_layout.addWidget(info_title)
         
@@ -130,7 +129,6 @@ class UIAppsSection:
         self.initial_info_label.setWordWrap(True)
         self.initial_info_label.setObjectName("status_info_message")
         self.initial_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.initial_info_label.setFixedHeight(60)
         self.initial_info_label.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
@@ -142,12 +140,13 @@ class UIAppsSection:
         app_details_layout.setContentsMargins(0, 0, 0, 0)
 
         self.app_info_label = QLabel()
-        self.app_info_label.setWordWrap(True)
+        self.app_info_label.setMaximumWidth(right_panel.width())
         self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.app_info_label.setObjectName("status_info_message")
         self.app_info_label.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding
         )
+        self.app_info_label.setWordWrap(True)
         self.app_info_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         app_details_layout.addWidget(self.app_info_label)
 
@@ -167,12 +166,12 @@ class UIAppsSection:
         self.app_details_widget.setVisible(False)
 
         right_layout.addStretch(1)
-
+        right_panel.resizeEvent = lambda event: self.app_info_label.setMaximumWidth(right_panel.width())
         main_horizontal_layout.addWidget(left_panel)
         main_horizontal_layout.addWidget(right_panel)
 
-        main_horizontal_layout.setStretchFactor(left_panel, 3)
-        main_horizontal_layout.setStretchFactor(right_panel, 2)
+        main_horizontal_layout.setStretchFactor(left_panel, 2)
+        main_horizontal_layout.setStretchFactor(right_panel, 3)
 
         return widget
 
