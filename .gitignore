@@ -208,3 +208,9 @@ __marimo__/
 
 # Visual Studio Code
 .vscode/*
+
+# Ignore the AppDir directory used to build the AppImage
+AppDir/
+
+# Ignore generated AppImage files
+*.AppImage
