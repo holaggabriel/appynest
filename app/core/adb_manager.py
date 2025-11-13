@@ -3,6 +3,7 @@ import os
 import platform
 from pathlib import Path
 from .config_manager import ConfigManager
+from app.utils.get_silent_startupinfo import get_silent_startupinfo
 
 class ADBManager:
     def __init__(self, config_manager: ConfigManager):
@@ -20,7 +21,7 @@ class ADBManager:
 
             result = subprocess.run(
                 [adb_path, "version"],
-                capture_output=True, text=True, timeout=10
+                capture_output=True, text=True, timeout=10, startupinfo=get_silent_startupinfo()
             )
             return result.returncode == 0
         except Exception:

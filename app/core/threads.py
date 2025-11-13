@@ -158,3 +158,60 @@ class AppsLoadingThread(BaseThread):
                         'apps': []
                     }
                 })
+
+class DevicesScanThread(BaseThread):
+    finished_signal = Signal(list)
+    error_signal = Signal(str)
+    
+    def __init__(self, device_manager, adb_manager):
+        super().__init__()
+        self.device_manager = device_manager
+        self.adb_manager = adb_manager
+    
+    def run(self):
+        try:
+            if not self.is_running():
+                return
+                
+            # Verificar disponibilidad de ADB
+            if not self.adb_manager.is_available():
+                if self.is_running():
+                    self.error_signal.emit("ADB no está configurado")
+                return
+            
+            # Realizar el escaneo de dispositivos
+            devices = self.device_manager.get_connected_devices()
+            
+            if self.is_running():
+                self.finished_signal.emit(devices)
+                
+        except Exception as e:
+            if self.is_running():
+                self.error_signal.emit(f"Error al escanear dispositivos: {str(e)}")
+
+class ADBCheckThread(BaseThread):
+    finished_signal = Signal(bool, str)  # success, message
+    error_signal = Signal(str)
+    
+    def __init__(self, adb_manager):
+        super().__init__()
+        self.adb_manager = adb_manager
+    
+    def run(self):
+        try:
+            if not self.is_running():
+                return
+                
+            # Verificar disponibilidad de ADB
+            is_available = self.adb_manager.is_available()
+            adb_path = self.adb_manager.get_adb_path()
+            
+            if self.is_running():
+                if is_available:
+                    self.finished_signal.emit(True, adb_path)
+                else:
+                    self.finished_signal.emit(False, "ADB no disponible")
+                    
+        except Exception as e:
+            if self.is_running():
+                self.error_signal.emit(f"Error verificando ADB: {str(e)}")

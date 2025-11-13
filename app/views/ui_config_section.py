@@ -9,6 +9,7 @@ from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.widgets.info_button import InfoButton
+from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 
@@ -151,20 +152,9 @@ class UIConfigSection:
         """Inicia la verificación del estado de ADB"""
         self._disable_buttons_context(False)
         self._show_verifying_status()
-        execute_after_delay(self._perform_adb_check, GLOBAL_ACTION_DELAY)
-
-    def _perform_adb_check(self):
-        """Realiza la verificación de ADB después del delay"""
-        try:
-            self.update_adb_availability(self.adb_manager.is_available())
         
-        except Exception as e:
-            self._set_adb_status("No disponible", "No encontrada", "error")
-            # ACTUALIZAR LA VARIABLE GLOBAL
-            self.update_adb_availability(False)
-            self.verifying_label.setText(f"Error al verificar ADB: {str(e)}")
-        finally:
-            self._disable_buttons_context(True)
+        # En lugar del delay y _perform_adb_check, usar el thread asíncrono
+        self.check_adb_availability_async()
 
     def select_custom_adb(self):
         """Selecciona una ruta personalizada para ADB"""
@@ -198,6 +188,48 @@ class UIConfigSection:
             self.adb_path_label.setToolTip("Ruta no disponible")
 
         self.set_devices_section_enabled(self.adb_available)
+
+    def check_adb_availability_async(self):
+        """
+        Verifica la disponibilidad de ADB de forma asíncrona usando thread
+        Actualiza automáticamente self.adb_available cuando termine
+        """
+        # Si ya hay una verificación en curso, no hacer nada
+        if hasattr(self, 'adb_check_thread') and self.adb_check_thread.isRunning():
+            return
+        
+        # Crear y configurar el thread
+        self.adb_check_thread = ADBCheckThread(self.adb_manager)
+        self.adb_check_thread.finished_signal.connect(self._on_adb_check_complete_simple)
+        self.adb_check_thread.error_signal.connect(self._on_adb_check_error_simple)
+        
+        # Registrar el thread
+        self.register_thread(self.adb_check_thread)
+        
+        # Iniciar la verificación
+        execute_after_delay(lambda: self.adb_check_thread.start(), GLOBAL_ACTION_DELAY)
+
+    def _on_adb_check_complete_simple(self, success, message):
+        """Callback simple que solo actualiza el estado"""
+        self.update_adb_availability(success)
+        
+        # Habilitar botones cuando termine (específico para la sección de configuración)
+        self._disable_buttons_context(True)
+        
+        # Auto-eliminar el thread
+        if hasattr(self, 'adb_check_thread'):
+            self.unregister_thread(self.adb_check_thread)
+
+    def _on_adb_check_error_simple(self, error_message):
+        """Callback simple para errores"""
+        self.update_adb_availability(False)
+        
+        # Habilitar botones cuando termine (específico para la sección de configuración)
+        self._disable_buttons_context(True)
+        
+        # Auto-eliminar el thread
+        if hasattr(self, 'adb_check_thread'):
+            self.unregister_thread(self.adb_check_thread)
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)

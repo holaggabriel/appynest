@@ -1,6 +1,7 @@
 import subprocess
 from .adb_manager import ADBManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.get_silent_startupinfo import get_silent_startupinfo
 
 class DeviceManager:
     def __init__(self, adb_manager: ADBManager):
@@ -12,8 +13,9 @@ class DeviceManager:
         
         try:
             adb_path = self.adb_manager.get_adb_path()
+
             result = subprocess.run([adb_path, "devices", "-l"], 
-                                capture_output=True, text=True, timeout=10)
+                                capture_output=True, text=True, timeout=10, startupinfo=get_silent_startupinfo())
             
             if result.returncode == 0:
                 lines = result.stdout.strip().split('\n')[1:]  # Saltar la línea de encabezado
@@ -36,7 +38,7 @@ class DeviceManager:
                             try:
                                 brand_result = subprocess.run(
                                     [adb_path, "-s", device_id, "shell", "getprop", "ro.product.brand"],
-                                    capture_output=True, text=True, timeout=5
+                                    capture_output=True, text=True, timeout=5, startupinfo=get_silent_startupinfo()
                                 )
                                 if brand_result.returncode == 0 and brand_result.stdout.strip():
                                     brand = brand_result.stdout.strip()

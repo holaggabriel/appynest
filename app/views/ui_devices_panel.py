@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout,
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFrame,QGridLayout )
 from PySide6.QtCore import Qt
-from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread
+from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread, DevicesScanThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
@@ -183,12 +183,24 @@ class UIDevicePanel:
         return self.details_container
         
     def load_devices(self):
-        """Inicia la carga de dispositivos con estado visual"""
+        """Inicia la carga de dispositivos con estado visual usando thread"""
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
         self.refresh_details_btn.setEnabled(False)
         
-        execute_after_delay(self._perform_devices_scan, GLOBAL_ACTION_DELAY)
+        # Crear y configurar el thread
+        self.devices_scan_thread = DevicesScanThread(self.device_manager, self.adb_manager)
+        self.devices_scan_thread.finished_signal.connect(self._handle_scan_results)
+        self.devices_scan_thread.error_signal.connect(self._handle_scan_error)
+        
+        # Registrar el thread para gestión automática
+        self.register_thread(self.devices_scan_thread)
+        
+        # Conectar la señal finished para auto-eliminación
+        self.devices_scan_thread.finished.connect(lambda: self.unregister_thread(self.devices_scan_thread))
+        
+        # Iniciar el thread después del delay
+        execute_after_delay(lambda: self.devices_scan_thread.start(), GLOBAL_ACTION_DELAY)
 
     def _perform_devices_scan(self):
         """Ejecuta el escaneo real de dispositivos"""
@@ -216,17 +228,27 @@ class UIDevicePanel:
 
     def _handle_scan_results(self, devices):
         """Procesa los resultados del escaneo de dispositivos"""
-        # Limpiar selección si el dispositivo ya no está conectado
-        if self.selected_device and self.selected_device not in [d['device'] for d in devices]:
-            self.selected_device = None
-            self.selected_device_banner.setText("No hay dispositivo seleccionado")
-            self.handle_app_operations('load', force_load=True)
+        try:
+            self.device_list.clear()
+            
+            for device in devices:
+                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
+            
+            # Limpiar selección si el dispositivo ya no está conectado
+            if self.selected_device and self.selected_device not in [d['device'] for d in devices]:
+                self.selected_device = None
+                self.selected_device_banner.setText("No hay dispositivo seleccionado")
+                self.handle_app_operations('load', force_load=True)
 
-        # Manejar mensajes de estado
-        if devices:
-            self.hide_devices_message()
-        else:
-            self.show_devices_message("No se encontraron dispositivos conectados", "info")
+            # Manejar mensajes de estado
+            if devices:
+                self.hide_devices_message()
+            else:
+                self.show_devices_message("No se encontraron dispositivos conectados", "info")
+                
+        finally:
+            self.refresh_devices_btn.setEnabled(True)
+            self._update_device_ui_state()
 
     def _handle_scan_error(self, error_message):
         """Maneja errores durante el escaneo de dispositivos"""
@@ -235,6 +257,8 @@ class UIDevicePanel:
         self.selected_device = None
         self.selected_device_info = {}
         self.selected_device_banner.setText("No hay dispositivo seleccionado")
+        self.refresh_devices_btn.setEnabled(True)
+        self._update_device_ui_state()
 
     def show_devices_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
