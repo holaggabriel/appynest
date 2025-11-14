@@ -43,25 +43,25 @@ Sigue estos pasos para ejecutar **Appy Nest** en tu máquina local:
 
 5. **Ejecutar en modo debug (opcional)**
 
-   Para activar los mensajes de debug, define la variable de entorno `APPYNEST_DEBUG` antes de ejecutar:
+   Para activar los mensajes de debug, define la variable de entorno `ENV` antes de ejecutar:
 
    * En **Linux**:
 
      ```bash
-     APPYNEST_DEBUG=1 python main.py
+     ENV=dev python main.py
      ```
 
    * En **Windows (PowerShell)**:
 
      ```powershell
-     $env:APPYNEST_DEBUG="1"
+     $env:ENV="dev"
      python main.py
      ```
 
    * En **Windows (CMD)**:
 
      ```cmd
-     set APPYNEST_DEBUG=1
+     set ENV=dev
      python main.py
      ```
 
