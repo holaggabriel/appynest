@@ -11,7 +11,7 @@ APP_ID = "holaggabriel.appynest"
 FORM_URL = "https://forms.gle/LFJCeutHFTiYwAHt8"
 PACKAGE_NAME = "appynest" # Nombre que va a tener el paquete generado, ya sea .exe o .appimage
 
-# Modo debug controlado por variable de entorno
-DEBUG_MODE = os.getenv("APPYNEST_DEBUG", "0") == "1"
+ENVIRONMENT = os.getenv("ENV", "prod")  # dev, staging, prod
+DEBUG_MODE = ENVIRONMENT != "prod"
 
 PLATFORM = Platform(sys.platform)
