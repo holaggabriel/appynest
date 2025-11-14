@@ -1,4 +1,5 @@
 import contextlib
+import os
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
@@ -12,6 +13,8 @@ from app.views.widgets.info_button import InfoButton
 from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
+from app.core.globals import PLATFORM
+from app.constants.enums import Platform
 
 class UIConfigSection:
 
@@ -160,12 +163,32 @@ class UIConfigSection:
         """Selecciona una ruta personalizada para ADB"""
         if self.cleaning_up:
             return
-            
+
+        # Definir filtro según plataforma
+        if PLATFORM == Platform.WIN32:
+            filter_str = "ADB Executable (adb.exe);;All Files (*)"
+        else:
+            filter_str = "ADB Binary (adb);;All Files (*)"
+
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Seleccionar ADB", "", "ADB Binary (adb);;All Files (*)"
+            self, "Seleccionar ADB", "", filter_str
         )
-        
+
         if file_path:
+            # Validar extensión en Windows
+            if PLATFORM == Platform.WIN32 and not file_path.lower().endswith("adb.exe"):
+                QMessageBox.warning(
+                    self, "Error", "Debe seleccionar el archivo adb.exe"
+                )
+                return
+            # Validar ejecutable en Linux
+            elif PLATFORM != Platform.WIN32 and not os.access(file_path, os.X_OK):
+                QMessageBox.warning(
+                    self, "Error", "El archivo seleccionado no es ejecutable"
+                )
+                return
+
+            # Guardar la ruta y actualizar estado
             self.config_manager.set_adb_path(file_path)
             self.device_manager = DeviceManager(self.adb_manager)
             self.update_adb_status()
