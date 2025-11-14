@@ -1,4 +1,5 @@
+from app.constants.config import DEBUG_MODE
+
 def print_in_debug_mode(message):
-    """Método que imprime mensajes solo en modo debug (como en Flutter)"""
-    if __debug__:
+    if DEBUG_MODE:
         print(f"DEBUG: {message}")

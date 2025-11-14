@@ -4,7 +4,7 @@ import platform
 from pathlib import Path
 from .config_manager import ConfigManager
 from app.utils.helpers import get_subprocess_kwargs
-from app.core.globals import PLATFORM
+from app.constants.config import PLATFORM
 from app.constants.enums import Platform
 
 class ADBManager:

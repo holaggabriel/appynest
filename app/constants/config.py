@@ -1,3 +1,7 @@
+import os
+import sys
+from app.constants.enums import Platform
+
 APP_NAME = "Appy Nest"
 APP_VERSION = "1.0.0"
 ORGANIZATION_NAME = "holaggabriel"
@@ -6,3 +10,8 @@ APP_REPOSITORY_URL="https://github.com/holaggabriel/appynest"
 APP_ID = "holaggabriel.appynest"
 FORM_URL = "https://forms.gle/LFJCeutHFTiYwAHt8"
 PACKAGE_NAME = "appynest" # Nombre que va a tener el paquete generado, ya sea .exe o .appimage
+
+# Modo debug controlado por variable de entorno
+DEBUG_MODE = os.getenv("APPYNEST_DEBUG", "0") == "1"
+
+PLATFORM = Platform(sys.platform)
