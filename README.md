@@ -18,10 +18,15 @@ Sigue estos pasos para ejecutar **Appy Nest** en tu máquina local:
      ```bash
      source venv/bin/activate
      ```
-   * En **Windows**:
+   * En **Windows (PowerShell)**:
 
-     ```bash
+     ```powershell
      venv\Scripts\activate
+     ```
+   * En **Windows (CMD)**:
+
+     ```cmd
+     venv\Scripts\activate.bat
      ```
 
 3. **Instalar las dependencias**
@@ -35,3 +40,29 @@ Sigue estos pasos para ejecutar **Appy Nest** en tu máquina local:
    ```bash
    python main.py
    ```
+
+5. **Ejecutar en modo debug (opcional)**
+
+   Para activar los mensajes de debug, define la variable de entorno `APPYNEST_DEBUG` antes de ejecutar:
+
+   * En **Linux**:
+
+     ```bash
+     APPYNEST_DEBUG=1 python main.py
+     ```
+
+   * En **Windows (PowerShell)**:
+
+     ```powershell
+     $env:APPYNEST_DEBUG="1"
+     python main.py
+     ```
+
+   * En **Windows (CMD)**:
+
+     ```cmd
+     set APPYNEST_DEBUG=1
+     python main.py
+     ```
+
+> Cuando la variable no está definida, la aplicación se ejecuta en modo normal (sin debug).
