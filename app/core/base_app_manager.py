@@ -1,6 +1,7 @@
 import subprocess
 from .adb_manager import ADBManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.helpers import get_subprocess_kwargs
 
 class BaseAppManager:
     def __init__(self, adb_manager: ADBManager):
@@ -31,7 +32,8 @@ class BaseAppManager:
             cmd = [adb_path, "-s", device_id] + command_args
             
             print_in_debug_mode(f"Ejecutando: {' '.join(cmd)}")
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            kwargs = get_subprocess_kwargs(timeout=timeout)
+            result = subprocess.run(cmd, **kwargs)
             
             print_in_debug_mode(f"Return code: {result.returncode}")
             print_in_debug_mode(f"STDOUT: {result.stdout}")

@@ -1,4 +1,7 @@
+import subprocess
 from PySide6.QtCore import QTimer
+from app.core.globals import PLATFORM
+from app.constants.enums import Platform
        
 def execute_after_delay(callback, delay_ms=500):
         """Ejecuta un callback después de un delay especificado"""
@@ -48,3 +51,19 @@ def shorten_path(path, max_length=60, mode="end"):
     else:
         # Modo por defecto si se especifica uno inválido
         return f"...{path[-(max_length-3):]}"
+
+def get_subprocess_kwargs(timeout=10) -> dict:
+    """
+    Devuelve los kwargs que se deben pasar a subprocess.run
+    según el sistema operativo para ocultar ventanas u otras configuraciones.
+    """
+    kwargs = {
+        "capture_output": True,
+        "text": True,
+        "timeout": timeout
+    }
+
+    if PLATFORM == Platform.WIN32:
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+
+    return kwargs

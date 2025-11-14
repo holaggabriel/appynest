@@ -2,10 +2,12 @@ import subprocess
 import os
 import re
 from .adb_manager import ADBManager
+from app.utils.helpers import get_subprocess_kwargs
 
 class APKInstaller:
     def __init__(self, adb_manager: ADBManager):
         self.adb_manager = adb_manager
+        self.kwargs = get_subprocess_kwargs()
     
     def _parse_adb_error(self, error_message):
         """Convierte mensajes de error técnicos de ADB en mensajes entendibles para el usuario"""
@@ -76,16 +78,17 @@ class APKInstaller:
             # Verificar que el dispositivo sigue conectado
             check_result = subprocess.run(
                 [adb_path, "-s", device_id, "get-state"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             if check_result.returncode != 0:
-                return False, "📱 Dispositivo no disponible. Verifica que esté conectado y con depuración USB activada."
+                return False, "Dispositivo no disponible. Verifica que esté conectado y con depuración USB activada."
 
             # Instalar el APK
+            kwargs = get_subprocess_kwargs(timeout=60)
             install_result = subprocess.run(
                 [adb_path, "-s", device_id, "install", "-r", apk_path],
-                capture_output=True, text=True, timeout=60
+                **kwargs
             )
             
             if install_result.returncode == 0:

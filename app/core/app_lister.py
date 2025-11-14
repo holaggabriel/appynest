@@ -1,11 +1,13 @@
 import subprocess
 from .base_app_manager import BaseAppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.helpers import get_subprocess_kwargs
 
 class AppLister(BaseAppManager):
     """Clase especializada en listar aplicaciones instaladas"""
     def __init__(self, adb_manager):
         super().__init__(adb_manager)
+        self.kwargs = get_subprocess_kwargs()
     
     def is_device_connected(self, device_id):
         """Verifica si el dispositivo está conectado y disponible"""
@@ -15,17 +17,13 @@ class AppLister(BaseAppManager):
             # Verificar estado del dispositivo
             check_result = subprocess.run(
                 [adb_path, "-s", device_id, "get-state"],
-                capture_output=True, 
-                text=True, 
-                timeout=10
+                **self.kwargs
             )
             
             # También podemos verificar con devices para mayor seguridad
             devices_result = subprocess.run(
                 [adb_path, "devices"],
-                capture_output=True, 
-                text=True, 
-                timeout=10
+                **self.kwargs
             )
             
             # Verificar si el dispositivo está en la lista de dispositivos conectados
@@ -147,16 +145,16 @@ class AppLister(BaseAppManager):
                 # Usar el método execute_adb_command para consistencia
                 result = self.execute_adb_command(
                     device_id, 
-                    ["shell", "dumpsys", "package", package_name, "|", "grep", "versionName"],
+                    ["shell", "dumpsys", "package", package_name],
                     timeout=10
                 )
-
-                if result['success'] and result['stdout'].strip():
-                    for line in result['stdout'].split('\n'):
+                version = "Desconocida"
+                if result['success']:
+                    for line in result['stdout'].splitlines():
                         if 'versionName=' in line:
                             version = line.split('=')[1].strip()
-                            print_in_debug_mode(f"Versión encontrada: {version}")
                             break
+
             except Exception as e:
                 print_in_debug_mode(f"Error obteniendo versión para {package_name}: {e}")
 

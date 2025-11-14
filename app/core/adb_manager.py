@@ -3,7 +3,9 @@ import os
 import platform
 from pathlib import Path
 from .config_manager import ConfigManager
-from app.utils.get_silent_startupinfo import get_silent_startupinfo
+from app.utils.helpers import get_subprocess_kwargs
+from app.core.globals import PLATFORM
+from app.constants.enums import Platform
 
 class ADBManager:
     def __init__(self, config_manager: ConfigManager):
@@ -18,10 +20,10 @@ class ADBManager:
             adb_path = self.resolve_adb_path()
             if not adb_path:
                 return False
-
+            
+            kwargs = get_subprocess_kwargs()
             result = subprocess.run(
-                [adb_path, "version"],
-                capture_output=True, text=True, timeout=10, startupinfo=get_silent_startupinfo()
+                [adb_path, "version"], **kwargs
             )
             return result.returncode == 0
         except Exception:
@@ -30,14 +32,14 @@ class ADBManager:
     def find_adb_executable(self):
         """Busca ADB en rutas comunes del sistema"""
         system = platform.system().lower()
-        if system == "linux":
+        if PLATFORM == Platform.LINUX:
             common_paths = [
                 "/usr/bin/adb",  # la más común en distribuciones Linux
                 "/usr/local/bin/adb",
                 str(Path.home() / "Android/Sdk/platform-tools/adb"),  # instalación oficial de Android Studio
                 str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),  # instalación local por sdkmanager
             ]
-        elif system == "windows":
+        elif PLATFORM == Platform.WIN32:
             common_paths = [
                 "C:\\Program Files\\Android\\platform-tools\\adb.exe",            # instalación estándar en 64-bit
                 "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",     # instalación en 32-bit

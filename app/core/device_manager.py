@@ -1,12 +1,12 @@
 import subprocess
 from .adb_manager import ADBManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from app.utils.get_silent_startupinfo import get_silent_startupinfo
+from app.utils.helpers import get_subprocess_kwargs
 
 class DeviceManager:
     def __init__(self, adb_manager: ADBManager):
         self.adb_manager = adb_manager
-    
+        self.kwargs = get_subprocess_kwargs()
     def get_connected_devices(self):
         """Obtiene la lista de dispositivos conectados"""
         devices = []
@@ -14,8 +14,7 @@ class DeviceManager:
         try:
             adb_path = self.adb_manager.get_adb_path()
 
-            result = subprocess.run([adb_path, "devices", "-l"], 
-                                capture_output=True, text=True, timeout=10, startupinfo=get_silent_startupinfo())
+            result = subprocess.run([adb_path, "devices", "-l"], **self.kwargs)
             
             if result.returncode == 0:
                 lines = result.stdout.strip().split('\n')[1:]  # Saltar la línea de encabezado
@@ -38,7 +37,7 @@ class DeviceManager:
                             try:
                                 brand_result = subprocess.run(
                                     [adb_path, "-s", device_id, "shell", "getprop", "ro.product.brand"],
-                                    capture_output=True, text=True, timeout=5, startupinfo=get_silent_startupinfo()
+                                    **self.kwargs
                                 )
                                 if brand_result.returncode == 0 and brand_result.stdout.strip():
                                     brand = brand_result.stdout.strip()
@@ -64,57 +63,57 @@ class DeviceManager:
             
             model_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.model"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             brand_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.brand"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             manufacturer_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.manufacturer"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             android_version_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.build.version.release"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             sdk_version_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.build.version.sdk"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             resolution_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "wm", "size"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             density_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "wm", "density"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             memory_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "cat", "/proc/meminfo"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             storage_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "df", "/data"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             cpu_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.product.cpu.abi"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             serial_result = subprocess.run(
                 [adb_path, "-s", device_id, "shell", "getprop", "ro.serialno"],
-                capture_output=True, text=True, timeout=10
+                **self.kwargs
             )
             
             # Procesar memoria RAM
@@ -186,7 +185,7 @@ class DeviceManager:
                 # Verificar si el dispositivo está en la lista de dispositivos conectados
                 result = subprocess.run(
                     [adb_path, "-s", device_id, "get-state"],
-                    capture_output=True, text=True, timeout=10
+                    **self.kwargs
                 )
                 
                 # Si el comando es exitoso y el estado es 'device', está disponible
@@ -196,7 +195,7 @@ class DeviceManager:
                 # Alternativa: verificar mediante devices -l
                 devices_result = subprocess.run(
                     [adb_path, "devices", "-l"],
-                    capture_output=True, text=True, timeout=10
+                    **self.kwargs
                 )
                 
                 if devices_result.returncode == 0:
