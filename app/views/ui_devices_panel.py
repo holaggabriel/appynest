@@ -255,7 +255,7 @@ class UIDevicePanel:
             [AppsLoadingThread, UninstallThread, ExtractThread, InstallationThread], mode="or"):
             enabled = False
         self.device_list.setEnabled(enabled)
-        self.refresh_devices_btn.setEnabled(enabled)
+        self.refresh_devices_btn.setEnabled(enabled and not self.is_thread_type_running(DevicesScanThread))
         self.refresh_details_btn.setEnabled(enabled and bool(self.selected_device))
         self.confirm_device_btn.setEnabled(enabled)
                 
