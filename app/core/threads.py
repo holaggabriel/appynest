@@ -163,23 +163,17 @@ class DevicesScanThread(BaseThread):
     finished_signal = Signal(list)
     error_signal = Signal(str)
     
-    def __init__(self, device_manager, adb_manager):
+    def __init__(self, device_manager):
         super().__init__()
-        self.device_manager = device_manager
-        self.adb_manager = adb_manager
+        self.device_manager = device_manager  # Solo necesita device_manager
     
     def run(self):
         try:
             if not self.is_running():
                 return
-                
-            # Verificar disponibilidad de ADB
-            if not self.adb_manager.is_available():
-                if self.is_running():
-                    self.error_signal.emit("ADB no está configurado")
-                return
             
-            # Realizar el escaneo de dispositivos
+            # Solo se encarga de escanear dispositivos
+            # La verificación de ADB se hace externamente
             devices = self.device_manager.get_connected_devices()
             
             if self.is_running():

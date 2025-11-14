@@ -181,8 +181,7 @@ class UIConfigSection:
                 self.hide_devices_message()
             adb_path = self.adb_manager.get_adb_path()
             self._set_adb_status("Disponible", shorten_path(adb_path), "success")
-            self.adb_path_label.setToolTip(adb_path)
-            
+            self.adb_path_label.setToolTip(adb_path)     
         else:
             self._set_adb_status("No disponible", "No encontrada", "error")
             self.adb_path_label.setToolTip("Ruta no disponible")
@@ -195,7 +194,7 @@ class UIConfigSection:
         Actualiza automáticamente self.adb_available cuando termine
         """
         # Si ya hay una verificación en curso, no hacer nada
-        if hasattr(self, 'adb_check_thread') and self.adb_check_thread.isRunning():
+        if self.is_thread_type_running(ADBCheckThread):
             return
         
         # Crear y configurar el thread

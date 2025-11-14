@@ -37,13 +37,15 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.all_apps_data = []  # Almacenará todas las aplicaciones cargadas
         self.filtered_apps_data = []  # Aplicaciones filtradas
         self.current_section = None  # Puede ser: 'install', 'apps', 'config'
-        # Lista para trackear threads activos
         self.adb_available = False  # Variable de estado ADB
+        self.devices_data = [] # Lista de dispositivos en crudo. No es la lista que se muetra en la interfaz
+        # Lista para trackear threads activos
         self.active_threads = []
         self.cleaning_up = False
         self.selected_device_info = {}
         self.init_ui()
         self.set_ui_state(True)
+        # La primera verificacion del estado del adb se hace de forma indirecta al cragar los dispositivos
         self.load_devices()
 
     def setup_styles(self):

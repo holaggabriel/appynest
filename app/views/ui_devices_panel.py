@@ -187,9 +187,11 @@ class UIDevicePanel:
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
         self.refresh_details_btn.setEnabled(False)
+
+        self.check_adb_availability_async()
         
         # Crear y configurar el thread
-        self.devices_scan_thread = DevicesScanThread(self.device_manager, self.adb_manager)
+        self.devices_scan_thread = DevicesScanThread(self.device_manager)
         self.devices_scan_thread.finished_signal.connect(self._handle_scan_results)
         self.devices_scan_thread.error_signal.connect(self._handle_scan_error)
         
@@ -202,53 +204,18 @@ class UIDevicePanel:
         # Iniciar el thread después del delay
         execute_after_delay(lambda: self.devices_scan_thread.start(), GLOBAL_ACTION_DELAY)
 
-    def _perform_devices_scan(self):
-        """Ejecuta el escaneo real de dispositivos"""
-        
-        self.update_adb_availability(self.adb_manager.is_available())
-        
-        if not self.adb_available:
-            self.show_devices_message("ADB no está configurado", "error")
-            return
-        
-        try:
-            self.device_list.clear()
-            devices = self.device_manager.get_connected_devices()
-            
-            for device in devices:
-                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
-            
-            self._handle_scan_results(devices)
-            
-        except Exception as e:
-            self._handle_scan_error(f"Error al escanear dispositivos: {str(e)}")
-        finally:
-            self.refresh_devices_btn.setEnabled(True)
-            self._update_device_ui_state()
-
     def _handle_scan_results(self, devices):
         """Procesa los resultados del escaneo de dispositivos"""
         try:
             self.device_list.clear()
-            
-            for device in devices:
-                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
-            
-            # Limpiar selección si el dispositivo ya no está conectado
-            if self.selected_device and self.selected_device not in [d['device'] for d in devices]:
-                self.selected_device = None
-                self.selected_device_banner.setText("No hay dispositivo seleccionado")
-                self.handle_app_operations('load', force_load=True)
+            # Asignar la lista de dispositivos en crudo
+            self.devices_data = devices  # No copiar datos, sobre escribirlos
 
-            # Manejar mensajes de estado
-            if devices:
-                self.hide_devices_message()
-            else:
-                self.show_devices_message("No se encontraron dispositivos conectados", "info")
-                
+            for device in self.devices_data:
+                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
+                    
         finally:
-            self.refresh_devices_btn.setEnabled(True)
-            self._update_device_ui_state()
+            self._update_device_ui_state() 
 
     def _handle_scan_error(self, error_message):
         """Maneja errores durante el escaneo de dispositivos"""
@@ -256,8 +223,8 @@ class UIDevicePanel:
         self.device_list.clear()
         self.selected_device = None
         self.selected_device_info = {}
-        self.selected_device_banner.setText("No hay dispositivo seleccionado")
-        self.refresh_devices_btn.setEnabled(True)
+        if hasattr(self, 'devices_data'):
+            self.devices_data = []
         self._update_device_ui_state()
 
     def show_devices_message(self, message, message_type="info"):
@@ -291,6 +258,10 @@ class UIDevicePanel:
         self.refresh_devices_btn.setEnabled(enabled)
         self.refresh_details_btn.setEnabled(enabled and bool(self.selected_device))
         self.confirm_device_btn.setEnabled(enabled)
+                
+        if not self.adb_available:
+            self.show_devices_message("ADB no está configurado", "error")
+
         # Verificación directa para el botón de confirmación
         should_enable_confirm = False
         if enabled:
@@ -313,6 +284,7 @@ class UIDevicePanel:
         is_section_enabled = self.device_list.isEnabled()
         
         self.refresh_details_btn.setEnabled(bool(self.selected_device))
+        self.refresh_devices_btn.setEnabled(True)
         
         if not self.selected_device:
             self.loading_details_label.setVisible(False)
@@ -349,6 +321,22 @@ class UIDevicePanel:
             # Actualizar también la sección de instalación
             if hasattr(self, '_update_ui_state'):
                 self._update_ui_state()
+
+        # 3. Limpiar selección si el dispositivo ya no está conectado
+        if hasattr(self, 'devices_data') and self.devices_data:
+            if self.selected_device and self.selected_device not in [d['device'] for d in self.devices_data]:
+                self.selected_device = None
+                self.selected_device_banner.setText("No hay dispositivo seleccionado")
+                self.handle_app_operations('load', force_load=True)
+        
+        # 4. Manejar mensajes de estado
+        if hasattr(self, 'devices_data'):
+            if self.devices_data:
+                self.hide_devices_message()
+            else:
+                self.show_devices_message("No se encontraron dispositivos conectados", "info")
+
+        self.set_devices_section_enabled(self.adb_available)
 
     def _confirm_device_selection(self):
         """Confirma la selección del dispositivo preseleccionado"""
