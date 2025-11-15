@@ -71,6 +71,7 @@ class UIAppsSection:
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar por nombre o paquete...")
         self.search_input.setObjectName("text_input_default")
+        self.search_input.setEnabled(False)
 
         # Configurar debounce timer
         self.search_timer = QTimer()
@@ -83,15 +84,16 @@ class UIAppsSection:
         left_layout.addLayout(search_layout)
 
         # Indicador de carga y mensajes
-        self.apps_message_label = QLabel()
+        self.apps_message_label = QLabel("Selecciona un dispositivo")
         self.apps_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.apps_message_label.setObjectName("status_info_message")
-        self.apps_message_label.setVisible(False)
+        self.apps_message_label.setObjectName("status_warning_message")
+        self.apps_message_label.setVisible(True)
         self.apps_message_label.setWordWrap(True)
         left_layout.addWidget(self.apps_message_label)
 
         self.apps_list = QListWidget()
         self.apps_list.setObjectName("list_main_widget")
+        self.apps_list.setEnabled(False)
 
         # Configurar políticas de scroll para asegurar que siempre estén visibles
         self.apps_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -322,6 +324,8 @@ class UIAppsSection:
         """Actualiza la visualización de la lista de aplicaciones"""
         self.apps_list.clear()
         
+        self.apps_list.setEnabled(bool(self.selected_device))
+        
         # Mostrar mensajes según el estado actual
         if not self.selected_device:
             self.show_apps_message("Selecciona un dispositivo", "warning")
@@ -397,7 +401,6 @@ class UIAppsSection:
         # Búsqueda solo si hay apps y UI habilitada
         has_apps = hasattr(self, "all_apps_data") and len(self.all_apps_data) > 0
         self.search_input.setEnabled(enabled and has_apps)
-        self.apps_list.setEnabled(enabled)
 
         # Botones de operación
         has_selection = enabled and bool(self.apps_list.selectedItems())
