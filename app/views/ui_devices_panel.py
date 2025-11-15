@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout,
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFrame,QGridLayout )
 from PySide6.QtCore import Qt
-from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread, DevicesScanThread
+from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread, DevicesScanThread, DeviceDetailsThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay
@@ -365,7 +365,7 @@ class UIDevicePanel:
             self.handle_app_operations('load', force_load=True)
         
         # Obtener información detallada en segundo plano
-        execute_after_delay(lambda: self._load_device_details(device_id), GLOBAL_ACTION_DELAY)
+        self._load_device_details(device_id)
 
     def _extract_device_id(self, device_text):
         """Extrae el ID del dispositivo del texto mostrado"""
@@ -432,32 +432,46 @@ class UIDevicePanel:
         return "\n".join(lines)
 
     def _load_device_details(self, device_id):
-        """Carga los detalles del dispositivo y actualiza la UI"""
-        try:
-            self.selected_device_info = self.device_manager.get_device_info(device_id)
-        except Exception as e:
-            print_in_debug_mode(f"Error al obtener información del dispositivo: {e}")
-            self.selected_device_info = {}
+        """Carga los detalles del dispositivo usando thread"""
+        self.device_details_thread = DeviceDetailsThread(self.device_manager, device_id)
+        self.device_details_thread.finished_signal.connect(self._handle_device_details_loaded)
+        self.device_details_thread.error_signal.connect(self._handle_device_details_error)
         
+        # Registrar para gestión automática
+        self.register_thread(self.device_details_thread)
+        self.device_details_thread.finished.connect(lambda: self.unregister_thread(self.device_details_thread))
+        
+        self.device_details_thread.start()
+        execute_after_delay(lambda: self.device_details_thread.start(), GLOBAL_ACTION_DELAY)
+
+    def _handle_device_details_loaded(self, device_info):
+        """Maneja la carga exitosa de detalles del dispositivo"""
+        self.selected_device_info = device_info
         self.loading_details_label.setVisible(False)
         self.refresh_details_btn.setEnabled(True)
         
         self._update_device_banner()
-        
-        # Actualizar estado general de la UI
         self._update_device_ui_state()
         
         if hasattr(self, '_update_ui_state'):
             self._update_ui_state()
 
+    def _handle_device_details_error(self, error_message):
+        """Maneja errores al cargar detalles del dispositivo"""
+        print_in_debug_mode(f"Error en thread de detalles: {error_message}")
+        self.selected_device_info = {}
+        self.loading_details_label.setVisible(False)
+        self.refresh_details_btn.setEnabled(True)
+        self.details_container.setVisible(False)
+
     def _refresh_device_details(self):
-        """Actualiza los detalles del dispositivo seleccionado"""
+        """Actualiza los detalles del dispositivo seleccionado usando thread"""
         if self.selected_device:
             self.refresh_details_btn.setEnabled(False)
             self.loading_details_label.setVisible(True)
             self.details_container.setVisible(False)
-            execute_after_delay(lambda: self._load_device_details(self.selected_device), GLOBAL_ACTION_DELAY)
-    
+            self._load_device_details(self.selected_device)
+            
     def show_connection_help_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""
         dialog = ConnectionHelpDialog(self)

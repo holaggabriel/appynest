@@ -183,6 +183,29 @@ class DevicesScanThread(BaseThread):
             if self.is_running():
                 self.error_signal.emit(f"Error al escanear dispositivos: {str(e)}")
 
+class DeviceDetailsThread(BaseThread):
+    finished_signal = Signal(dict)  # device_info
+    error_signal = Signal(str)
+    
+    def __init__(self, device_manager, device_id):
+        super().__init__()
+        self.device_manager = device_manager
+        self.device_id = device_id
+    
+    def run(self):
+        try:
+            if not self.is_running():
+                return
+                
+            device_info = self.device_manager.get_device_info(self.device_id)
+            
+            if self.is_running():
+                self.finished_signal.emit(device_info)
+                
+        except Exception as e:
+            if self.is_running():
+                self.error_signal.emit(f"Error al obtener detalles: {str(e)}")
+
 class ADBCheckThread(BaseThread):
     finished_signal = Signal(bool, str)  # success, message
     error_signal = Signal(str)
