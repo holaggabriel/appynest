@@ -31,7 +31,6 @@ class ADBManager:
     
     def find_adb_executable(self):
         """Busca ADB en rutas comunes del sistema"""
-        system = platform.system().lower()
         if PLATFORM == Platform.LINUX:
             common_paths = [
                 "/usr/bin/adb",  # la más común en distribuciones Linux
