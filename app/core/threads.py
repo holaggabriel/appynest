@@ -232,3 +232,28 @@ class ADBCheckThread(BaseThread):
         except Exception as e:
             if self.is_running():
                 self.error_signal.emit(f"Error verificando ADB: {str(e)}")
+
+class ADBStartServerThread(BaseThread):
+    finished_signal = Signal(bool, str)  # success, message
+    
+    def __init__(self, adb_manager):
+        super().__init__()
+        self.adb_manager = adb_manager
+    
+    def run(self):
+        try:
+            if not self.is_running():
+                return
+                
+            # Iniciar servidor ADB
+            started = self.adb_manager.start_server()
+            
+            if self.is_running():
+                if started:
+                    self.finished_signal.emit(True, "Servidor ADB iniciado correctamente")
+                else:
+                    self.finished_signal.emit(False, "No se pudo iniciar el servidor ADB")
+                    
+        except Exception as e:
+            if self.is_running():
+                self.finished_signal.emit(False, f"Error iniciando ADB: {str(e)}")
