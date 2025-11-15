@@ -1,7 +1,11 @@
+import sys
+import os
 import subprocess
 from PySide6.QtCore import QTimer
 from app.constants.config import PLATFORM
 from app.constants.enums import Platform
+from app.constants.config import ENVIRONMENT
+from app.constants.enums import Environment
        
 def execute_after_delay(callback, delay_ms=500):
         """Ejecuta un callback después de un delay especificado"""
@@ -67,3 +71,21 @@ def get_subprocess_kwargs(timeout=10) -> dict:
         kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
 
     return kwargs
+
+def get_resource_path(relative_path=""):
+    """Obtiene la ruta absoluta para recursos tanto en desarrollo como en ejecutable"""
+    try:
+        # PyInstaller crea una carpeta temporal y almacena la ruta en _MEIPASS
+        if ENVIRONMENT == Environment.PROD.value:
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    except Exception:
+        # En desarrollo, usamos la raíz del proyecto
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    
+    # Si no se proporciona relative_path, devolver solo base_path
+    if not relative_path:
+        return base_path
+    
+    return os.path.join(base_path, relative_path)

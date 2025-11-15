@@ -1,7 +1,10 @@
+import sys
+import os
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor
 from PySide6.QtCore import Property
+from app.utils.helpers import get_resource_path
 
 class MainLoadingIndicator:
     """
@@ -55,13 +58,19 @@ class LoadingWidget(QWidget):
         self.logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.logo_label.setFixedSize(self.logo_size, self.logo_size)
         layout.addWidget(self.logo_label)
-        
+
     def load_logo(self):
         try:
-            # Cargar logo directamente desde la carpeta assets
-            pixmap = QPixmap("assets/logo/png/logo_512.png")
+            # Usar get_resource_path con el path completo
+            logo_path = get_resource_path("assets/logo/png/logo_512.png")
+        
+            if not os.path.exists(logo_path):
+                print(f"El archivo no existe: {logo_path}")
+                # Fallback: intentar carga directa
+                logo_path = "assets/logo/png/logo_512.png"
+            
+            pixmap = QPixmap(logo_path)
             if not pixmap.isNull():
-                # Redimensionar el logo al tamaño fijo
                 pixmap = pixmap.scaled(
                     self.logo_size, 
                     self.logo_size, 
@@ -69,11 +78,14 @@ class LoadingWidget(QWidget):
                     Qt.TransformationMode.SmoothTransformation
                 )
                 self.logo_label.setPixmap(pixmap)
+                print("Logo cargado exitosamente")
             else:
-                # Fallback si no encuentra el logo
+                print("No se pudo cargar el pixmap")
                 self.logo_label.setText("Logo")
                 self.logo_label.setStyleSheet("color: white; font-size: 14px;")
+                
         except Exception as e:
+            print(f"Error cargando logo: {e}")
             self.logo_label.setText("Logo")
             self.logo_label.setStyleSheet("color: white; font-size: 14px;")
     
