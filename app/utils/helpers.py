@@ -79,8 +79,13 @@ def get_resource_path(relative_path=""):
         if ENVIRONMENT == Environment.PROD.value:
             base_path = sys._MEIPASS
         else:
-            return relative_path
+            base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     except Exception:
-        return relative_path
+        # En desarrollo, usamos la raíz del proyecto
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    
+    # Si no se proporciona relative_path, devolver solo base_path
+    if not relative_path:
+        return base_path
     
     return os.path.join(base_path, relative_path)

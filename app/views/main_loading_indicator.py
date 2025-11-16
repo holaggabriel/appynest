@@ -5,7 +5,6 @@ from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor
 from PySide6.QtCore import Property
 from app.utils.helpers import get_resource_path
-from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class MainLoadingIndicator:
     """
@@ -66,7 +65,9 @@ class LoadingWidget(QWidget):
             logo_path = get_resource_path("assets/logo/png/logo_512.png")
         
             if not os.path.exists(logo_path):
-                print_in_debug_mode(f"El archivo no existe: {logo_path}")
+                print(f"El archivo no existe: {logo_path}")
+                # Fallback: intentar carga directa
+                logo_path = "assets/logo/png/logo_512.png"
             
             pixmap = QPixmap(logo_path)
             if not pixmap.isNull():
@@ -77,14 +78,14 @@ class LoadingWidget(QWidget):
                     Qt.TransformationMode.SmoothTransformation
                 )
                 self.logo_label.setPixmap(pixmap)
-                print_in_debug_mode("Logo cargado exitosamente")
+                print("Logo cargado exitosamente")
             else:
-                print_in_debug_mode("No se pudo cargar el pixmap")
+                print("No se pudo cargar el pixmap")
                 self.logo_label.setText("Logo")
                 self.logo_label.setStyleSheet("color: white; font-size: 14px;")
                 
         except Exception as e:
-            print_in_debug_mode(f"Error cargando logo: {e}")
+            print(f"Error cargando logo: {e}")
             self.logo_label.setText("Logo")
             self.logo_label.setStyleSheet("color: white; font-size: 14px;")
     
@@ -174,8 +175,7 @@ class LoadingWidget(QWidget):
     
     def sizeHint(self):
         """Sugerencia de tamaño preferido"""
-        from PySide6.QtCore import QSize
         total_size = self.get_total_circle_size()
-        return QSize(total_size, total_size)
+        return total_size, total_size
     
     angle = Property(int, get_angle, set_angle)
