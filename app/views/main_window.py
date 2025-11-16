@@ -44,7 +44,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.cleaning_up = False
         self.selected_device_info = {}
         self.init_ui()
-        self.set_ui_state(True)
         # La primera verificacion del estado del adb se hace de forma indirecta al cragar los dispositivos
         self.load_devices()
 
