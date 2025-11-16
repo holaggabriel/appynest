@@ -10,18 +10,14 @@ from app.core.adb_manager import ADBManager
 from app.core.config_manager import ConfigManager
 from app.core.app_manager import AppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from app.utils.helpers import execute_after_delay
 from ..theme.app_theme import AppTheme
 from app.views.ui_devices_panel import UIDevicePanel
 from app.views.ui_install_section import UIInstallSection
 from app.views.ui_apps_section import UIAppsSection
 from app.views.ui_config_section import UIConfigSection
-from app.views.main_loading_indicator import MainLoadingIndicator
-from app.core.threads import ADBStartServerThread
 from app.constants.config import APP_NAME
-from app.constants.delays import GLOBAL_ACTION_DELAY
 
-class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection, MainLoadingIndicator):
+class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection):
     
     def __init__(self):
         super().__init__()
@@ -47,38 +43,6 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.active_threads = []
         self.cleaning_up = False
         self.selected_device_info = {}
-        
-        # Setup mínimo
-        self.setWindowTitle(APP_NAME)
-        self.resize(1000, 700)        # Tamaño inicial
-        self.setMinimumSize(800, 600) # Tamaño mínimo
-
-        # Inicializar panel de carga usando el mixin
-        self.setup_loading_panel()
-
-        # Mostrar ventana con panel de carga
-        self.show()
-
-        # Inicializar ADB después de un breve delay
-        self.init_adb_start_server()
-
-    def init_adb_start_server(self):
-            """Inicia el servidor ADB en un thread separado"""
-            self.adb_start_thread = ADBStartServerThread(self.adb_manager)
-            self.register_thread(self.adb_start_thread)
-            
-            # Conectar señales
-            self.adb_start_thread.finished_signal.connect(self.on_adb_start_finished)
-            
-            # Iniciar thread
-            self.adb_start_thread.start()
-
-    def on_adb_start_finished(self, success, message):
-        """Callback cuando termina de iniciar ADB"""
-        print_in_debug_mode(f"ADB Start Result: {success} - {message}")
-        
-        # Ocultar panel de carga e inicializar UI completa
-        self.hide_loading_panel()
         self.init_ui()
         self.set_ui_state(True)
         # La primera verificacion del estado del adb se hace de forma indirecta al cragar los dispositivos
@@ -218,7 +182,11 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             return all(running_status)
         return any(running_status)
 
-    def init_ui(self):        
+    def init_ui(self):
+        self.setWindowTitle(APP_NAME)
+        self.resize(1000, 700)        # Tamaño inicial
+        self.setMinimumSize(800, 600) # Tamaño mínimo
+        
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         

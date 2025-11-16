@@ -65,29 +65,3 @@ class ADBManager:
             return adb_path
         
         return None
-
-    def start_server(self):
-        """Inicia explícitamente el adb server sin abrir ventanas."""
-        adb_path = self.resolve_adb_path()
-        if not adb_path:
-            return False, "ADB no encontrado"
-
-        try:
-            kwargs = get_subprocess_kwargs()
-
-            # En Windows podemos reforzar: evitar completamente consola
-            if PLATFORM == Platform.WIN32:
-                kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
-
-            result = subprocess.run(
-                [adb_path, "start-server"],
-                **kwargs
-            )
-
-            if result.returncode == 0:
-                return True, "ADB iniciado"
-            else:
-                return False, result.stderr or "Error al iniciar ADB"
-
-        except Exception as e:
-            return False, f"Error inesperado al iniciar ADB: {str(e)}"
