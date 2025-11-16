@@ -2,6 +2,10 @@ import subprocess
 import os
 from app.constants.config import PACKAGE_NAME
 import textwrap
+import sys
+import subprocess
+import os
+import shutil
 
 def build_linux_binary():
     """Genera un binario Linux usando PyInstaller (para AppImage) con la librería de Python del sistema."""
@@ -91,20 +95,59 @@ def build_appimage():
     print(f"✅ AppImage generado correctamente: {appimage_name}")
 
 def build_exe():
-    """Genera un .exe para Windows usando PyInstaller."""
+    """Genera un .exe para Windows usando exclusivamente el entorno virtual. Usando PyInstaller"""
     print("Generando .exe...")
+    
+    # Verificar que estamos en un entorno virtual
+    if not (hasattr(sys, 'real_prefix') or 
+            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)):
+        print("ERROR: No estás en un entorno virtual. Activar el venv primero.")
+        return
+
+    
+    # Método preferido: usar PyInstaller como módulo
+    python_exe = sys.executable
+    
+    # Verificar que PyInstaller está disponible en el venv
+    try:
+        subprocess.run([python_exe, "-m", "PyInstaller", "--version"], 
+                      check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+        raise RuntimeError("PyInstaller no está instalado en el entorno virtual. "
+                          "Ejecuta: pip install pyinstaller")
+    
     cmd = [
-        "pyinstaller",
+        python_exe,
+        "-m", "PyInstaller",
         "main.py",
         "--onefile",
         "--windowed",
         f"--name={PACKAGE_NAME}",
         "--icon=assets/logo/ico/logo_128.ico",
         "--add-data=assets;assets",
-        "--add-data=app;app"
+        "--add-data=app;app",
+        "--clean"  # Limpiar builds anteriores
     ]
+    
+    print(f"Ejecutando: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
-    print(".exe generado correctamente!")
+    print(".exe generado correctamente en la carpeta 'dist'!")
+
+# Función adicional para limpiar builds anteriores
+def clean_build():
+    """Limpia los archivos generados por PyInstaller."""
+    folders_to_remove = ['build', 'dist']
+    files_to_remove = [f'{PACKAGE_NAME}.spec']
+    
+    for folder in folders_to_remove:
+        if os.path.exists(folder):
+            shutil.rmtree(folder)
+            print(f"Eliminada carpeta: {folder}")
+    
+    for file in files_to_remove:
+        if os.path.exists(file):
+            os.remove(file)
+            print(f"Eliminado archivo: {file}")
 
 def main():
     print("Selecciona el tipo de build a generar:")
