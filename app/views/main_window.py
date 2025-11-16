@@ -80,6 +80,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         # Ocultar panel de carga e inicializar UI completa
         self.hide_loading_panel()
         self.init_ui()
+        self.set_ui_state(True)
         # La primera verificacion del estado del adb se hace de forma indirecta al cragar los dispositivos
         self.load_devices()
 

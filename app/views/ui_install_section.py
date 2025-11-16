@@ -43,7 +43,7 @@ class UIInstallSection:
         # Añadir el layout horizontal al layout principal
         layout.addLayout(title_section_layout)
 
-        self.status_label = QLabel("Selecciona al menos un APK")
+        self.status_label = QLabel("Selecciona al menos un APK y un dispositivo")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setObjectName('status_info_message')
         layout.addWidget(self.status_label)
