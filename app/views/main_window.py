@@ -19,7 +19,7 @@ from app.views.ui_config_section import UIConfigSection
 from app.views.main_loading_indicator import MainLoadingIndicator
 from app.core.threads import ADBStartServerThread
 from app.constants.config import APP_NAME
-from app.constants.delays import UI_FEEDBACK_DELAY
+from app.constants.delays import GLOBAL_ACTION_DELAY
 
 class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection, MainLoadingIndicator):
     
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             self.adb_start_thread.finished_signal.connect(self.on_adb_start_finished)
             
             # Iniciar thread
-            execute_after_delay(lambda: self.adb_start_thread.start(), UI_FEEDBACK_DELAY)
+            self.adb_start_thread.start()
 
     def on_adb_start_finished(self, success, message):
         """Callback cuando termina de iniciar ADB"""
