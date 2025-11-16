@@ -137,8 +137,8 @@ def build_exe():
         subprocess.run([python_exe, "-m", "PyInstaller", "--version"], 
                       check=True, capture_output=True)
     except subprocess.CalledProcessError:
-        raise RuntimeError("PyInstaller no está instalado en el entorno virtual. "
-                          "Ejecuta: pip install pyinstaller")
+            print("PyInstaller no está instalado en el entorno virtual.")
+            return
     
     cmd = [
         python_exe,
