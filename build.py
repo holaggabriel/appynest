@@ -3,33 +3,34 @@ import os
 from app.constants.config import PACKAGE_NAME
 import textwrap
 import sys
-import subprocess
-import os
 import shutil
 
 def build_linux_binary():
-    """Genera un binario Linux usando PyInstaller (para AppImage) con la librería de Python del sistema."""
+    """Genera un binario Linux usando PyInstaller del entorno virtual."""
     print("🐧 Generando binario Linux...")
-
-    # Buscar la librería libpython en el sistema
-    python_lib = None
-    for root, dirs, files in os.walk("/usr/lib"):
-        for file in files:
-            if file.startswith("libpython3") and file.endswith(".so.1.0"):
-                python_lib = os.path.join(root, file)
-                break
-        if python_lib:
-            break
-
-    if not python_lib:
-        print("❌ No se encontró la librería de Python en /usr/lib. Instala python-dev o verifica tu instalación de Python.")
+    
+    # Verificar entorno virtual
+    if not (hasattr(sys, 'real_prefix') or 
+            (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)):
+        print("ERROR: No estás en un entorno virtual. Activar el venv primero.")
         return
-
-    print(f"✅ Librería de Python encontrada en el sistema: {python_lib}")
-
-    # Comando PyInstaller
+    
+    python_exe = sys.executable
+    
+    # Verificar PyInstaller en el venv
+    try:
+        subprocess.run([python_exe, "-m", "PyInstaller", "--version"], 
+                      check=True, capture_output=True)
+    except subprocess.CalledProcessError:
+            print("PyInstaller no está instalado en el entorno virtual.")
+            return
+    
+    # En Linux, PyInstaller generalmente maneja las librerías automáticamente
+    # Solo necesitamos agregar bibliotecas específicas si hay problemas
+    
     cmd = [
-        "pyinstaller",
+        python_exe,
+        "-m", "PyInstaller",
         "main.py",
         f"--name={PACKAGE_NAME}",
         "--windowed",
@@ -37,12 +38,35 @@ def build_linux_binary():
         "--add-data=assets:assets",
         "--add-data=app:app",
         "--onefile",
-        f"--add-binary={python_lib}:lib/"
+        "--clean"
     ]
-
+    
+    # Agregar librería específica solo si es necesario
+    python_lib = find_python_library()
+    if python_lib:
+        cmd.append(f"--add-binary={python_lib}:./")
+        print(f"✅ Librería Python incluida: {python_lib}")
+    
+    print(f"Ejecutando: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
-    print(f"✅ Binario Linux generado en dist/{PACKAGE_NAME}/ con librería Python embebida correctamente.")
+    print(f"✅ Binario Linux generado en dist/{PACKAGE_NAME}")
 
+def find_python_library():
+    """Busca la librería libpython en el sistema o venv."""
+    search_paths = [
+        os.path.join(sys.prefix, "lib"),  # Venv primero
+        "/usr/lib",
+        "/usr/lib/x86_64-linux-gnu",
+        "/usr/local/lib"
+    ]
+    
+    for search_path in search_paths:
+        if os.path.exists(search_path):
+            for root, dirs, files in os.walk(search_path):
+                for file in files:
+                    if file.startswith("libpython3") and ".so" in file:
+                        return os.path.join(root, file)
+    return None
 def build_appimage():
     """Empaqueta el binario en un AppImage usando appimagetool."""
     print("📦 Generando AppImage...")
