@@ -181,11 +181,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
             return all(running_status)
         return any(running_status)
 
-    def init_ui(self):
-        self.setWindowTitle(APP_NAME)
-        self.resize(1000, 700)        # Tamaño inicial
-        self.setMinimumSize(800, 600) # Tamaño mínimo
-        
+    def init_ui(self):        
         font = QFont("Segoe UI", 9)
         self.setFont(font)
         
