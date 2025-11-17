@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel,
                             QFrame)
 from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
-from app.constants.config import APP_NAME
+from app.constants.config import APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME
 
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):
@@ -126,7 +126,7 @@ class ADBHelpDialog(QDialog):
 
         <p>
         <i><span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</i><br>
-        <code>~/.easy-adb/config.json</code><br>
+        <code>~/{CONFIG_DIR_NAME}/{CONFIG_FILE_NAME}</code><br>
         <i>En este archivo se almacena la ruta del ADB y otros ajustes básicos de la aplicación.</i>
         </p>
         """
