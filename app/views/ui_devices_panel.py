@@ -283,12 +283,7 @@ class UIDevicePanel:
         has_selection = bool(self.device_list.selectedItems())
         is_section_enabled = self.device_list.isEnabled()
         
-        self.refresh_details_btn.setEnabled(bool(self.selected_device))
         self.refresh_devices_btn.setEnabled(True)
-        
-        if not self.selected_device:
-            self.loading_details_label.setVisible(False)
-            self.details_container.setVisible(False)
         
         # 1. Actualizar botón de confirmación
         if has_selection and self.selected_device:
@@ -304,37 +299,34 @@ class UIDevicePanel:
             not is_same_device
         )
         
-        # 2. Actualizar banner del dispositivo seleccionado
+        # 2. Verificar si el dispositivo seleccionado sigue en la lista
         if self.selected_device:
-            # Buscar el texto completo del dispositivo seleccionado
-            device_text = None
-            for i in range(self.device_list.count()):
-                item_text = self.device_list.item(i).text()
-                if self._extract_device_id(item_text) == self.selected_device:
-                    device_text = item_text
-                    break
-            
-            banner_text = device_text if device_text else f"Dispositivo: {self.selected_device}"
-            self.selected_device_banner.setText(banner_text)
-        else:
-            self.selected_device_banner.setText("No hay dispositivo seleccionado")
-            # Actualizar también la sección de instalación
-            if hasattr(self, '_update_ui_state'):
-                self._update_ui_state()
+            # 2. Verificar si el dispositivo seleccionado sigue conectado (fuente real: devices_data)
+            is_selected_device_in_list = False
 
-        # 3. Limpiar selección si el dispositivo ya no está conectado
-        if hasattr(self, 'devices_data') and self.devices_data:
-            if self.selected_device and self.selected_device not in [d['device'] for d in self.devices_data]:
+            if self.selected_device and hasattr(self, 'devices_data') and self.devices_data:
+                # Lista real de IDs conectados según ADB
+                connected_ids = [d['device'] for d in self.devices_data]
+
+                if self.selected_device in connected_ids:
+                    is_selected_device_in_list = True
+                else:
+                    # El dispositivo ya no está conectado
+                    is_selected_device_in_list = False
+            
+            if not is_selected_device_in_list:
                 self.selected_device = None
-                self.selected_device_banner.setText("No hay dispositivo seleccionado")
+                self._update_device_banner()
                 self.handle_app_operations('load', force_load=True)
+                
+        else:
+            self._update_device_banner()
+            self._update_ui_state() # Actualizar la sección de instalación
         
-        # 4. Manejar mensajes de estado
-        if hasattr(self, 'devices_data'):
-            if self.devices_data:
-                self.hide_devices_message()
-            else:
-                self.show_devices_message("No se encontraron dispositivos conectados", "info")
+        if self.devices_data:
+            self.hide_devices_message()
+        else:
+            self.show_devices_message("No se encontraron dispositivos conectados", "info")
 
         self.set_devices_section_enabled(self.adb_available)
 
