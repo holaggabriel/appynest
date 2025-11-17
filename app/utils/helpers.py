@@ -52,7 +52,7 @@ def shorten_path(path, max_length=60, mode="end"):
         # Modo por defecto si se especifica uno inválido
         return f"...{path[-(max_length-3):]}"
 
-def get_subprocess_kwargs(timeout=10) -> dict:
+def get_subprocess_kwargs(timeout=10, encoding="utf-8", errors="replace") -> dict:
     """
     Devuelve los kwargs que se deben pasar a subprocess.run
     según el sistema operativo para ocultar ventanas u otras configuraciones.
@@ -60,7 +60,9 @@ def get_subprocess_kwargs(timeout=10) -> dict:
     kwargs = {
         "capture_output": True,
         "text": True,
-        "timeout": timeout
+        "timeout": timeout,
+        "encoding": encoding,
+        "errors": errors
     }
 
     if PLATFORM == Platform.WIN32:
