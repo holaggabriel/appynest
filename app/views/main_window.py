@@ -239,6 +239,7 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         main_layout.setStretchFactor(left_panel, 1)
         main_layout.setStretchFactor(right_panel, 2)
         
+        self.show_section(1) # Mostrar sección de aplicaciones por defecto
         self.update_nav_buttons_style()
     
     def show_section(self, index):
