@@ -85,6 +85,7 @@ class InstallationThread(BaseThread):
             total_apks = len(self.apk_paths)
             success_count = 0
             failed_apks = []
+            successful_apks = []  # ← Lista para los exitosos
             
             for i, apk_path in enumerate(self.apk_paths, 1):
                 # Verificar si debemos detenernos
@@ -104,6 +105,7 @@ class InstallationThread(BaseThread):
                 
                 if success:
                     success_count += 1
+                    successful_apks.append(apk_name)
                     if self.is_running():  # Verificar antes de emitir
                         self.progress_update.emit(f"{apk_name} instalado correctamente")
                 else:
@@ -119,8 +121,9 @@ class InstallationThread(BaseThread):
                     self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente")
                 elif success_count > 0:
                     result_message = f"{success_count} de {total_apks} APKs instalados correctamente"
+                    result_message += f"\n\nAPK(s) instalados:\n" + "\n".join(successful_apks)
                     if failed_apks:
-                        result_message += f"\n\nErrores:\n" + "\n".join(failed_apks)
+                        result_message += f"\n\nAPK(s) no instalados:\n" + "\n".join(failed_apks)
                     self.finished_signal.emit(False, result_message)
                 else:
                     result_message = f"Todos los APKs fallaron:\n" + "\n".join(failed_apks)
