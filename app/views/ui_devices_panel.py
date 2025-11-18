@@ -318,6 +318,7 @@ class UIDevicePanel:
                 self.selected_device = None
                 self._update_device_banner()
                 self.handle_app_operations('load', force_load=True)
+                self._update_ui_state() # Actualizar la sección de instalación
                 
         else:
             self._update_device_banner()
