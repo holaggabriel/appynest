@@ -424,8 +424,32 @@ class UIDevicePanel:
         
         return "\n".join(lines)
 
+    def _show_loading_message(self, message, message_type="info"):
+        """Muestra mensajes en el loading_details_label con diferentes estilos"""
+        style_map = {
+            "info": 'status_info_message',
+            "warning": 'status_warning_message', 
+            "error": 'status_error_message',
+            "success": 'status_success_message'
+        }
+        
+        object_name = style_map.get(message_type, 'status_info_message')
+        
+        self.loading_details_label.setText(message)
+        self.loading_details_label.setObjectName(object_name)
+        self.apply_style_update(self.loading_details_label)
+        self.loading_details_label.setVisible(True)
+
     def _load_device_details(self, device_id):
         """Carga los detalles del dispositivo usando thread"""
+        
+        # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
+        if not self.device_manager.is_device_available(self.selected_device):
+            self.details_container.setVisible(False)
+            execute_after_delay(lambda: self.refresh_details_btn.setEnabled(True), GLOBAL_ACTION_DELAY * 3)
+            self._show_loading_message("El dispositivo seleccionado no está disponible", "error")
+            return
+    
         self.device_details_thread = DeviceDetailsThread(self.device_manager, device_id)
         self.device_details_thread.finished_signal.connect(self._handle_device_details_loaded)
         self.device_details_thread.error_signal.connect(self._handle_device_details_error)
@@ -434,7 +458,6 @@ class UIDevicePanel:
         self.register_thread(self.device_details_thread)
         self.device_details_thread.finished.connect(lambda: self.unregister_thread(self.device_details_thread))
         
-        self.device_details_thread.start()
         execute_after_delay(lambda: self.device_details_thread.start(), GLOBAL_ACTION_DELAY)
 
     def _handle_device_details_loaded(self, device_info):
@@ -445,15 +468,13 @@ class UIDevicePanel:
         
         self._update_device_banner()
         self._update_device_ui_state()
-        
-        if hasattr(self, '_update_ui_state'):
-            self._update_ui_state()
+        self._update_ui_state() # Actualizar la ui de la sección de instalación
 
     def _handle_device_details_error(self, error_message):
         """Maneja errores al cargar detalles del dispositivo"""
         print_in_debug_mode(f"Error en thread de detalles: {error_message}")
         self.selected_device_info = {}
-        self.loading_details_label.setVisible(False)
+        self._show_loading_message(f"Error al cargar detalles", "error")
         self.refresh_details_btn.setEnabled(True)
         self.details_container.setVisible(False)
 
@@ -461,8 +482,8 @@ class UIDevicePanel:
         """Actualiza los detalles del dispositivo seleccionado usando thread"""
         if self.selected_device:
             self.refresh_details_btn.setEnabled(False)
-            self.loading_details_label.setVisible(True)
             self.details_container.setVisible(False)
+            self._show_loading_message(f"Cargando detalles del dispositivo...", "info")
             self._load_device_details(self.selected_device)
             
     def show_connection_help_dialog(self):
