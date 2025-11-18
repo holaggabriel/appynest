@@ -51,6 +51,8 @@ DIALOG_COLORS = {
     "alternate_base": "#252525",
     "highlighted_text": "#ffffff",
     "repo_title": "#e0e0e0",
+    
+    'donation_thanks': '#E6C23A',
 }
 
 class DialogColors:

@@ -408,6 +408,29 @@ class AppTheme:
                 color: {colors['tertiary_button_disabled_text']};
             }}
             
+            QPushButton#donation_button {{
+                background-color: {colors['tertiary_button']};
+                color: {colors['text']};
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: 500;
+                font-size: 16px;
+            }}
+            
+            QPushButton#donation_button:hover {{
+                background-color: {colors['tertiary_button_hover']};
+            }}
+            
+            QPushButton#donation_button:pressed {{
+                background-color: {colors['tertiary_button_pressed']};
+            }}
+            
+            QPushButton#donation_button:disabled {{
+                background-color: {colors['tertiary_button_disabled']};
+                color: {colors['tertiary_button_disabled_text']};
+            }}
+            
             QLabel#title_container {{
                 color: {colors['title_text']};
                 font-weight: bold;

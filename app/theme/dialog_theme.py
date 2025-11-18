@@ -107,6 +107,16 @@ class DialogTheme:
                 margin: 0px;
             }}
             
+            QLabel#donation_thank_you {{
+                color: {colors['donation_thanks']};
+                font-size: 14px;
+                font-weight: bold;
+                line-height: 1.4;
+                padding: 0px;
+                border-radius: 4px;
+                margin: 0px;
+            }}
+            
             QLabel#version {{
                 color: {colors['version_text']};
                 font-size: 12px;

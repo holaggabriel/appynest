@@ -9,6 +9,7 @@ from app.core.device_manager import DeviceManager
 from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog
+from app.views.dialogs.donation_info_dialog import DonationInfoDialog
 from app.views.widgets.info_button import InfoButton
 from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path
@@ -108,14 +109,23 @@ class UIConfigSection:
         # Botón de información
         self.info_btn = QPushButton("Acerca de")
         self.info_btn.setObjectName('button_tertiary_default')
+        self.info_btn.setFixedHeight(32)
         self.info_btn.clicked.connect(self.show_about_dialog)
         about_buttons_layout.addWidget(self.info_btn)
         
         # Botón de sugerencias
         self.feedback_btn = QPushButton("Comentarios")
         self.feedback_btn.setObjectName('button_tertiary_default')
+        self.feedback_btn.setFixedHeight(32)
         self.feedback_btn.clicked.connect(self.show_feedback_dialog)
         about_buttons_layout.addWidget(self.feedback_btn)
+        
+        # Botón de donación
+        self.donation_btn = QPushButton("⭐")
+        self.donation_btn.setObjectName('donation_button')
+        self.donation_btn.setFixedSize(50, 32)
+        self.donation_btn.clicked.connect(self.show_donation_info_dialog)
+        about_buttons_layout.addWidget(self.donation_btn)
         
         layout.addLayout(about_buttons_layout)
             
@@ -264,4 +274,9 @@ class UIConfigSection:
     def show_feedback_dialog(self):
         """Muestra el diálogo de sugerencias"""
         dialog = FeedbackDialog(self)
+        dialog.exec()
+    
+    def show_donation_info_dialog(self):
+        """Muestra el diálogo de sugerencias"""
+        dialog = DonationInfoDialog(self)
         dialog.exec()
