@@ -131,7 +131,7 @@ class AboutDialog(QDialog):
         # Copyright y licencia
         copyright_text = """
         <p style='margin: 0;'>
-        Copyright © 2025 Gabriel Beltran<br>
+        Copyright © 2025-2026 Gabriel Beltran<br>
         This application comes with absolutely no warranty. See the 
         <a href='http://www.gnu.org/licenses/'>GNU General Public License, version 3</a> 
         or later for details.
