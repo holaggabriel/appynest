@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
                              QWidget, QFrame,QGridLayout )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread, DevicesScanThread, DeviceDetailsThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
@@ -35,12 +36,13 @@ class UIDevicePanel:
         self.selected_device_banner.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         banner_container.addWidget(self.selected_device_banner)
 
-        # Botón de recargar detalles
-        self.refresh_details_btn = QPushButton("⟳")
+        # Botón de recargar detalles del dispositivo
+        self.refresh_details_btn = QPushButton()
         self.refresh_details_btn.setObjectName('refresh_button_icon')
         self.refresh_details_btn.setToolTip("Actualizar detalles del dispositivo")
         self.refresh_details_btn.setFixedSize(40, 40)
-        self.refresh_details_btn
+        self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_disabled.svg"))
+        self.refresh_details_btn.setIconSize(QSize(16, 16))
         self.refresh_details_btn.clicked.connect(self._refresh_device_details)
         self.refresh_details_btn.setEnabled(False)
         banner_container.addWidget(self.refresh_details_btn)
@@ -186,7 +188,7 @@ class UIDevicePanel:
         """Inicia la carga de dispositivos con estado visual usando thread"""
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
-        self.refresh_details_btn.setEnabled(False)
+        self._set_refresh_button_state(False)
 
         self.check_adb_availability_async()
         
@@ -256,7 +258,7 @@ class UIDevicePanel:
             enabled = False
         self.device_list.setEnabled(enabled)
         self.refresh_devices_btn.setEnabled(enabled and not self.is_thread_type_running(DevicesScanThread))
-        self.refresh_details_btn.setEnabled(enabled and bool(self.selected_device))
+        self._set_refresh_button_state(enabled and bool(self.selected_device))
         self.confirm_device_btn.setEnabled(enabled)
                 
         if not self.adb_available:
@@ -366,7 +368,7 @@ class UIDevicePanel:
 
     def _update_device_banner(self):
         """Actualiza los banners con la información del dispositivo guardada"""
-        self.refresh_details_btn.setEnabled(bool(self.selected_device))
+        self._set_refresh_button_state(bool(self.selected_device))
         
         if not self.selected_device:
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
@@ -393,6 +395,16 @@ class UIDevicePanel:
                 card_label.setText(f"<b>{display_name}:</b>\n{value}")
             
             self.details_container.setVisible(True)
+
+    def _set_refresh_button_state(self, enabled):
+        """Establece el estado del botón de refresh y cambia el icono según corresponda"""
+        self.refresh_details_btn.setEnabled(enabled)
+        
+        # Cambiar icono basado en el estado
+        if enabled:
+            self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_enabled.svg"))
+        else:
+            self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_disabled.svg"))
 
     def _format_device_info_for_clipboard(self):
         """Formatea la información del dispositivo para el portapapeles"""
@@ -446,7 +458,7 @@ class UIDevicePanel:
         # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
         if not self.device_manager.is_device_available(self.selected_device):
             self.details_container.setVisible(False)
-            execute_after_delay(lambda: self.refresh_details_btn.setEnabled(True), GLOBAL_ACTION_DELAY * 3)
+            execute_after_delay(lambda:  self._set_refresh_button_state(True), GLOBAL_ACTION_DELAY * 3)
             self._show_loading_message("El dispositivo seleccionado no está disponible", "error")
             return
     
@@ -464,7 +476,7 @@ class UIDevicePanel:
         """Maneja la carga exitosa de detalles del dispositivo"""
         self.selected_device_info = device_info
         self.loading_details_label.setVisible(False)
-        self.refresh_details_btn.setEnabled(True)
+        self._set_refresh_button_state(True)
         
         self._update_device_banner()
         self._update_device_ui_state()
@@ -475,13 +487,13 @@ class UIDevicePanel:
         print_in_debug_mode(f"Error en thread de detalles: {error_message}")
         self.selected_device_info = {}
         self._show_loading_message(f"Error al cargar detalles", "error")
-        self.refresh_details_btn.setEnabled(True)
+        self._set_refresh_button_state(True)
         self.details_container.setVisible(False)
 
     def _refresh_device_details(self):
         """Actualiza los detalles del dispositivo seleccionado usando thread"""
         if self.selected_device:
-            self.refresh_details_btn.setEnabled(False)
+            self._set_refresh_button_state(False)
             self.details_container.setVisible(False)
             self._show_loading_message(f"Cargando detalles del dispositivo...", "info")
             self._load_device_details(self.selected_device)

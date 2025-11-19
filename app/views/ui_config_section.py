@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout,
                              QPushButton, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
                              QFrame, QSizePolicy)
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from app.core.device_manager import DeviceManager
 from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
@@ -121,9 +122,11 @@ class UIConfigSection:
         about_buttons_layout.addWidget(self.feedback_btn)
         
         # Botón de donación
-        self.donation_btn = QPushButton("⭐")
+        self.donation_btn = QPushButton()
         self.donation_btn.setObjectName('donation_button')
-        self.donation_btn.setFixedSize(50, 32)
+        self.donation_btn.setFixedSize(40, 32)
+        self.donation_btn.setIcon(QIcon("assets/icons/star.svg"))
+        self.donation_btn.setIconSize(QSize(18, 18))
         self.donation_btn.clicked.connect(self.show_donation_info_dialog)
         about_buttons_layout.addWidget(self.donation_btn)
         
