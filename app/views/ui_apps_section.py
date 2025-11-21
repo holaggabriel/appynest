@@ -301,7 +301,10 @@ class UIAppsSection:
             return
             
         search_text = self.search_input.text().lower().strip()
-        self.search_input.setEnabled(True)
+
+        # Obtener la app seleccionada actualmente ANTES de filtrar
+        current_selection = self.get_selected_app_data()
+        current_package = current_selection["package_name"] if current_selection else None
 
         # Filtrado eficiente
         self.filtered_apps_data = [
@@ -312,7 +315,18 @@ class UIAppsSection:
             or search_text in app["package_name"].lower()
         ]
 
+        # Actualizar la lista
         self.update_apps_list_display()
+        
+        # Buscar y restaurar la selección si el elemento sigue en la lista filtrada
+        if current_package:
+            for index in range(self.apps_list.count()):
+                item = self.apps_list.item(index)
+                app_data = item.data(Qt.ItemDataRole.UserRole)
+                if app_data["package_name"] == current_package:
+                    item.setSelected(True)
+                    self.apps_list.scrollToItem(item)
+                    break
 
     def filter_apps_list(self):
         """Método mantenido por compatibilidad, ahora usa debounce"""
