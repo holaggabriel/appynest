@@ -234,32 +234,28 @@ class UIAppsSection:
 
         except Exception as e:
             self.set_ui_state(True)
+            self.update_apps_list_display()
             self.show_apps_message("Error al obtener aplicaciones", "error")
 
     def on_apps_loaded(self, result):
         if self.cleaning_up or self.property("closing"):
             return
 
-        # Desbloquear controles después de cargar
-        self.set_ui_state(True)
-        self.apps_list.clear()
-
         if result["success"]:
             apps = result["data"]["apps"]
             # Guardar todas las aplicaciones cargadas
             self.all_apps_data = apps
-
             # Aplicar filtros iniciales - usar el método directo sin debounce
             self._perform_filter_apps()
-
-            has_apps = len(self.all_apps_data) > 0
-            self.search_input.setEnabled(has_apps)
-
         else:
             self.all_apps_data = []
             self.filtered_apps_data = []
             self.show_apps_message(f"{result['message']}", "error")
             self.search_input.setEnabled(False)
+            self.update_apps_list_display()
+        
+        # Desbloquear controles después de cargar
+        self.set_ui_state(True)
 
     def on_app_selected(self):
         app_data = self.get_selected_app_data()
@@ -390,9 +386,6 @@ class UIAppsSection:
         if enabled and self.is_thread_type_running(
             [AppsLoadingThread, UninstallThread, ExtractThread], mode="or"):
             enabled = False
-            
-        
-        self.update_apps_list_display()
         
         # Controles de apps
         if enabled:
