@@ -491,7 +491,7 @@ class UIAppsSection:
             return
 
         # Desbloquear controles después de la operación
-        if operation_type == "extract":
+        if operation_type == "extract" or not success:
             self.set_ui_state(True)
 
         if success:
