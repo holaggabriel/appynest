@@ -3,7 +3,7 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QCursor
 
 class InfoButton(QToolButton):
-    def __init__(self, parent=None, size=20):
+    def __init__(self, parent=None, size=24):
         super().__init__(parent)
         self.size = size
 
