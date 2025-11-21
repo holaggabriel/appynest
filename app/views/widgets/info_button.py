@@ -1,36 +1,42 @@
 from PySide6.QtWidgets import QToolButton
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon, QCursor
 
 class InfoButton(QToolButton):
-    def __init__(self, parent=None, size=20, bg_color="#3498DB", text_color="#FFFFFF"):
+    def __init__(self, parent=None, size=20):
         super().__init__(parent)
         self.size = size
-        self.bg_color = bg_color
-        self.text_color = text_color
-        self.setText("i")
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._apply_style()
 
-    def _apply_style(self):
-        self.setFixedSize(self.size, self.size)
-        
-        self.setStyleSheet(f"""
-            QToolButton {{
-                background-color: {self.bg_color};
-                color: {self.text_color};
+        # Rutas a los iconos
+        self.icon_normal = QIcon("assets/icons/info.svg")
+        self.icon_hover = QIcon("assets/icons/info_hover.svg")
+
+        # Icono inicial
+        self.setIcon(self.icon_normal)
+        self.setIconSize(QSize(self.size, self.size))
+
+        # Cursor tipo "manita"
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+
+        # Botón sin fondo
+        self.setStyleSheet("""
+            QToolButton {
+                background: transparent;
                 border: none;
-                border-radius: {self.size // 2}px;
-                font-weight: bold;
-                font-size: {max(8, int(self.size * 0.6))}px;
-                padding: 0px;
-            }}
-            QToolButton:hover {{
-                background-color: #2980B9;
-            }}
-            QToolButton:pressed {{
-                background-color: #21618C;
-            }}
+                padding: 0px 0px 0px 0px;
+                margin: 0px 0px 0px 0px;
+            }
         """)
+
+    # Mouse entra -> hover
+    def enterEvent(self, event):
+        self.setIcon(self.icon_hover)
+        super().enterEvent(event)
+
+    # Mouse sale -> normal
+    def leaveEvent(self, event):
+        self.setIcon(self.icon_normal)
+        super().leaveEvent(event)
 
     def sizeHint(self):
         return QSize(self.size, self.size)
