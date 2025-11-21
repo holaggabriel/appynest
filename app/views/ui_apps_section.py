@@ -252,7 +252,6 @@ class UIAppsSection:
             self.filtered_apps_data = []
             self.show_apps_message(f"{result['message']}", "error")
             self.search_input.setEnabled(False)
-            self.update_apps_list_display()
         
         # Desbloquear controles después de cargar
         self.set_ui_state(True)
