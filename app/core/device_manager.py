@@ -7,55 +7,115 @@ class DeviceManager:
     def __init__(self, adb_manager: ADBManager):
         self.adb_manager = adb_manager
         self.kwargs = get_subprocess_kwargs()
+        
     def get_connected_devices(self):
-        """Obtiene la lista de dispositivos conectados"""
+        """
+        Obtiene la lista de dispositivos conectados
+        
+        Returns:
+            dict: Estructura con éxito, mensaje y lista de dispositivos
+            {
+                'success': bool,
+                'devices': list,
+                'message': str
+            }
+        """
         devices = []
         
         try:
             adb_path = self.adb_manager.get_adb_path()
 
-            result = subprocess.run([adb_path, "devices", "-l"], **self.kwargs)
+            # Ejecutar comando adb devices
+            adb_result = subprocess.run(
+                [adb_path, "devices", "-l"], 
+                **self.kwargs
+            )
             
-            if result.returncode == 0:
-                lines = result.stdout.strip().split('\n')[1:]  # Saltar la línea de encabezado
+            if adb_result.returncode != 0:
+                return {
+                    'success': False,
+                    'devices': [],
+                    'message': f"Error en comando ADB (código: {adb_result.returncode})"
+                }
+            
+            # Procesar la salida
+            lines = adb_result.stdout.strip().split('\n')[1:]  # Saltar encabezado
+            
+            # Filtrar líneas vacías
+            device_lines = [line for line in lines if line.strip()]
+            
+            if not device_lines:
+                return {
+                    'success': True,
+                    'devices': [],
+                    'message': "No hay dispositivos conectados"
+                }
+            
+            # Procesar cada dispositivo
+            for line in device_lines:
+                if not line.strip():
+                    continue
+                    
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                    
+                device_id = parts[0]
+                status = parts[1]
                 
-                for line in lines:
-                    if line.strip():
-                        parts = line.split()
-                        if len(parts) >= 2:
-                            device_id = parts[0]
-                            # Solo obtener el modelo de 'adb devices -l'
-                            model = "Desconocido"
-                            
-                            for part in parts:
-                                if "model:" in part:
-                                    model = part.split(":")[1]
-                                    break
-                            
-                            # OBTENER MARCA CON GETPROP
-                            brand = "Desconocido"
-                            try:
-                                brand_result = subprocess.run(
-                                    [adb_path, "-s", device_id, "shell", "getprop", "ro.product.brand"],
-                                    **self.kwargs
-                                )
-                                if brand_result.returncode == 0 and brand_result.stdout.strip():
-                                    brand = brand_result.stdout.strip()
-                            except:
-                                pass
-                            
-                            devices.append({
-                                'device': device_id,
-                                'model': model,
-                                'brand': brand,
-                                'status': parts[1]
-                            })
+                # Solo procesar dispositivos autorizados/conectados
+                if status not in ['device', 'authorized']:
+                    continue
+                
+                # Obtener modelo de 'adb devices -l'
+                model = "Desconocido"
+                for part in parts:
+                    if "model:" in part:
+                        model = part.split(":")[1]
+                        break
+                
+                # Obtener marca con getprop
+                brand = "Desconocido"
+                try:
+                    brand_result = subprocess.run(
+                        [adb_path, "-s", device_id, "shell", "getprop", "ro.product.brand"],
+                        **self.kwargs
+                    )
+                    if brand_result.returncode == 0 and brand_result.stdout.strip():
+                        brand = brand_result.stdout.strip()
+                except Exception as prop_error:
+                    print_in_debug_mode(f"Error al obtener marca para {device_id}: {prop_error}")
+                    # No marcamos esto como error crítico, continuamos con "Desconocido"
+                
+                devices.append({
+                    'device': device_id,
+                    'model': model,
+                    'brand': brand,
+                    'status': status
+                })
             
+            # Éxito con dispositivos encontrados
+            return {
+                'success': True,
+                'devices': devices,
+                'message': f"Se encontraron {len(devices)} dispositivo(s)"
+            }
+            
+        except FileNotFoundError:
+            return {
+                'success': False,
+                'devices': [],
+                'message': "ADB no encontrado en la ruta especificada"
+            }
         except Exception as e:
+            error_msg = f"Error inesperado: {str(e)}"
             print_in_debug_mode(f"Error al obtener dispositivos: {e}")
+            return {
+                'success': False,
+                'devices': [],
+                'message': error_msg
+            }
         
-        return devices
-    
     def get_device_info(self, device_id):
         """Obtiene información detallada de un dispositivo"""
         try:

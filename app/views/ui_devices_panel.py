@@ -192,8 +192,6 @@ class UIDevicePanel:
         self.show_devices_message("Actualizando lista de dispositivos...", "info")
         self.refresh_devices_btn.setEnabled(False)
         self._set_refresh_button_state(False)
-
-        self.check_adb_availability_async()
         
         # Crear y configurar el thread
         self.devices_scan_thread = DevicesScanThread(self.device_manager)
@@ -209,28 +207,30 @@ class UIDevicePanel:
         # Iniciar el thread después del delay
         execute_after_delay(lambda: self.devices_scan_thread.start(), GLOBAL_ACTION_DELAY)
 
-    def _handle_scan_results(self, devices):
+    def _handle_scan_results(self, result):
         """Procesa los resultados del escaneo de dispositivos"""
         try:
             self.device_list.clear()
             # Asignar la lista de dispositivos en crudo
-            self.devices_data = devices  # No copiar datos, sobre escribirlos
+            self.devices_data = result['devices']  # No copiar datos, sobre escribirlos
 
-            for device in self.devices_data:
-                self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
-                    
-        finally:
-            self._update_device_ui_state() 
+            if result['success']:
+                for device in self.devices_data:
+                    self.device_list.addItem(f"{device['brand']} {device['model']} - {device['device']}")
+                self._update_device_ui_state() 
+            else:
+                self._handle_scan_error()      
+        except Exception as e:
+            print_in_debug_mode("Error en _handle_scan_results()")
 
-    def _handle_scan_error(self, error_message):
+    def _handle_scan_error(self):
         """Maneja errores durante el escaneo de dispositivos"""
-        self.show_devices_message(error_message, "error")
         self.device_list.clear()
         self.selected_device = None
         self.selected_device_info = {}
-        if hasattr(self, 'devices_data'):
-            self.devices_data = []
+        self.devices_data = []
         self._update_device_ui_state()
+        self.check_adb_availability_async()
 
     def show_devices_message(self, message, message_type="info"):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
@@ -265,7 +265,7 @@ class UIDevicePanel:
         self.confirm_device_btn.setEnabled(enabled)
                 
         if not self.adb_available:
-            self.show_devices_message("ADB no está configurado", "error")
+            self.show_devices_message("ADB no disponible", "error")
 
         # Verificación directa para el botón de confirmación
         should_enable_confirm = False
@@ -343,7 +343,7 @@ class UIDevicePanel:
             return
         
         if not self.adb_manager.is_available():
-            self.show_devices_message("ADB no está configurado", "error")
+            self.show_devices_message("ADB no disponible", "error")
             self.update_adb_availability(False)
             return
             

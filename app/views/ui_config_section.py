@@ -219,7 +219,7 @@ class UIConfigSection:
         # Manejar mensajes de estado ADB
         if self.adb_available:
             if self.devices_message_label.objectName() == "status_error_message":
-                self.hide_devices_message()
+                self.show_devices_message("ADB disponible. Actualiza la lista de dispositivos", "info")
             adb_path = self.adb_manager.get_adb_path()
             self._set_adb_status("Disponible", shorten_path(adb_path), "success")
             self.adb_path_label.setToolTip(adb_path)     
@@ -229,31 +229,34 @@ class UIConfigSection:
 
         self.set_devices_section_enabled(self.adb_available)
 
-    def check_adb_availability_async(self):
+    def check_adb_availability_async(self, load_devices=False):
         """
-        Verifica la disponibilidad de ADB de forma asíncrona usando thread
-        Actualiza automáticamente self.adb_available cuando termine
+        Verifica la disponibilidad de ADB de forma asíncrona usando thread.
+        load_devices: si es True, cargará la lista de dispositivos después de la verificación
         """
-        # Si ya hay una verificación en curso, no hacer nada
         if self.is_thread_type_running(ADBCheckThread):
             return
-        
-        # Crear y configurar el thread
+
         self.adb_check_thread = ADBCheckThread(self.adb_manager)
-        self.adb_check_thread.finished_signal.connect(self._on_adb_check_complete_simple)
+        
+        # Conectar callback, pasando el parámetro load_devices
+        self.adb_check_thread.finished_signal.connect(
+            lambda success, msg: self._on_adb_check_complete_simple(success, msg, load_devices)
+        )
         self.adb_check_thread.error_signal.connect(self._on_adb_check_error_simple)
         
-        # Registrar el thread
         self.register_thread(self.adb_check_thread)
-        
-        # Iniciar la verificación
         execute_after_delay(lambda: self.adb_check_thread.start(), GLOBAL_ACTION_DELAY)
 
-    def _on_adb_check_complete_simple(self, success, message):
-        """Callback simple que solo actualiza el estado"""
+    def _on_adb_check_complete_simple(self, success, message, load_devices=False):
+        """Callback simple que actualiza el estado de ADB"""
         self.update_adb_availability(success)
         
-        # Habilitar botones cuando termine (específico para la sección de configuración)
+        # Si es la primera verificación al inicio, cargar dispositivos
+        if load_devices and success:
+            self.load_devices()
+        
+        # Habilitar botones
         self._disable_buttons_context(True)
         
         # Auto-eliminar el thread

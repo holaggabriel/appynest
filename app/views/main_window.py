@@ -44,8 +44,8 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.cleaning_up = False
         self.selected_device_info = {}
         self.init_ui()
-        self.check_adb_availability_async()
-        # self.load_devices() # Este metodo verifica indirectamente el estado del adb
+        # Solo al iniciar, verificar ADB y cargar dispositivos después
+        self.check_adb_availability_async(load_devices=True)
 
     def setup_styles(self):
         AppTheme.setup_app_palette(self)

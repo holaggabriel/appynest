@@ -163,24 +163,26 @@ class AppsLoadingThread(BaseThread):
                 })
 
 class DevicesScanThread(BaseThread):
-    finished_signal = Signal(list)
+    finished_signal = Signal(dict)
     error_signal = Signal(str)
     
     def __init__(self, device_manager):
         super().__init__()
-        self.device_manager = device_manager  # Solo necesita device_manager
+        self.device_manager = device_manager
     
     def run(self):
         try:
             if not self.is_running():
                 return
             
-            # Solo se encarga de escanear dispositivos
-            # La verificación de ADB se hace externamente
-            devices = self.device_manager.get_connected_devices()
+            # Ahora devuelve un diccionario con success, devices y message
+            result = self.device_manager.get_connected_devices()
             
             if self.is_running():
-                self.finished_signal.emit(devices)
+                if result['success']:
+                    self.finished_signal.emit(result)
+                else:
+                    self.error_signal.emit(result['message'])
                 
         except Exception as e:
             if self.is_running():
