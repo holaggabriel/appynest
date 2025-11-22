@@ -40,23 +40,27 @@ class UIAppsSection:
         self.refresh_apps_btn.clicked.connect(
             lambda: self.handle_app_operations("load", force_load=True)
         )
+        self.refresh_apps_btn.setCursor(Qt.PointingHandCursor)
         controls_layout.addWidget(self.refresh_apps_btn)
 
         radio_layout = QHBoxLayout()
         self.all_apps_radio = QRadioButton("Todas")
         self.all_apps_radio.setObjectName("radio_button_default")
         self.all_apps_radio.toggled.connect(self.on_radio_button_changed)
+        self.all_apps_radio.setCursor(Qt.PointingHandCursor)
         radio_layout.addWidget(self.all_apps_radio)
 
         self.user_apps_radio = QRadioButton("Usuario")
         self.user_apps_radio.setChecked(True)
         self.user_apps_radio.setObjectName("radio_button_default")
         self.user_apps_radio.toggled.connect(self.on_radio_button_changed)
+        self.user_apps_radio.setCursor(Qt.PointingHandCursor)
         radio_layout.addWidget(self.user_apps_radio)
 
         self.system_apps_radio = QRadioButton("Sistema")
         self.system_apps_radio.setObjectName("radio_button_default")
         self.system_apps_radio.toggled.connect(self.on_radio_button_changed)
+        self.system_apps_radio.setCursor(Qt.PointingHandCursor)
         radio_layout.addWidget(self.system_apps_radio)
 
         controls_layout.addLayout(radio_layout)
@@ -158,12 +162,14 @@ class UIAppsSection:
         self.uninstall_btn.setObjectName("button_danger_default")
         self.uninstall_btn.clicked.connect(self.uninstall_app)
         self.uninstall_btn.setEnabled(False)
+        self.uninstall_btn.setCursor(Qt.PointingHandCursor)
         app_details_layout.addWidget(self.uninstall_btn)
 
         self.extract_apk_btn = QPushButton("Extraer APK")
         self.extract_apk_btn.setObjectName("button_primary_default")
         self.extract_apk_btn.clicked.connect(self.extract_app_apk)
         self.extract_apk_btn.setEnabled(False)
+        self.extract_apk_btn.setCursor(Qt.PointingHandCursor)
         app_details_layout.addWidget(self.extract_apk_btn)
 
         right_layout.addWidget(self.app_details_widget)

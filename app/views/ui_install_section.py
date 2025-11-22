@@ -72,18 +72,21 @@ class UIInstallSection:
         self.select_apk_btn = QPushButton("Agregar APKs")
         self.select_apk_btn.setObjectName('button_primary_default')
         self.select_apk_btn.clicked.connect(self.select_apk)
+        self.select_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
         self.remove_apk_btn = QPushButton("Eliminar")
         self.remove_apk_btn.setObjectName('button_warning_default')
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
+        self.remove_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
         self.clear_apk_btn = QPushButton("Limpiar")
         self.clear_apk_btn.setObjectName('button_danger_default')
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         self.clear_apk_btn.setEnabled(False)
+        self.clear_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.clear_apk_btn)
         
         layout.addLayout(apk_buttons_layout)
@@ -92,6 +95,7 @@ class UIInstallSection:
         self.install_btn.setObjectName('button_success_default')
         self.install_btn.clicked.connect(self.install_apk)
         self.install_btn.setEnabled(False)
+        self.install_btn.setCursor(Qt.PointingHandCursor)
         layout.addWidget(self.install_btn)
         
         return widget

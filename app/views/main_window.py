@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout,
                              QPushButton, 
                              QWidget, QMessageBox,
                              QStackedWidget)
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 from app.core.apk_installer import APKInstaller
 from app.core.device_manager import DeviceManager
@@ -208,16 +208,19 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         self.install_btn_nav.setCheckable(True)
         self.install_btn_nav.setChecked(True)
         self.install_btn_nav.clicked.connect(lambda: self.show_section(0))
+        self.install_btn_nav.setCursor(Qt.PointingHandCursor)
         nav_buttons_layout.addWidget(self.install_btn_nav)
         
         self.apps_btn_nav = QPushButton("Aplicaciones")
         self.apps_btn_nav.setCheckable(True)
         self.apps_btn_nav.clicked.connect(lambda: self.show_section(1))
+        self.apps_btn_nav.setCursor(Qt.PointingHandCursor)
         nav_buttons_layout.addWidget(self.apps_btn_nav)
         
         self.config_btn_nav = QPushButton("Ajustes")
         self.config_btn_nav.setCheckable(True)
         self.config_btn_nav.clicked.connect(lambda: self.show_section(2))
+        self.config_btn_nav.setCursor(Qt.PointingHandCursor)
         nav_buttons_layout.addWidget(self.config_btn_nav)
         
         right_layout.addLayout(nav_buttons_layout)

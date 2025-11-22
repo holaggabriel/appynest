@@ -45,6 +45,7 @@ class UIDevicePanel:
         self.refresh_details_btn.setIconSize(QSize(16, 16))
         self.refresh_details_btn.clicked.connect(self._refresh_device_details)
         self.refresh_details_btn.setEnabled(False)
+        self.refresh_details_btn.setCursor(Qt.PointingHandCursor)
         banner_container.addWidget(self.refresh_details_btn)
 
         layout.addLayout(banner_container)
@@ -113,12 +114,14 @@ class UIDevicePanel:
         self.refresh_devices_btn = QPushButton("Actualizar")
         self.refresh_devices_btn.setObjectName('button_primary_default')
         self.refresh_devices_btn.clicked.connect(self.load_devices)
+        self.refresh_devices_btn.setCursor(Qt.PointingHandCursor)
         device_buttons_layout.addWidget(self.refresh_devices_btn)
         
         self.confirm_device_btn = QPushButton("Seleccionar")
         self.confirm_device_btn.setObjectName('button_success_default')
         self.confirm_device_btn.setEnabled(False)
         self.confirm_device_btn.clicked.connect(self._confirm_device_selection)
+        self.confirm_device_btn.setCursor(Qt.PointingHandCursor)
         device_buttons_layout.addWidget(self.confirm_device_btn)
         
         layout.addLayout(device_buttons_layout)

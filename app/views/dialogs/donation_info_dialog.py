@@ -88,6 +88,7 @@ class DonationInfoDialog(QDialog):
         self.open_btn = QPushButton("Abrir página")
         self.open_btn.setObjectName("button_primary_default")
         self.open_btn.clicked.connect(self.open_feedback_form)
+        self.open_btn.setCursor(Qt.PointingHandCursor)
         layout.addWidget(self.open_btn)
     
     def open_feedback_form(self):

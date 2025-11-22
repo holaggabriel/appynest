@@ -54,6 +54,7 @@ class UIConfigSection:
         self.update_adb_btn.setFixedWidth(100)
         self.update_adb_btn.setToolTip("Verificar estado ADB")
         self.update_adb_btn.clicked.connect(self.update_adb_status)
+        self.update_adb_btn.setCursor(Qt.PointingHandCursor)
         status_container.addWidget(self.update_adb_btn)
 
         layout.addLayout(status_container)
@@ -94,6 +95,7 @@ class UIConfigSection:
         self.folder_adb_btn.setFixedWidth(100)
         self.folder_adb_btn.setToolTip("Seleccionar ruta de ADB")
         self.folder_adb_btn.clicked.connect(self.select_custom_adb)
+        self.folder_adb_btn.setCursor(Qt.PointingHandCursor)
         main_container.addWidget(self.folder_adb_btn)
 
         # Agregar el contenedor principal al layout
@@ -112,6 +114,7 @@ class UIConfigSection:
         self.info_btn.setObjectName('button_tertiary_default')
         self.info_btn.setFixedHeight(32)
         self.info_btn.clicked.connect(self.show_about_dialog)
+        self.info_btn.setCursor(Qt.PointingHandCursor)
         about_buttons_layout.addWidget(self.info_btn)
         
         # Botón de sugerencias
@@ -119,6 +122,7 @@ class UIConfigSection:
         self.feedback_btn.setObjectName('button_tertiary_default')
         self.feedback_btn.setFixedHeight(32)
         self.feedback_btn.clicked.connect(self.show_feedback_dialog)
+        self.feedback_btn.setCursor(Qt.PointingHandCursor)
         about_buttons_layout.addWidget(self.feedback_btn)
         
         # Botón de donación
@@ -128,6 +132,7 @@ class UIConfigSection:
         self.donation_btn.setIcon(QIcon("assets/icons/star.svg"))
         self.donation_btn.setIconSize(QSize(18, 18))
         self.donation_btn.clicked.connect(self.show_donation_info_dialog)
+        self.donation_btn.setCursor(Qt.PointingHandCursor)
         about_buttons_layout.addWidget(self.donation_btn)
         
         layout.addLayout(about_buttons_layout)
