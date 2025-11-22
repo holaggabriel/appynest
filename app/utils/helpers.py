@@ -75,22 +75,22 @@ def get_subprocess_kwargs(timeout=10, encoding="utf-8", errors="replace") -> dic
 
 def resource_path(relative_path):
     """Devuelve la ruta absoluta de un asset, según si estamos en PyInstaller o en desarrollo."""
-    print(f"[resource_path] Solicitado: {relative_path}")
+    # print(f"[resource_path] Solicitado: {relative_path}")
 
     # Si estamos en modo dev y ENVIRONMENT es 'dev', usamos la carpeta del proyecto
     if ENVIRONMENT == Environment.DEV:
         base_path = os.path.abspath(".")
-        print(f"[resource_path] MODO DESARROLLO (ENV=dev). Base path: {base_path}")
+        # print(f"[resource_path] MODO DESARROLLO (ENV=dev). Base path: {base_path}")
     else:
         # En prod (PyInstaller), intentamos usar _MEIPASS
         try:
             base_path = sys._MEIPASS
-            print(f"[resource_path] MODO EXE detectado. Base path (MEIPASS): {base_path}")
+            # print(f"[resource_path] MODO EXE detectado. Base path (MEIPASS): {base_path}")
         except AttributeError:
             # Fallback si no existe _MEIPASS por alguna razón
             base_path = os.path.abspath(".")
-            print(f"[resource_path] Fallback a modo desarrollo. Base path: {base_path}")
+            # print(f"[resource_path] Fallback a modo desarrollo. Base path: {base_path}")
 
     final_path = os.path.join(base_path, relative_path)
-    print(f"[resource_path] Path final: {final_path}")
+    # print(f"[resource_path] Path final: {final_path}")
     return final_path

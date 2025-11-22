@@ -40,7 +40,6 @@ def main():
         loaded_sizes = []
         for size in sizes:
             path = resource_path(f"assets/logo/png/logo_{size}.png")
-            print(f"Size cargado en linux: {path}")
             if os.path.exists(path):
                 icon.addFile(path)
                 loaded_sizes.append(size)
@@ -52,7 +51,6 @@ def main():
         loaded_sizes = []
         for size in sizes:
             path = resource_path(f"assets/logo/ico/logo_{size}.ico")
-            print(f"Size cargado en windows: {path}")
             if os.path.exists(path):
                 icon.addFile(path)
                 loaded_sizes.append(size)
