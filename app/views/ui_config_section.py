@@ -13,7 +13,7 @@ from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.dialogs.donation_info_dialog import DonationInfoDialog
 from app.views.widgets.info_button import InfoButton
 from app.core.threads import ADBCheckThread
-from app.utils.helpers import execute_after_delay, shorten_path
+from app.utils.helpers import execute_after_delay, shorten_path, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 from app.constants.config import PLATFORM
 from app.constants.enums import Platform
@@ -129,7 +129,7 @@ class UIConfigSection:
         self.donation_btn = QPushButton()
         self.donation_btn.setObjectName('donation_button')
         self.donation_btn.setFixedSize(40, 32)
-        self.donation_btn.setIcon(QIcon("assets/icons/star.svg"))
+        self.donation_btn.setIcon(QIcon(resource_path("assets/icons/star.svg")))
         self.donation_btn.setIconSize(QSize(18, 18))
         self.donation_btn.clicked.connect(self.show_donation_info_dialog)
         self.donation_btn.setCursor(Qt.PointingHandCursor)

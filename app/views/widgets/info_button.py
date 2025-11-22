@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QToolButton
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QCursor
+from app.utils.helpers import resource_path
 
 class InfoButton(QToolButton):
     def __init__(self, parent=None, size=24):
@@ -8,8 +9,8 @@ class InfoButton(QToolButton):
         self.size = size
 
         # Rutas a los iconos
-        self.icon_normal = QIcon("assets/icons/info.svg")
-        self.icon_hover = QIcon("assets/icons/info_hover.svg")
+        self.icon_normal = QIcon(resource_path("assets/icons/info.svg"))
+        self.icon_hover = QIcon(resource_path("assets/icons/info_hover.svg"))
 
         # Icono inicial
         self.setIcon(self.icon_normal)

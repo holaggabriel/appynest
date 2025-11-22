@@ -6,7 +6,7 @@ from PySide6.QtGui import QIcon
 from app.core.threads import AppsLoadingThread,UninstallThread, ExtractThread, InstallationThread, DevicesScanThread, DeviceDetailsThread
 from app.views.dialogs.connection_help_dialog import ConnectionHelpDialog
 from app.views.widgets.info_button import InfoButton
-from app.utils.helpers import execute_after_delay
+from app.utils.helpers import execute_after_delay, resource_path
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.constants.delays import GLOBAL_ACTION_DELAY
 
@@ -41,7 +41,7 @@ class UIDevicePanel:
         self.refresh_details_btn.setObjectName('refresh_button_icon')
         self.refresh_details_btn.setToolTip("Actualizar detalles del dispositivo")
         self.refresh_details_btn.setFixedSize(40, 40)
-        self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_disabled.svg"))
+        self.refresh_details_btn.setIcon(QIcon(resource_path("assets/icons/refresh_disabled.svg")))
         self.refresh_details_btn.setIconSize(QSize(16, 16))
         self.refresh_details_btn.clicked.connect(self._refresh_device_details)
         self.refresh_details_btn.setEnabled(False)
@@ -405,9 +405,9 @@ class UIDevicePanel:
         
         # Cambiar icono basado en el estado
         if enabled:
-            self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_enabled.svg"))
+            self.refresh_details_btn.setIcon(QIcon(resource_path("assets/icons/refresh_enabled.svg")))
         else:
-            self.refresh_details_btn.setIcon(QIcon("assets/icons/refresh_disabled.svg"))
+            self.refresh_details_btn.setIcon(QIcon(resource_path("assets/icons/refresh_disabled.svg")))
 
     def _format_device_info_for_clipboard(self):
         """Formatea la información del dispositivo para el portapapeles"""

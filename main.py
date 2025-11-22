@@ -6,6 +6,7 @@ from PySide6.QtGui import QIcon
 from app.constants.config import APP_NAME, APP_VERSION, APP_ID, ORGANIZATION_NAME, ORGANIZATION_DOMAIN
 from app.constants.enums import Platform
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.helpers import resource_path
 from app.views.main_window import MainWindow
 
 def main():
@@ -38,7 +39,8 @@ def main():
         sizes = [32, 48, 64, 72, 512]  # resoluciones prioritarias
         loaded_sizes = []
         for size in sizes:
-            path = os.path.join(os.path.dirname(__file__), f"assets/logo/png/logo_{size}.png")
+            path = resource_path(f"assets/logo/png/logo_{size}.png")
+            print(f"Size cargado en linux: {path}")
             if os.path.exists(path):
                 icon.addFile(path)
                 loaded_sizes.append(size)
@@ -49,7 +51,8 @@ def main():
         sizes = [32, 48, 64, 72, 128]  # resoluciones para Windows
         loaded_sizes = []
         for size in sizes:
-            path = os.path.join(os.path.dirname(__file__), f"assets/logo/ico/logo_{size}.ico")
+            path = resource_path(f"assets/logo/ico/logo_{size}.ico")
+            print(f"Size cargado en windows: {path}")
             if os.path.exists(path):
                 icon.addFile(path)
                 loaded_sizes.append(size)
@@ -57,7 +60,7 @@ def main():
 
     # Fallback general si no se cargó ningún icono
     if icon.isNull():
-        fallback_path = os.path.join(os.path.dirname(__file__), "assets", "logo", "logo.png")
+        fallback_path = resource_path("assets/logo/png/logo_512.png")
         if os.path.exists(fallback_path):
             icon = QIcon(fallback_path)
             print_in_debug_mode(f"Icono fallback general cargado: {fallback_path}")
