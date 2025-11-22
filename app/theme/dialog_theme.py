@@ -227,6 +227,42 @@ class DialogTheme:
                 background-color: transparent;
             }}
             
+            QPushButton#tutorial_button {{
+                background-color: {colors['repo_button_background']};
+                border: 1px solid {colors['repo_button_border']};
+                border-radius: 6px;
+                padding: 8px 16px;
+                text-align: left;
+            }}
+
+            QPushButton#tutorial_button:hover {{
+                background-color: {colors['button_secondary_hover']};
+                border-color: {colors['border_secondary']};
+            }}
+
+            QPushButton#tutorial_button:pressed {{
+                background-color: {colors['button_secondary_pressed']};
+            }}
+
+            QLabel#tutorial_icon {{
+                font-size: 18px;
+                background-color: transparent;
+            }}
+
+            QLabel#tutorial_title {{
+                color: {colors['repo_title']};
+                font-size: 12px;
+                font-weight: bold;
+                background-color: transparent;
+            }}
+
+            QLabel#tutorial_link {{
+                color: {colors['link_primary']};
+                font-size: 11px;
+                font-weight: 500;
+                background-color: transparent;
+            }}
+            
             /* ===== ESTILOS PARA SEPARADORES ===== */
             QFrame#separator {{
                 background-color: {colors['separator']};

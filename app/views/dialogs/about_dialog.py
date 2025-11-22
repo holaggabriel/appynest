@@ -6,7 +6,7 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
 from app.constants.labels import APP_DESCRIPTION
-from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL
+from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
@@ -36,9 +36,18 @@ class AboutDialog(QDialog):
             error_msg = f"Error inesperado"
             print_in_debug_mode(f"✗ {error_msg}")
     
+    def open_tutorial(self):
+        """Abre el tutorial de la aplicación en el navegador"""
+        try:
+            webbrowser.open(APP_TUTORIAL_URL)
+        except webbrowser.Error:
+            print_in_debug_mode("Error al abrir el tutorial")
+        except Exception:
+            print_in_debug_mode("Error inesperado al abrir el tutorial")
+    
     def init_ui(self):
         self.setWindowTitle(f"Acerca de {APP_NAME}")
-        self.setFixedSize(450, 450)
+        self.setFixedSize(430, 500)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")
@@ -80,7 +89,6 @@ class AboutDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         layout.addWidget(separator2)
         
-        
         # Botón del repositorio - ahora usa solo ObjectName sin estilos inline
         repo_button = QPushButton()
         repo_button.setObjectName("repo_button")
@@ -103,7 +111,7 @@ class AboutDialog(QDialog):
         repo_text_layout.setSpacing(2)
         repo_text_layout.setContentsMargins(0, 0, 0, 0)
         
-        repo_title = QLabel("Repositorio oficial")
+        repo_title = QLabel("Repositorio")
         repo_title.setObjectName("repo_title")
         repo_title.setCursor(Qt.CursorShape.PointingHandCursor)
         
@@ -121,6 +129,44 @@ class AboutDialog(QDialog):
         
         # Agregar el botón del repositorio al layout principal
         layout.addWidget(repo_button)
+        
+        layout.addSpacing(10)
+        
+        # Botón del tutorial
+        tutorial_button = QPushButton()
+        tutorial_button.setObjectName("tutorial_button")
+        tutorial_button.setFixedHeight(50)
+        tutorial_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        tutorial_button.clicked.connect(self.open_tutorial)
+
+        tutorial_layout = QHBoxLayout(tutorial_button)
+        tutorial_layout.setContentsMargins(16, 8, 16, 8)
+        tutorial_layout.setSpacing(12)
+
+        tutorial_icon = QLabel("🎓")  # Icono de tutorial
+        tutorial_icon.setObjectName("tutorial_icon")
+        tutorial_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        tutorial_text_layout = QVBoxLayout()
+        tutorial_text_layout.setSpacing(2)
+        tutorial_text_layout.setContentsMargins(0, 0, 0, 0)
+
+        tutorial_title = QLabel("Tutorial")
+        tutorial_title.setObjectName("tutorial_title")
+        tutorial_title.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        tutorial_link = QLabel(APP_TUTORIAL_URL)
+        tutorial_link.setObjectName("tutorial_link")
+        tutorial_link.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        tutorial_text_layout.addWidget(tutorial_title)
+        tutorial_text_layout.addWidget(tutorial_link)
+
+        tutorial_layout.addWidget(tutorial_icon)
+        tutorial_layout.addLayout(tutorial_text_layout)
+        tutorial_layout.addStretch()
+
+        layout.addWidget(tutorial_button)
         
         # Separador
         separator2 = QFrame()
