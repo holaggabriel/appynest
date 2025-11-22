@@ -1,6 +1,6 @@
 import subprocess
 import os
-from app.constants.config import PACKAGE_NAME, APP_VERSION
+from app.constants.config import PACKAGE_NAME, APP_VERSION, APP_NAME
 import textwrap
 import sys
 import shutil
@@ -236,7 +236,7 @@ def build_appimage():
     verify_64bit_environment()
 
     # 🎯 NOMBRES DINÁMICOS con versión y arquitectura
-    binary_name = get_binary_name()
+    binary_name = get_binary_name()  # ej: "miapp_1.0.0_x86_64"
     appimage_name = get_appimage_name()
     
     appdir = "AppDir"
@@ -246,22 +246,14 @@ def build_appimage():
         print(f"❌ No se encontró el binario {binary_path}. Ejecuta primero la opción 1.")
         return
 
-    # Verificar que el binario es 64-bit
-    try:
-        result = subprocess.run(["file", binary_path], capture_output=True, text=True, check=True)
-        if "64-bit" not in result.stdout:
-            raise RuntimeError("El binario no es 64-bit")
-        print("✅ Binario verificado como 64-bit")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("⚠️  No se pudo verificar arquitectura del binario (comando 'file' no disponible)")
-
     # 1️⃣ Crear estructura AppDir
     os.makedirs(f"{appdir}/usr/bin", exist_ok=True)
 
-    # 2️⃣ Copiar binario
-    subprocess.run(["cp", binary_path, f"{appdir}/usr/bin/{PACKAGE_NAME}"], check=True)
+    # 2️⃣ Copiar binario MANTENIENDO el nombre completo
+    subprocess.run(["cp", binary_path, f"{appdir}/usr/bin/{binary_name}"], check=True)
+    print(f"✅ Binario copiado como: {binary_name}")
 
-    # 3️⃣ Crear AppRun
+    # 3️⃣ Crear AppRun con el nombre completo
     apprun_path = os.path.join(appdir, "AppRun")
     apprun_content = textwrap.dedent(f"""\
         #!/bin/sh
@@ -273,19 +265,19 @@ def build_appimage():
             echo "Arquitectura detectada: $ARCH"
             exit 1
         fi
-        exec "$HERE/usr/bin/{PACKAGE_NAME}" "$@"
+        exec "$HERE/usr/bin/{binary_name}" "$@"
     """)
     with open(apprun_path, "w") as f:
         f.write(apprun_content)
     os.chmod(apprun_path, 0o755)
 
-    # 4️⃣ Crear .desktop
+    # 4️⃣ Crear .desktop (puedes mantener PACKAGE_NAME aquí si prefieres)
     desktop_path = os.path.join(appdir, f"{PACKAGE_NAME}.desktop")
     desktop_content = textwrap.dedent(f"""\
         [Desktop Entry]
         Type=Application
-        Name={PACKAGE_NAME} v{APP_VERSION}
-        Exec=usr/bin/{PACKAGE_NAME}
+        Name={APP_NAME} v{APP_VERSION}
+        Exec=usr/bin/{binary_name}
         Icon=logo_512
         Comment=Application v{APP_VERSION} built for 64-bit systems
         Categories=Utility;
