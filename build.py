@@ -128,7 +128,6 @@ def build_exe():
             (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)):
         print("ERROR: No estás en un entorno virtual. Activar el venv primero.")
         return
-y
     
     # Método preferido: usar PyInstaller como módulo
     python_exe = sys.executable
