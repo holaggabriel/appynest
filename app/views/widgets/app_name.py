@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPixmap, QPainter
 from PySide6.QtSvg import QSvgRenderer
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.helpers import resource_path
 
 class AppName(QWidget):
     def __init__(self, parent=None):
@@ -16,7 +17,7 @@ class AppName(QWidget):
         layout.setSpacing(6)  # Espaciado entre letras
         layout.setContentsMargins(0, 0, 0, 0)
         
-        assets_path = os.path.join(os.path.dirname(__file__), "..", "..","..", "assets")
+        assets_path = resource_path("assets/alphabet")
         letter_size = 36
         
         # Configuración de espaciado
