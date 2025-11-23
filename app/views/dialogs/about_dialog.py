@@ -18,44 +18,29 @@ class AboutDialog(QDialog):
         all_styles = DialogTheme.get_dialog_styles()
         self.setStyleSheet(all_styles)
     
-    def open_github_repo(self):
-        """Abre el repositorio de GitHub en el navegador con manejo de errores"""
-        
-        try:
-            # Intentar abrir el enlace en el navegador
-            webbrowser.open(APP_REPOSITORY_URL)
-            
-        except webbrowser.Error as e:
-            # Error específico del módulo webbrowser
-            error_msg = f"Error al abrir el enlace"
-            print_in_debug_mode(f"{error_msg}")
-            
-        except Exception as e:
-            # Error genérico inesperado
-            error_msg = f"Error inesperado"
-            print_in_debug_mode(f"✗ {error_msg}")
-    
-    def open_tutorial(self):
-        """Abre el tutorial de la aplicación en el navegador"""
-        try:
-            webbrowser.open(APP_TUTORIAL_URL)
-        except webbrowser.Error:
-            print_in_debug_mode("Error al abrir el tutorial")
-        except Exception:
-            print_in_debug_mode("Error inesperado al abrir el tutorial")
-    
     def init_ui(self):
         self.setWindowTitle(f"Acerca de {APP_NAME}")
         self.setFixedSize(430, 470)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
-        
         self.setObjectName("dialog_base")
         
         layout = QVBoxLayout(self)
         layout.setSpacing(0)
         layout.setContentsMargins(24, 24, 24, 24)
         
-        # Header con nombre de la aplicación
+        # Crear todos los componentes en orden
+        self.create_header(layout)
+        self.create_separator(layout)
+        self.create_description(layout)
+        self.create_separator(layout)
+        self.create_repo_button(layout)
+        self.create_tutorial_button(layout)
+        self.create_separator(layout)
+        self.create_copyright(layout)
+        self.create_credits(layout)
+    
+    def create_header(self, parent_layout):
+        """Crea el encabezado con nombre y versión de la aplicación"""
         header_layout = QVBoxLayout()
         header_layout.setSpacing(0)
         
@@ -71,27 +56,25 @@ class AboutDialog(QDialog):
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(version_label)
         
-        layout.addLayout(header_layout)
-        
-        # Separador
+        parent_layout.addLayout(header_layout)
+    
+    def create_separator(self, parent_layout):
+        """Crea un separador horizontal"""
         separator = QFrame()
         separator.setObjectName("separator")
         separator.setFrameShape(QFrame.Shape.HLine)
-        layout.addWidget(separator)
-  
+        parent_layout.addWidget(separator)
+    
+    def create_description(self, parent_layout):
+        """Crea la descripción de la aplicación"""
         info_label = QLabel(APP_DESCRIPTION)
         info_label.setObjectName("description")
         info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         info_label.setWordWrap(True)
-        layout.addWidget(info_label)
-        
-         # Separador
-        separator2 = QFrame()
-        separator2.setObjectName("separator")
-        separator2.setFrameShape(QFrame.Shape.HLine)
-        layout.addWidget(separator2)
-        
-        # Botón del repositorio - ahora usa solo ObjectName sin estilos inline
+        parent_layout.addWidget(info_label)
+    
+    def create_repo_button(self, parent_layout):
+        """Crea el botón del repositorio GitHub"""
         repo_button = QPushButton()
         repo_button.setObjectName("repo_button")
         repo_button.setFixedHeight(50)
@@ -130,11 +113,11 @@ class AboutDialog(QDialog):
         repo_layout.addStretch()
         
         # Agregar el botón del repositorio al layout principal
-        layout.addWidget(repo_button)
-        
-        layout.addSpacing(10)
-        
-        # Botón del tutorial
+        parent_layout.addWidget(repo_button)
+        parent_layout.addSpacing(10)
+    
+    def create_tutorial_button(self, parent_layout):
+        """Crea el botón del tutorial"""
         tutorial_button = QPushButton()
         tutorial_button.setObjectName("tutorial_button")
         tutorial_button.setFixedHeight(50)
@@ -145,7 +128,7 @@ class AboutDialog(QDialog):
         tutorial_layout.setContentsMargins(16, 8, 16, 8)
         tutorial_layout.setSpacing(12)
 
-        tutorial_icon = QLabel("🎓")  # Icono de tutorial
+        tutorial_icon = QLabel("🎓")
         tutorial_icon.setObjectName("tutorial_icon")
         tutorial_icon.setCursor(Qt.CursorShape.PointingHandCursor)
 
@@ -168,15 +151,10 @@ class AboutDialog(QDialog):
         tutorial_layout.addLayout(tutorial_text_layout)
         tutorial_layout.addStretch()
 
-        layout.addWidget(tutorial_button)
-        
-        # Separador
-        separator2 = QFrame()
-        separator2.setObjectName("separator")
-        separator2.setFrameShape(QFrame.Shape.HLine)
-        layout.addWidget(separator2)
-        
-        # Copyright y licencia
+        parent_layout.addWidget(tutorial_button)
+    
+    def create_copyright(self, parent_layout):
+        """Crea la sección de copyright y licencia"""
         copyright_text = """
         <p style='margin: 0;'>
         Copyright © 2025-2026 Gabriel Beltran<br>
@@ -190,9 +168,11 @@ class AboutDialog(QDialog):
         copyright_label.setOpenExternalLinks(True)
         copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         copyright_label.setWordWrap(True)
-        layout.addWidget(copyright_label)
-        layout.addSpacing(10)
-
+        parent_layout.addWidget(copyright_label)
+        parent_layout.addSpacing(10)
+    
+    def create_credits(self, parent_layout):
+        """Crea la sección de créditos"""
         kerismaker_credit = """
         <p style='margin: 0;'>
         Design elements derived from "Animal Flat Colors (25 Icons)" by 
@@ -206,7 +186,27 @@ class AboutDialog(QDialog):
         credit_label.setOpenExternalLinks(True)
         credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         credit_label.setWordWrap(True)
-        layout.addWidget(credit_label)
+        parent_layout.addWidget(credit_label)
+
+    def open_github_repo(self):
+        """Abre el repositorio de GitHub en el navegador con manejo de errores"""
+        try:
+            webbrowser.open(APP_REPOSITORY_URL)
+        except webbrowser.Error as e:
+            error_msg = f"Error al abrir el enlace"
+            print_in_debug_mode(f"{error_msg}")
+        except Exception as e:
+            error_msg = f"Error inesperado"
+            print_in_debug_mode(f"✗ {error_msg}")
+    
+    def open_tutorial(self):
+        """Abre el tutorial de la aplicación en el navegador"""
+        try:
+            webbrowser.open(APP_TUTORIAL_URL)
+        except webbrowser.Error:
+            print_in_debug_mode("Error al abrir el tutorial")
+        except Exception:
+            print_in_debug_mode("Error inesperado al abrir el tutorial")
     
     def keyPressEvent(self, event):
         """Permite cerrar el diálogo con la tecla Escape"""
