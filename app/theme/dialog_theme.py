@@ -119,7 +119,7 @@ class DialogTheme:
 
             QLabel#app_name {{
                 font-family: "Segoe UI";
-                font-size: 45px;
+                font-size: 40px;
                 font-weight: bold;
                 color: #FFFFFF;
                 margin: 0px 0px 0px 0px;

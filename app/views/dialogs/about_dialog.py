@@ -46,7 +46,7 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle(f"Acerca de {APP_NAME}")
-        self.setFixedSize(430, 500)
+        self.setFixedSize(430, 470)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")
@@ -63,6 +63,8 @@ class AboutDialog(QDialog):
         app_name.setObjectName("app_name")
         app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(app_name)
+        
+        header_layout.addSpacing(5)
         
         version_label = QLabel(f"Versión {APP_VERSION}")
         version_label.setObjectName("version")
