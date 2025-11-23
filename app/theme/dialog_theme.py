@@ -116,6 +116,16 @@ class DialogTheme:
                 border-radius: 4px;
                 margin: 0px;
             }}
+
+            QLabel#app_name {{
+                font-family: "Segoe UI";
+                font-size: 45px;
+                font-weight: bold;
+                color: #FFFFFF;
+                margin: 0px 0px 0px 0px;
+                padding: 0px 0px 0px 0px;
+                letter-spacing: 5px;
+            }}
             
             QLabel#version {{
                 color: {colors['version_text']};

@@ -3,7 +3,6 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt
 import webbrowser
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from app.views.widgets.app_name import AppName
 from app.theme.dialog_theme import DialogTheme
 from app.constants.labels import APP_DESCRIPTION
 from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
@@ -60,9 +59,10 @@ class AboutDialog(QDialog):
         header_layout = QVBoxLayout()
         header_layout.setSpacing(0)
         
-        app_name = AppName()
-        header_layout.addWidget(app_name, alignment=Qt.AlignmentFlag.AlignCenter)
-        header_layout.addSpacing(20)
+        app_name = QLabel(APP_NAME.upper())
+        app_name.setObjectName("app_name")
+        app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.addWidget(app_name)
         
         version_label = QLabel(f"Versión {APP_VERSION}")
         version_label.setObjectName("version")
@@ -183,7 +183,6 @@ class AboutDialog(QDialog):
         or later for details.
         </p>
         """
-        
         copyright_label = QLabel(copyright_text)
         copyright_label.setObjectName("copyright")
         copyright_label.setOpenExternalLinks(True)
@@ -191,16 +190,6 @@ class AboutDialog(QDialog):
         copyright_label.setWordWrap(True)
         layout.addWidget(copyright_label)
         layout.addSpacing(10)
-        
-        # Créditos de iconos con licencia CC BY
-        pixelbazzar_credit = """
-        <p style='margin: 0;'>
-        Design elements derived from "Alphanumeric (50 Icons)" by 
-        <a href='https://creativemarket.com/pixelbazaar'>Pixelbazaar</a>, 
-        from <a href='https://icon-icons.com/pack/Alphanumeric/4130'>icon-icons.com</a>, 
-        licensed under CC Attribution.
-        </p>
-        """
 
         kerismaker_credit = """
         <p style='margin: 0;'>
@@ -210,15 +199,6 @@ class AboutDialog(QDialog):
         available for free for commercial use.
         </p>
         """
-
-        credit_label = QLabel(pixelbazzar_credit)
-        credit_label.setObjectName("credit")
-        credit_label.setOpenExternalLinks(True)
-        credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        credit_label.setWordWrap(True)
-        layout.addWidget(credit_label)
-        layout.addSpacing(10)
-        
         credit_label = QLabel(kerismaker_credit)
         credit_label.setObjectName("credit")
         credit_label.setOpenExternalLinks(True)
