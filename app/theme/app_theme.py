@@ -97,6 +97,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_left {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-top: none;
@@ -107,6 +108,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_right {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-top: none;
@@ -118,6 +120,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_top_left {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-top-left-radius: 4px;
@@ -130,6 +133,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_top_right {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-left: none;
@@ -143,6 +147,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_bottom_left {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-top: none;
@@ -156,6 +161,7 @@ class AppTheme:
             }}
             
             QLabel#detail_card_bottom_right {{
+                color: {colors['text']};
                 background-color: {colors['banner']};
                 border: 1px solid {colors['border']};
                 border-top: none;
