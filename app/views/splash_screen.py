@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QFrame
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor
 from PySide6.QtCore import Property
+from app.utils.helpers import resource_path
 
 class SplashScreen(QWidget):
     def __init__(self):
@@ -61,8 +62,9 @@ class LoadingWidget(QWidget):
         
     def load_logo(self):
         try:
+            logo_path = resource_path("assets/logo/png/logo_512.png")
             # Cargar logo directamente desde la carpeta assets
-            pixmap = QPixmap("assets/logo/png/logo_512.png")
+            pixmap = QPixmap(logo_path)
             if not pixmap.isNull():
                 # Redimensionar el logo al tamaño fijo
                 pixmap = pixmap.scaled(
