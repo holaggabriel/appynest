@@ -41,6 +41,11 @@ class ApplicationLauncher:
     
     def handle_usb_launch(self):
         """Maneja el lanzamiento desde USB si es necesario."""
+        
+        # Si no es windows, no es necesario lanzarlo desde el usb
+        if Platform(sys.platform) is not Platform.WIN32:
+            return False
+
         if not (is_running_from_usb() and not self.launched_from_launcher):
             return False
         
@@ -156,7 +161,7 @@ class ApplicationLauncher:
         self.show_splash_screen()
         
         # Si estamos en USB, manejamos el lanzamiento y salimos
-        if self.handle_usb_launch() and Platform.WIN32 == Platform(sys.platform):
+        if self.handle_usb_launch():
             sys.exit(self.app.exec())
         
         # Configuración normal de la aplicación
