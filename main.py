@@ -7,9 +7,22 @@ from app.constants.config import APP_NAME, APP_VERSION, APP_ID, ORGANIZATION_NAM
 from app.constants.enums import Platform
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.utils.helpers import resource_path
+from app.utils.usb_detector import is_running_from_usb
+from app.launcher.usb_launcher import launch_detached
 from app.views.main_window import MainWindow
 
 def main():
+        # Verificar si estamos ejecutando desde USB
+    if is_running_from_usb():
+        
+        print("Ejecutando desde USB - usando launcher desacoplado")
+        
+        # Lanzar versión desacoplada y salir
+        if launch_detached():
+            sys.exit(0)
+        else:
+            print("Error al lanzar versión desacoplada, continuando normalmente")
+
     # Determinar la plataforma usando Enum
     try:
         current_platform = Platform(sys.platform)
