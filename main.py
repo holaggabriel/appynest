@@ -1,177 +1,90 @@
 import sys
 import os
 import ctypes
-from pathlib import Path
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
 from app.constants.config import APP_NAME, APP_VERSION, APP_ID, ORGANIZATION_NAME, ORGANIZATION_DOMAIN
 from app.constants.enums import Platform
 from app.utils.print_in_debug_mode import print_in_debug_mode
-from app.utils.helpers import resource_path, execute_after_delay
+from app.utils.helpers import resource_path,execute_after_delay
 from app.utils.usb_detector import is_running_from_usb
-from app.launcher.usb_launcher import copy_executable_to_temp, launch_temp_exe
-from app.constants.delays import SPLASH_SCREEN_DELAY, POST_SPLASH_DELAY
+from app.launcher.usb_launcher import launch_detached
+from app.constants.delays import SPLASH_SCREEN_DELAY
 from app.views.main_window import MainWindow
 from app.views.splash_screen import SplashScreen
 
-class ApplicationLauncher:
-    """Maneja el lanzamiento de la aplicación con soporte para USB y splash screen."""
-    
-    def __init__(self):
-        self.app = None
-        self.splash = None
-        self.window = None
-        self.launched_from_launcher = "--launched" in sys.argv
-    
-    def setup_application(self):
-        """Configura la aplicación Qt con parámetros básicos."""
-        self.app = QApplication(sys.argv)
-        self.app.setApplicationName(APP_NAME)
-        self.app.setApplicationVersion(APP_VERSION)
-        self.app.setOrganizationName(ORGANIZATION_NAME)
-        self.app.setOrganizationDomain(ORGANIZATION_DOMAIN)
-        self.app.setStyle("Fusion")
-    
-    def show_splash_screen(self):
-        """Muestra el splash screen si es necesario."""
-        if not self.launched_from_launcher:
-            icon_path = resource_path("assets/logo/png/logo_128.png")
-            self.splash = SplashScreen(icon_path, "Preparando aplicación...")
-            self.splash.show()
-            self.app.processEvents()
-    
-    def handle_usb_launch(self):
-        """Maneja el lanzamiento desde USB si es necesario."""
-        if not (is_running_from_usb() and not self.launched_from_launcher):
-            return False
-        
+def main():
+    # Crear aplicación Qt
+    app = QApplication(sys.argv)
+    app.setApplicationName(APP_NAME)
+    app.setApplicationVersion(APP_VERSION)
+    app.setOrganizationName(ORGANIZATION_NAME)
+    app.setOrganizationDomain(ORGANIZATION_DOMAIN)
+    app.setStyle("Fusion")
+
+    # Crear splash y mostrarlo
+    icon_path = resource_path("assets/logo/png/logo_128.png")
+    splash = SplashScreen(icon_path, "Preparando aplicación...")
+    splash.show()
+    app.processEvents()  # Fuerza a que se pinte inmediatamente
+
+    # --- Verificación USB y launcher ---
+    usb_mode = False
+    if is_running_from_usb():
         print_in_debug_mode("Ejecutando desde USB - usando launcher desacoplado")
-        try:
-            temp_exe = copy_executable_to_temp()
-            print_in_debug_mode(f"Copiado a: {temp_exe}")
-            
-            if self.splash:
-                execute_after_delay(
-                    lambda: self._close_splash_and_launch_usb(temp_exe), 
-                    SPLASH_SCREEN_DELAY
-                )
-                return True
-            else:
-                launch_temp_exe(temp_exe)
-                self._quit_application()
-                return True
-                
-        except Exception as e:
-            print_in_debug_mode(f"Error al usar launcher USB: {e}")
-            print_in_debug_mode("Continuando ejecución normalmente")
-            return False
-    
-    def _close_splash_and_launch_usb(self, temp_exe):
-        """Cierra el splash y lanza el ejecutable temporal."""
-        if self.splash:
-            self.splash.close()
-        launch_temp_exe(temp_exe)
-        print_in_debug_mode("Lanzado desde TEMP. Cerrando proceso original.")
-        self._quit_application()
-    
-    def setup_platform_specific_config(self):
-        """Configuración específica por plataforma."""
-        try:
-            current_platform = Platform(sys.platform)
-        except ValueError:
-            current_platform = None
-            print_in_debug_mode(f"Plataforma desconocida: {sys.platform}")
-            return
-        
-        if current_platform == Platform.WIN32:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID)
-    
-    def setup_application_icon(self):
-        """Configura el icono de la aplicación según la plataforma."""
-        icon = self._create_platform_icon()
-        
+        usb_mode = True
+        if launch_detached():
+            execute_after_delay(lambda: splash.close(), SPLASH_SCREEN_DELAY)  # cerrar splash antes de salir
+            sys.exit(0)     # No abrir ventana principal; el launcher relanzará la app
+        else:
+            print_in_debug_mode("Error al lanzar versión desacoplada, continuando normalmente")
+    # --- fin verificación USB ---
+
+    # Determinar plataforma
+    try:
+        current_platform = Platform(sys.platform)
+    except ValueError:
+        current_platform = None
+        print_in_debug_mode(f"Plataforma desconocida: {sys.platform}")
+
+    if current_platform == Platform.WIN32:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID)
+
+    # Si no se está ejecutando desde USB (o fallo en launcher), abrir ventana principal
+    if not usb_mode:
+        window = MainWindow()
+
+        # Crear icono
+        icon = QIcon()
+        # Estrategia por plataforma
+        if current_platform == Platform.LINUX:
+            sizes = [32, 48, 64, 72, 512]
+            for size in sizes:
+                path = resource_path(f"assets/logo/png/logo_{size}.png")
+                if os.path.exists(path):
+                    icon.addFile(path)
+        elif current_platform == Platform.WIN32:
+            sizes = [32, 48, 64, 72, 128]
+            for size in sizes:
+                path = resource_path(f"assets/logo/ico/logo_{size}.ico")
+                if os.path.exists(path):
+                    icon.addFile(path)
         if icon.isNull():
             fallback_path = resource_path("assets/logo/png/logo_512.png")
             if os.path.exists(fallback_path):
                 icon = QIcon(fallback_path)
-        
-        self.app.setWindowIcon(icon)
-        if self.window:
-            self.window.setWindowIcon(icon)
-    
-    def _create_platform_icon(self):
-        """Crea el icono apropiado para la plataforma."""
-        icon = QIcon()
-        current_platform = Platform(sys.platform) if hasattr(Platform, sys.platform) else None
-        
-        if current_platform == Platform.LINUX:
-            self._add_icon_sizes(icon, "png", [32, 48, 64, 72, 512])
-        elif current_platform == Platform.WIN32:
-            self._add_icon_sizes(icon, "ico", [32, 48, 64, 72, 128])
-        
-        return icon
-    
-    def _add_icon_sizes(self, icon, extension, sizes):
-        """Añade diferentes tamaños de icono."""
-        for size in sizes:
-            path = resource_path(f"assets/logo/{extension}/logo_{size}.{extension}")
-            if os.path.exists(path):
-                icon.addFile(path)
-    
-    def setup_main_window(self):
-        """Configura y crea la ventana principal."""
-        self.window = MainWindow()
-        self.window.setWindowTitle(APP_NAME)
-        self.window.resize(1000, 700)
-        self.window.setMinimumSize(800, 600)
-    
-    def show_main_interface(self):
-        """Muestra la interfaz principal con transición desde splash."""
-        if self.splash:
-            execute_after_delay(
-                lambda: self._transition_to_main_window(), 
-                SPLASH_SCREEN_DELAY
-            )
-        else:
-            self.window.show()
-    
-    def _transition_to_main_window(self):
-        """Transición desde splash screen a ventana principal."""
-        if self.splash:
-            self.splash.close()
-        
-        def show_window():
-            if self.window:
-                self.window.show()
-        
-        execute_after_delay(show_window, POST_SPLASH_DELAY)
-    
-    def _quit_application(self):
-        """Cierra la aplicación de manera limpia."""
-        if self.app:
-            self.app.quit()
-    
-    def run(self):
-        """Ejecuta el flujo principal de la aplicación."""
-        self.setup_application()
-        self.show_splash_screen()
-        
-        # Si estamos en USB, manejamos el lanzamiento y salimos
-        if self.handle_usb_launch() and Platform.WIN32 == Platform(sys.platform):
-            sys.exit(self.app.exec())
-        
-        # Configuración normal de la aplicación
-        self.setup_platform_specific_config()
-        self.setup_main_window()
-        self.setup_application_icon()
-        self.show_main_interface()
-        
-        sys.exit(self.app.exec())
 
-def main():
-    """Punto de entrada principal de la aplicación."""
-    launcher = ApplicationLauncher()
-    launcher.run()
+        app.setWindowIcon(icon)
+        window.setWindowIcon(icon)
+        window.setWindowTitle(APP_NAME)
+        window.resize(1000, 700)
+        window.setMinimumSize(800, 600)
+
+        execute_after_delay(lambda: (splash.close(), window.show()), SPLASH_SCREEN_DELAY)  # cerrar splash
+        
+
+    # Ejecutar loop de Qt
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
