@@ -35,8 +35,7 @@ class ApplicationLauncher:
     def show_splash_screen(self):
         """Muestra el splash screen si es necesario."""
         if not self.launched_from_launcher:
-            icon_path = resource_path("assets/logo/png/logo_128.png")
-            self.splash = SplashScreen(icon_path, "Preparando aplicación...")
+            self.splash = SplashScreen()
             self.splash.show()
             self.app.processEvents()
     
