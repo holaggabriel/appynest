@@ -62,6 +62,8 @@ class ADBManager:
             return [
                 "/usr/bin/adb",
                 "/usr/local/bin/adb",
+                str(Path.home() / "Android/Sdk/platform-tools/adb"),
+                str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
             ]
         elif PLATFORM == Platform.WIN32:
             return [
@@ -70,7 +72,7 @@ class ADBManager:
                 str(Path.home() / "AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"),
             ]
         return []
-    
+        
     def _search_in_path(self):
         """Busca ADB en el PATH del sistema"""
         which_cmd = "where" if PLATFORM == Platform.WIN32 else "which"
