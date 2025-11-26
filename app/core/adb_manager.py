@@ -166,13 +166,19 @@ class ADBManager:
     def set_custom_adb_path(self, source_adb_path):
         """Configura un ADB personalizado copiándolo localmente"""
         try:
-            # Verificar que el archivo existe y es ejecutable
+            # Verificar que el archivo existe
             if not os.path.exists(source_adb_path):
                 return False, "El archivo no existe"
             
-            # Validar ejecutable en Linux
-            if PLATFORM != Platform.WIN32 and not os.access(source_adb_path, os.X_OK):
-                return False, "El archivo no es ejecutable"
+            # Validar extensión del archivo según plataforma
+            if PLATFORM == Platform.WIN32:
+                if not source_adb_path.lower().endswith("adb.exe"):
+                    return False, "En Windows debe seleccionar el archivo adb.exe"
+                
+            if PLATFORM == Platform.LINUX:
+                # En Linux, validar que sea ejecutable
+                if not os.access(source_adb_path, os.X_OK):
+                    return False, "El archivo seleccionado no es ejecutable"
             
             # Verificar que el ADB esté en una carpeta platform-tools
             source_dir = Path(source_adb_path).parent
@@ -205,7 +211,7 @@ class ADBManager:
             
         except Exception as e:
             return False, f"Error inesperado: {str(e)}"
-
+    
     def cleanup_local_adb(self):
         """Elimina la copia local de platform-tools"""
         try:
