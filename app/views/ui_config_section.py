@@ -1,5 +1,4 @@
 import contextlib
-import os
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
@@ -16,6 +15,7 @@ from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 from app.constants.config import PLATFORM
+from pathlib import Path
 from app.constants.enums import Platform
 
 class UIConfigSection:
@@ -178,26 +178,34 @@ class UIConfigSection:
         self.check_adb_availability_async()
 
     def select_custom_adb(self):
-        """Selecciona una ruta personalizada para ADB y la copia localmente"""
+        """Selecciona una carpeta platform-tools personalizada y la copia localmente"""
         if self.cleaning_up:
             return
 
-        # Definir filtro según plataforma
-        if PLATFORM == Platform.WIN32:
-            filter_str = "ADB Executable (adb.exe);;All Files (*)"
-        else:
-            filter_str = "ADB Binary (adb);;All Files (*)"
-
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Seleccionar ADB", "", filter_str
+        # Usar QFileDialog para seleccionar directorio
+        folder_path = QFileDialog.getExistingDirectory(
+            self, 
+            "Seleccionar carpeta platform-tools", 
+            "",
+            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
         )
 
-        if file_path:
+        if folder_path:
+            # Verificar que sea una carpeta platform-tools válida
+            folder_name = Path(folder_path).name
+            if folder_name != "platform-tools":
+                QMessageBox.warning(
+                    self,
+                    "Carpeta incorrecta",
+                    "Por favor seleccione una carpeta llamada 'platform-tools'"
+                )
+                return
+
             # Mostrar mensaje de progreso
             self._show_verifying_status("Verificando disponibilidad del ADB...")
             
             # Usar el método del ADBManager para todo el proceso
-            success, message = self.adb_manager.set_custom_adb_path(file_path)
+            success, message = self.adb_manager.set_custom_adb_path(folder_path)
             
             self.update_adb_status()
             

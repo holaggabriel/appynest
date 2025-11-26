@@ -1,6 +1,5 @@
 import subprocess
 import os
-import platform
 import shutil
 from pathlib import Path
 from .config_manager import ConfigManager
@@ -19,19 +18,34 @@ class ADBManager:
         return str(self.local_platform_tools_dir / self._adb_filename)
     
     def _validate_adb_file(self, file_path):
-        """Valida un archivo ADB según la plataforma"""
+        """Valida si dentro de la carpeta seleccionada existe el ADB correspondiente a la plataforma."""
+
+        # Verificar existencia del archivo
         if not os.path.exists(file_path):
-            return False, "El archivo no existe"
+            if PLATFORM == Platform.LINUX:
+                return False, (
+                    "La carpeta seleccionada debe ser 'platform-tools' y contener el archivo “adb” ejecutable."
+                )
+            elif PLATFORM == Platform.WIN32:
+                return False, (
+                    "La carpeta seleccionada debe ser 'platform-tools' y contener el archivo “adb.exe”."
+                )
+
+        # Validación por plataforma
+        if PLATFORM == Platform.LINUX and not os.access(file_path, os.X_OK):
+            return False, (
+                "En la carpeta seleccionada no se encontró un archivo “adb” ejecutable.\n"
+                "Asegúrate de que la carpeta 'platform-tools' contenga adb con permisos de ejecución."
+            )
+
+        if PLATFORM == Platform.WIN32 and not file_path.lower().endswith("adb.exe"):
+            return False, (
+                "En la carpeta seleccionada no se encontró el archivo “adb.exe”.\n"
+                "Asegúrate de que la carpeta 'platform-tools' contenga adb.exe."
+            )
+
+        return True, "Archivo válido."
         
-        if PLATFORM == Platform.WIN32:
-            if not file_path.lower().endswith("adb.exe"):
-                return False, "En Windows debe seleccionar el archivo adb.exe"
-        elif PLATFORM == Platform.LINUX:
-            if not os.access(file_path, os.X_OK):
-                return False, "El archivo seleccionado no es ejecutable"
-        
-        return True, "Válido"
-    
     def _is_in_platform_tools(self, file_path):
         """Verifica si el archivo está en una carpeta platform-tools"""
         return Path(file_path).parent.name == "platform-tools"
@@ -167,32 +181,48 @@ class ADBManager:
         
         return None
 
-    def set_custom_adb_path(self, source_adb_path):
-        """Configura un ADB personalizado copiándolo localmente"""
+    def set_custom_adb_path(self, folder_path):
+        """Configura un ADB personalizado copiando toda la carpeta platform-tools localmente"""
         try:
-            # Validaciones
+            # Construir la ruta al archivo ADB dentro de la carpeta
+            if PLATFORM == Platform.LINUX:
+                source_adb_path = str(Path(folder_path) / "adb")
+            elif PLATFORM == Platform.WIN32:
+                source_adb_path = str(Path(folder_path) / "adb.exe")
+            else:
+                return False, "Plataforma no soportada"
+
+            # Validar que el archivo principal adb exista dentro de la carpeta
             is_valid, message = self._validate_adb_file(source_adb_path)
             if not is_valid:
                 return False, message
-            
+
+            # Verificar que la carpeta seleccionada sea realmente platform-tools
             if not self._is_in_platform_tools(source_adb_path):
-                return False, "El ADB debe estar dentro de una carpeta 'platform-tools'"
-            
-            # Copiar platform-tools
+                return False, (
+                    "Debes seleccionar la carpeta 'platform-tools'.\n"
+                    "Dentro de esta carpeta debe estar el archivo adb correspondiente a tu plataforma, "
+                    "junto con todos los archivos que componen platform-tools."
+                )
+
+            # Copiar toda la carpeta platform-tools
             if not self.copy_platform_tools(source_adb_path):
-                return False, "Error al copiar platform-tools"
-            
-            # Configurar
+                return False, "Error al copiar la carpeta platform-tools"
+
+            # Configurar ruta local de ADB
             local_adb_path = self.get_adb_path()
             if not self.config_manager.set_adb_path(local_adb_path):
-                return False, "Error al guardar la configuración"
-            
-            # Verificar funcionalidad
+                return False, "Error al guardar la configuración de ADB"
+
+            # Verificar funcionalidad del ADB
             if not self._test_adb_functionality(local_adb_path):
-                return False, "El ADB copiado no funciona correctamente"
-            
+                return False, (
+                    "El ADB dentro de la carpeta 'platform-tools' copiada no funciona correctamente.\n"
+                    "Verifica que la carpeta seleccionada contenga el ADB junto con todos los archivos necesarios de platform-tools."
+                )
+                
             return True, "ADB configurado correctamente"
-            
+
         except Exception as e:
             return False, f"Error inesperado: {str(e)}"
 
