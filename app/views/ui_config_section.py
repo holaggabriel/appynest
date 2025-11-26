@@ -178,7 +178,7 @@ class UIConfigSection:
         self.check_adb_availability_async()
 
     def select_custom_adb(self):
-        """Selecciona una ruta personalizada para ADB"""
+        """Selecciona una ruta personalizada para ADB y la copia localmente"""
         if self.cleaning_up:
             return
 
@@ -193,24 +193,29 @@ class UIConfigSection:
         )
 
         if file_path:
-            # Validar extensión en Windows
-            if PLATFORM == Platform.WIN32 and not file_path.lower().endswith("adb.exe"):
-                QMessageBox.warning(
-                    self, "Error", "Debe seleccionar el archivo adb.exe"
+            # Mostrar mensaje de progreso
+            self._show_verifying_status("Configurando ADB...")
+            
+            # Usar el método del ADBManager para todo el proceso
+            success, message = self.adb_manager.set_custom_adb_path(file_path)
+            
+            if success:
+                # Actualizar el device manager y verificar estado
+                self.device_manager = DeviceManager(self.adb_manager)
+                self.update_adb_status()
+                
+                QMessageBox.information(
+                    self, 
+                    "Configuración exitosa", 
+                    f"{message}"
                 )
-                return
-            # Validar ejecutable en Linux
-            elif PLATFORM != Platform.WIN32 and not os.access(file_path, os.X_OK):
+            else:
                 QMessageBox.warning(
-                    self, "Error", "El archivo seleccionado no es ejecutable"
+                    self,
+                    "Error en configuración",
+                    f"{message}"
                 )
-                return
-
-            # Guardar la ruta y actualizar estado
-            self.config_manager.set_adb_path(file_path)
-            self.device_manager = DeviceManager(self.adb_manager)
-            self.update_adb_status()
-            QMessageBox.information(self, "Configuración", "Ruta de ADB actualizada")
+                self._set_adb_status("Error", message, "error")
 
     def update_adb_availability(self, available):
         """Actualiza el estado de disponibilidad de ADB"""
