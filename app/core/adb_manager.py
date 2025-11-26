@@ -12,100 +12,113 @@ class ADBManager:
     def __init__(self, config_manager: ConfigManager):
         self.config_manager = config_manager
         self.local_platform_tools_dir = self.config_manager.config_dir / "platform-tools"
+        self._adb_filename = "adb.exe" if PLATFORM == Platform.WIN32 else "adb"
     
     def get_adb_path(self): 
         """Retorna la ruta del ADB local (copia)"""
-        if PLATFORM == Platform.LINUX:
-            return str(self.local_platform_tools_dir / "adb")
+        return str(self.local_platform_tools_dir / self._adb_filename)
+    
+    def _validate_adb_file(self, file_path):
+        """Valida un archivo ADB según la plataforma"""
+        if not os.path.exists(file_path):
+            return False, "El archivo no existe"
         
         if PLATFORM == Platform.WIN32:
-            return str(self.local_platform_tools_dir / "adb.exe")
+            if not file_path.lower().endswith("adb.exe"):
+                return False, "En Windows debe seleccionar el archivo adb.exe"
+        elif PLATFORM == Platform.LINUX:
+            if not os.access(file_path, os.X_OK):
+                return False, "El archivo seleccionado no es ejecutable"
         
-        return ""
+        return True, "Válido"
+    
+    def _is_in_platform_tools(self, file_path):
+        """Verifica si el archivo está en una carpeta platform-tools"""
+        return Path(file_path).parent.name == "platform-tools"
+    
+    def _test_adb_functionality(self, adb_path):
+        """Verifica que ADB funcione correctamente"""
+        try:
+            kwargs = get_subprocess_kwargs()
+            result = subprocess.run([adb_path, "version"], **kwargs)
+            return result.returncode == 0
+        except Exception as e:
+            return False, f"Error al verificar ADB: {str(e)}"
     
     def is_available(self) -> bool:
         """Verifica si ADB está disponible en el sistema"""
         try:
-            # Primero intenta resolver la ruta (esto buscará y copiará si es necesario)
             adb_path = self.resolve_adb_path()
             if not adb_path:
                 return False
             
-            kwargs = get_subprocess_kwargs()
-            result = subprocess.run(
-                [adb_path, "version"], **kwargs
-            )
-            return result.returncode == 0
+            return self._test_adb_functionality(adb_path)
         except Exception:
             return False
     
-    def find_adb_executable(self):
-        """Busca ADB en rutas comunes del sistema, SOLO los que están en platform-tools"""
-        valid_paths = []
-        
+    def _get_common_paths(self):
+        """Retorna las rutas comunes según la plataforma"""
         if PLATFORM == Platform.LINUX:
-            common_paths = [
+            return [
                 "/usr/bin/adb",
                 "/usr/local/bin/adb",
-                #str(Path.home() / "Android/Sdk/platform-tools/adb"),
-                #str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
             ]
         elif PLATFORM == Platform.WIN32:
-            common_paths = [
+            return [
                 "C:\\Program Files\\Android\\platform-tools\\adb.exe",
                 "C:\\Program Files (x86)\\Android\\platform-tools\\adb.exe",
                 str(Path.home() / "AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe"),
             ]
-        else:
-            common_paths = []
-        
-        # Buscar SOLO ADBs que estén en carpetas platform-tools
+        return []
+    
+    def _search_in_path(self):
+        """Busca ADB en el PATH del sistema"""
+        which_cmd = "where" if PLATFORM == Platform.WIN32 else "which"
+        try:
+            result = subprocess.run([which_cmd, "adb"], capture_output=True, text=True)
+            if result.returncode == 0:
+                return [path.strip() for path in result.stdout.strip().split('\n') if path.strip()]
+        except Exception:
+            pass
+        return []
+    
+    def find_adb_executable(self):
+        """Busca ADB en rutas comunes del sistema, SOLO los que están en platform-tools"""
         platform_tools_paths = []
         
-        for path in common_paths:
+        # Buscar en rutas comunes
+        for path in self._get_common_paths():
             if os.path.exists(path) and os.access(path, os.X_OK):
-                path_obj = Path(path)
-                if path_obj.parent.name == "platform-tools":
+                if self._is_in_platform_tools(path):
                     platform_tools_paths.append(path)
                     print(f"ADB válido encontrado en platform-tools: {path}")
                 else:
                     print(f"ADB descartado (no está en platform-tools): {path}")
         
-        # También buscar en PATH, pero SOLO si está en platform-tools
-        which_cmd = "where" if PLATFORM == Platform.WIN32 else "which"
-        try:
-            result = subprocess.run([which_cmd, "adb"], capture_output=True, text=True)
-            if result.returncode == 0:
-                paths_from_which = result.stdout.strip().split('\n')
-                for path in paths_from_which:
-                    path = path.strip()
-                    if os.path.exists(path):
-                        path_obj = Path(path)
-                        if path_obj.parent.name == "platform-tools":
-                            platform_tools_paths.append(path)
-                            print(f"ADB válido encontrado en PATH (platform-tools): {path}")
-                        else:
-                            print(f"ADB en PATH descartado (no está en platform-tools): {path}")
-        except Exception:
-            pass
+        # Buscar en PATH
+        for path in self._search_in_path():
+            if os.path.exists(path):
+                if self._is_in_platform_tools(path):
+                    platform_tools_paths.append(path)
+                    print(f"ADB válido encontrado en PATH (platform-tools): {path}")
+                else:
+                    print(f"ADB en PATH descartado (no está en platform-tools): {path}")
         
+        # Log resultados
         if platform_tools_paths:
             print(f"ADB válidos encontrados: {platform_tools_paths}")
             print(f"Se seleccionará: {platform_tools_paths[0]}")
         else:
             print("No se encontró ADB en ninguna carpeta platform-tools válida")
             
-        # Retornar el primer path válido (solo platform-tools)
         return platform_tools_paths[0] if platform_tools_paths else None
 
     def copy_platform_tools(self, source_adb_path):
         """Copia toda la carpeta platform-tools a la configuración local"""
         try:
-            # Obtener la ruta de la carpeta platform-tools origen
             source_platform_tools_dir = Path(source_adb_path).parent
             
-            # VERIFICACIÓN ESTRICTA: debe ser una carpeta platform-tools
-            if source_platform_tools_dir.name != "platform-tools":
+            if not self._is_in_platform_tools(source_adb_path):
                 print(f"ERROR: ADB no está en carpeta platform-tools: {source_platform_tools_dir}")
                 print("No se copiará ADB suelto. Solo se aceptan ADB en carpetas platform-tools.")
                 return False
@@ -123,7 +136,7 @@ class ADBManager:
             if PLATFORM != Platform.WIN32:
                 local_adb = self.local_platform_tools_dir / "adb"
                 if local_adb.exists():
-                    local_adb.chmod(0o755)  # rwxr-xr-x
+                    local_adb.chmod(0o755)
             
             print(f"Platform-tools copiado exitosamente a: {self.local_platform_tools_dir}")
             return True
@@ -134,30 +147,19 @@ class ADBManager:
 
     def resolve_adb_path(self):
         """Obtiene o busca la ruta de ADB, hace copia local y guarda la configuración"""
-        # Primero verificar si ya tenemos una copia local funcional
+        # Verificar si ya tenemos una copia local funcional
         local_adb_path = self.get_adb_path()
-        if os.path.exists(local_adb_path):
-            # Verificar que el ADB local funcione
-            try:
-                kwargs = get_subprocess_kwargs()
-                result = subprocess.run(
-                    [local_adb_path, "version"], **kwargs
-                )
-                if result.returncode == 0:
-                    return local_adb_path
-            except Exception:
-                # Si falla, continuar para buscar uno nuevo
-                pass
+        if os.path.exists(local_adb_path) and self._test_adb_functionality(local_adb_path):
+            return local_adb_path
         
-        # Si no hay copia local funcional, buscar ADB en el sistema
+        # Buscar ADB en el sistema
         system_adb_path = self.find_adb_executable()
         if not system_adb_path:
             print("No se encontró ningún ADB válido en carpetas platform-tools")
             return None
         
-        # Copiar platform-tools a la configuración local
+        # Copiar y configurar
         if self.copy_platform_tools(system_adb_path):
-            # Guardar la ruta local en la configuración
             self.config_manager.set_adb_path(local_adb_path)
             return local_adb_path
         
@@ -166,46 +168,26 @@ class ADBManager:
     def set_custom_adb_path(self, source_adb_path):
         """Configura un ADB personalizado copiándolo localmente"""
         try:
-            # Verificar que el archivo existe
-            if not os.path.exists(source_adb_path):
-                return False, "El archivo no existe"
+            # Validaciones
+            is_valid, message = self._validate_adb_file(source_adb_path)
+            if not is_valid:
+                return False, message
             
-            # Validar extensión del archivo según plataforma
-            if PLATFORM == Platform.WIN32:
-                if not source_adb_path.lower().endswith("adb.exe"):
-                    return False, "En Windows debe seleccionar el archivo adb.exe"
-                
-            if PLATFORM == Platform.LINUX:
-                # En Linux, validar que sea ejecutable
-                if not os.access(source_adb_path, os.X_OK):
-                    return False, "El archivo seleccionado no es ejecutable"
-            
-            # Verificar que el ADB esté en una carpeta platform-tools
-            source_dir = Path(source_adb_path).parent
-            if source_dir.name != "platform-tools":
+            if not self._is_in_platform_tools(source_adb_path):
                 return False, "El ADB debe estar dentro de una carpeta 'platform-tools'"
             
-            # Copiar platform-tools a la configuración local
+            # Copiar platform-tools
             if not self.copy_platform_tools(source_adb_path):
                 return False, "Error al copiar platform-tools"
             
-            # Obtener la ruta local
+            # Configurar
             local_adb_path = self.get_adb_path()
-            
-            # Guardar la ruta local en la configuración
             if not self.config_manager.set_adb_path(local_adb_path):
                 return False, "Error al guardar la configuración"
             
-            # Verificar que el ADB local funcione
-            try:
-                kwargs = get_subprocess_kwargs()
-                result = subprocess.run(
-                    [local_adb_path, "version"], **kwargs
-                )
-                if result.returncode != 0:
-                    return False, "El ADB copiado no funciona correctamente"
-            except Exception as e:
-                return False, f"Error al verificar ADB: {str(e)}"
+            # Verificar funcionalidad
+            if not self._test_adb_functionality(local_adb_path):
+                return False, "El ADB copiado no funciona correctamente"
             
             return True, "ADB configurado correctamente"
             

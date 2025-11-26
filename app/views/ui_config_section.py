@@ -194,15 +194,16 @@ class UIConfigSection:
 
         if file_path:
             # Mostrar mensaje de progreso
-            self._show_verifying_status("Configurando ADB...")
+            self._show_verifying_status("Verificando disponibilidad del ADB...")
             
             # Usar el método del ADBManager para todo el proceso
             success, message = self.adb_manager.set_custom_adb_path(file_path)
             
+            self.update_adb_status()
+            
             if success:
                 # Actualizar el device manager y verificar estado
                 self.device_manager = DeviceManager(self.adb_manager)
-                self.update_adb_status()
                 
                 QMessageBox.information(
                     self, 
@@ -215,7 +216,6 @@ class UIConfigSection:
                     "Error en configuración",
                     f"{message}"
                 )
-                self._set_adb_status("Error", message, "error")
 
     def update_adb_availability(self, available):
         """Actualiza el estado de disponibilidad de ADB"""
