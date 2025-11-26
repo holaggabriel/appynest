@@ -195,6 +195,27 @@ class ADBManager:
             
         except Exception as e:
             return False, f"Error inesperado: {str(e)}"
+
+    def kill_adb_server(self):
+        """Cierra el servidor ADB si está ejecutándose"""
+        try:
+            adb_path = self.get_adb_path()
+            if not os.path.exists(adb_path):
+                return False, "ADB no disponible"
+            
+            kwargs = get_subprocess_kwargs()
+            result = subprocess.run(
+                [adb_path, "kill-server"], 
+                **kwargs
+            )
+            
+            if result.returncode == 0:
+                return True, "Servidor ADB cerrado correctamente"
+            else:
+                return False, "No se pudo cerrar el servidor ADB"
+                
+        except Exception as e:
+            return False, f"Error al cerrar servidor ADB: {str(e)}"
     
     def cleanup_local_adb(self):
         """Elimina la copia local de platform-tools"""

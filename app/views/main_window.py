@@ -100,6 +100,9 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         # Detener threads de ESTA aplicación
         self.stop_all_threads()
+        
+        # Cerrar servidor ADB
+        self.adb_manager.kill_adb_server()
     
     def stop_all_threads(self):
         """
