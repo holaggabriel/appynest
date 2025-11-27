@@ -1,4 +1,5 @@
 from app.constants.config import APP_NAME
+
 OPERATION_LABELS = {
     "uninstall": "desinstalar",
     "extract": "extraer",

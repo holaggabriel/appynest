@@ -14,9 +14,7 @@ from app.views.widgets.info_button import InfoButton
 from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
-from app.constants.config import PLATFORM
 from pathlib import Path
-from app.constants.enums import Platform
 
 class UIConfigSection:
 

@@ -15,7 +15,6 @@ from app.views.ui_devices_panel import UIDevicePanel
 from app.views.ui_install_section import UIInstallSection
 from app.views.ui_apps_section import UIAppsSection
 from app.views.ui_config_section import UIConfigSection
-from app.constants.config import APP_NAME
 
 class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UIConfigSection):
     
