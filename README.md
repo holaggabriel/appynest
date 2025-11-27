@@ -7,6 +7,8 @@ Appy Nest es una aplicación de escritorio que facilita la gestión de dispositi
 
 ## Cómo ejecutar el proyecto
 
+**Requisitos de Python:** Appy Nest requiere **Python 3.13.x**. Asegúrate de tener instalada esta versión antes de continuar.
+
 Sigue estos pasos para ejecutar **Appy Nest** en tu máquina local:
 
 1. **Crear el entorno virtual**
