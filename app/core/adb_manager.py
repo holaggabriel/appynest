@@ -6,6 +6,7 @@ from .config_manager import ConfigManager
 from app.utils.helpers import get_subprocess_kwargs
 from app.constants.config import PLATFORM
 from app.constants.enums import Platform
+from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class ADBManager:
     def __init__(self, config_manager: ConfigManager):
@@ -15,7 +16,7 @@ class ADBManager:
     
     def get_adb_path(self): 
         """Retorna la ruta del ADB local (copia)"""
-        return str(self.local_platform_tools_dir / self._adb_filename)
+        return self.config_manager.get_adb_path()
     
     def _validate_adb_file(self, file_path):
         """Valida si dentro de la carpeta seleccionada existe el ADB correspondiente a la plataforma."""
@@ -171,13 +172,22 @@ class ADBManager:
         # Buscar ADB en el sistema
         system_adb_path = self.find_adb_executable()
         if not system_adb_path:
-            print("No se encontró ningún ADB válido en carpetas platform-tools")
+            print_in_debug_mode("No se encontró ningún ADB válido en carpetas platform-tools")
             return None
         
-        # Copiar y configurar
-        if self.copy_platform_tools(system_adb_path):
-            self.config_manager.set_adb_path(local_adb_path)
-            return local_adb_path
+        # Copiar platform-tools
+        if not self.copy_platform_tools(system_adb_path):
+            print_in_debug_mode("No se pudo copiar platform-tools")
+            return None
+
+        # Aquí la ruta local *correcta* después de copiar
+        new_local_adb = str(self.local_platform_tools_dir / self._adb_filename)
+
+        # Probar que funcione
+        if self._test_adb_functionality(new_local_adb):
+            # Guardar la ruta CORRECTA en config
+            self.config_manager.set_adb_path(new_local_adb)
+            return new_local_adb
         
         return None
 
