@@ -92,7 +92,8 @@ class ADBManager:
         """Busca ADB en el PATH del sistema"""
         which_cmd = "where" if PLATFORM == Platform.WIN32 else "which"
         try:
-            result = subprocess.run([which_cmd, "adb"], capture_output=True, text=True)
+            kwargs = get_subprocess_kwargs()
+            result = subprocess.run([which_cmd, "adb"], **kwargs)
             if result.returncode == 0:
                 return [path.strip() for path in result.stdout.strip().split('\n') if path.strip()]
         except Exception:
