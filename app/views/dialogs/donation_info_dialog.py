@@ -5,6 +5,7 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.app_theme import AppTheme
 from app.theme.dialog_theme import DialogTheme
 from app.constants.config import APP_NAME, DONATION_URL
+from app.constants.delays import OPEN_LINK_REPEAT_DELAY
 import webbrowser
 
 class DonationInfoDialog(QDialog):
@@ -101,7 +102,7 @@ class DonationInfoDialog(QDialog):
         except Exception as e:
             print_in_debug_mode("Error inesperado")
         finally:
-            self.button_timer.start(2000)  # 2 segundos
+            self.button_timer.start(OPEN_LINK_REPEAT_DELAY)
     
     def enable_open_button(self):
         """Habilita el botón después del delay"""
