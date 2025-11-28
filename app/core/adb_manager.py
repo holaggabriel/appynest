@@ -136,6 +136,29 @@ class ADBManager:
         try:
             source_platform_tools_dir = Path(source_adb_path).parent
             
+            # Primero verificar si ya existe una carpeta platform-tools local con ADB válido
+            if self.local_platform_tools_dir.exists():
+                local_adb_path = self.local_platform_tools_dir / self._adb_filename
+                
+                # Verificar si el ADB local es válido
+                is_valid, message = self._validate_adb_file(str(local_adb_path))
+                if is_valid and self._test_adb_functionality(str(local_adb_path)):
+                    print("Ya existe una carpeta platform-tools local con ADB válido")
+                    
+                    # Verificar si el path configurado actualmente es válido
+                    current_adb_path = self.get_adb_path()
+                    if (not os.path.exists(current_adb_path) or 
+                        not self._test_adb_functionality(current_adb_path)):
+                        # El path configurado no es válido, pero tenemos ADB local válido
+                        print("El path configurado no es válido, actualizando el path..")
+                        self.config_manager.set_adb_path(str(local_adb_path))
+                        return True
+                    else:
+                        # Ambos son válidos, no necesitamos copiar
+                        print("ADB local y path configurado son válidos")
+                        return True
+            
+            # Si llegamos aquí, necesitamos copiar platform-tools
             if not self._is_in_platform_tools(source_adb_path):
                 print(f"ERROR: ADB no está en carpeta platform-tools: {source_platform_tools_dir}")
                 print("No se copiará ADB suelto. Solo se aceptan ADB en carpetas platform-tools.")
@@ -155,6 +178,10 @@ class ADBManager:
                 local_adb = self.local_platform_tools_dir / "adb"
                 if local_adb.exists():
                     local_adb.chmod(0o755)
+            
+            # Actualizar el path configurado con la nueva ruta local
+            new_local_adb_path = str(self.local_platform_tools_dir / self._adb_filename)
+            self.config_manager.set_adb_path(new_local_adb_path)
             
             print(f"Platform-tools copiado exitosamente a: {self.local_platform_tools_dir}")
             return True
