@@ -50,7 +50,8 @@ class ADBHelpDialog(QDialog):
         
         self.add_section("¿Dónde obtener ADB?", self.get_adb_locations_content)
         self.add_section("Rutas típicas de ADB", self.get_common_paths_content)
-        self.add_section("Configurar la ruta de ADB", self.get_setup_instructions_content)
+        self.add_section("Configurar el ADB", self.get_setup_instructions_content)
+        self.add_section("ADB en la aplicación", self.get_adb_in_app)
 
         self.scroll_area.setWidget(self.scroll_widget)
         self.main_layout.addWidget(self.scroll_area)
@@ -113,24 +114,52 @@ class ADBHelpDialog(QDialog):
 
     def get_setup_instructions_content(self):
         return f"""
+        <p><span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</p>
+        <p><code>~/{CONFIG_DIR_NAME}/{CONFIG_FILE_NAME}</code></p>
         <p><b>Opción 1:</b></p> 
         <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
-        <p style="margin-left:2em;">• Funciona si tienes Android Studio instalado o ADB se instaló mediante paquetes del sistema.</p>
+        <p style="margin-left:2em;">• Funciona si tienes Android Studio instalado o si ADB se instaló mediante paquetes del sistema.</p>
         <p style="margin-left:2em;">• Si la verificación tiene éxito, la ruta y el estado de ADB se mostrarán en la sección de Configuración.</p>
         <p style="margin-left:2em;">• Si la verificación falla, no te preocupes: puedes usar la opción 2.</p>
 
         <p><b>Opción 2:</b></p> 
         <p style="margin-left:2em;">• Descarga SDK Platform Tools desde la página oficial si aún no lo tienes.</p>
-        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente el archivo ejecutable <code>adb</code> dentro de la carpeta correspondiente.</p>
+        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span> (no solo el archivo <code>adb</code>).</p>
         <p style="margin-left:2em;">• Esta opción es útil si ADB está en una ruta no estándar o la detección automática no funcionó.</p>
-
-        <p>
-        <i><span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</i><br>
-        <code>~/{CONFIG_DIR_NAME}/{CONFIG_FILE_NAME}</code><br>
-        <i>En este archivo se almacena la ruta del ADB y otros ajustes básicos de la aplicación.</i>
+        
+        <p style="font-style:italic;">
+            Aunque el <code>adb</code> es el archivo principal, necesita otros binarios y librerías que se encuentran dentro de la carpeta <code>platform-tools</code>. 
+            Por eso es importante seleccionar la carpeta completa para que todo funcione correctamente.
         </p>
         """
-    
+
+    def get_adb_in_app(self):
+        return f"""
+        <p>
+        Cuando seleccionas ADB, la aplicación no usa directamente el ejecutable que escoges.
+        En su lugar, copia de forma completa y aislada la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span> dentro de:
+        </p>
+
+        <p><code>~/{CONFIG_DIR_NAME}/platform-tools/</code></p>
+
+        <p><b>¿Por qué se hace esto?</b></p>
+
+        <p style="margin-left:2em;">
+            • Para evitar conflictos con otras aplicaciones que también usan ADB (como Android Studio).
+        </p>
+        <p style="margin-left:2em;">
+            • Para permitir que la app inicie y detenga su propio servidor ADB sin afectar otros procesos del sistema.
+        </p>
+        <p style="margin-left:2em;">
+            • Para garantizar estabilidad incluso si el usuario borra, mueve o reemplaza la carpeta ADB original.
+        </p>
+        <p style="margin-left:2em;">
+            • Para trabajar en un entorno controlado, consistente y seguro.
+        </p>
+
+        <p><i>La instalación original de ADB jamás se modifica; la aplicación trabaja únicamente con su copia interna.</i></p>
+        """
+
     def keyPressEvent(self, event):
         """Permite cerrar el diálogo con la tecla Escape"""
         if event.key() == Qt.Key.Key_Escape:
