@@ -214,6 +214,7 @@ class UIAppsSection:
 
     def _perform_apps_loading(self):
         if not self.selected_device:
+            self.show_apps_message("Selecciona un dispositivo", "warning")
             self.set_ui_state(True)
             return
 
