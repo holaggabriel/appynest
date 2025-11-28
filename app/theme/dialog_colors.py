@@ -36,6 +36,7 @@ DIALOG_COLORS = {
     # Colores para enlaces
     "link_primary": "#4dabf7",
     "link_hover": "#74c0fc",
+    "link_primary_disabled": "#3f4f60",
     
     # Colores para scrollbars
     "scrollbar_background": "#2d2d2d",
@@ -50,7 +51,8 @@ DIALOG_COLORS = {
     
     "alternate_base": "#252525",
     "highlighted_text": "#ffffff",
-    "repo_title": "#e0e0e0",
+    "button_link_title": "#e0e0e0",
+    "button_link_title_disabled": "#6a6a6a",
     
     'donation_thanks': '#E6C23A',
 }

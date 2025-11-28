@@ -221,18 +221,26 @@ class DialogTheme:
                 background-color: transparent;
             }}
             
-            QLabel#repo_title {{
-                color: {colors['repo_title']};
+            QLabel#button_link_title {{
+                color: {colors['button_link_title']};
                 font-size: 12px;
                 font-weight: bold;
                 background-color: transparent;
             }}
             
-            QLabel#repo_link {{
+            QLabel#button_link_title:disabled {{
+                color: {colors['button_link_title_disabled']};
+            }}
+            
+            QLabel#text_link {{
                 color: {colors['link_primary']};
                 font-size: 11px;
                 font-weight: 500;
                 background-color: transparent;
+            }}
+            
+            QLabel#text_link:disabled {{
+                color: {colors['link_primary_disabled']};
             }}
             
             QPushButton#tutorial_button {{
@@ -254,20 +262,6 @@ class DialogTheme:
 
             QLabel#tutorial_icon {{
                 font-size: 18px;
-                background-color: transparent;
-            }}
-
-            QLabel#tutorial_title {{
-                color: {colors['repo_title']};
-                font-size: 12px;
-                font-weight: bold;
-                background-color: transparent;
-            }}
-
-            QLabel#tutorial_link {{
-                color: {colors['link_primary']};
-                font-size: 11px;
-                font-weight: 500;
                 background-color: transparent;
             }}
             

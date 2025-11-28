@@ -1,17 +1,31 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QFrame)
-from PySide6.QtCore import Qt
-import webbrowser
+from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.dialog_theme import DialogTheme
 from app.constants.labels import APP_DESCRIPTION
 from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
+from app.constants.delays import OPEN_LINK_REPEAT_DELAY
+import webbrowser
 
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_styles()
         self.init_ui()
+        self.setup_timers()
+    
+    def setup_timers(self):
+        """Configura los timers para habilitar los botones después de un tiempo"""
+        # Timer para el botón de repositorio
+        self.repo_timer = QTimer()
+        self.repo_timer.setSingleShot(True)
+        self.repo_timer.timeout.connect(lambda: self.enable_repo_button(True))
+        
+        # Timer para el botón de tutorial
+        self.tutorial_timer = QTimer()
+        self.tutorial_timer.setSingleShot(True)
+        self.tutorial_timer.timeout.connect(lambda: self.enable_tutorial_button(True))
     
     def setup_styles(self):
         DialogTheme.setup_dialog_palette(self)
@@ -75,83 +89,83 @@ class AboutDialog(QDialog):
     
     def create_repo_button(self, parent_layout):
         """Crea el botón del repositorio GitHub"""
-        repo_button = QPushButton()
-        repo_button.setObjectName("repo_button")
-        repo_button.setFixedHeight(50)
-        repo_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        repo_button.clicked.connect(self.open_github_repo)
+        self.repo_button = QPushButton()
+        self.repo_button.setObjectName("repo_button")
+        self.repo_button.setFixedHeight(50)
+        self.repo_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repo_button.clicked.connect(self.open_github_repo)
         
         # Layout interno del botón
-        repo_layout = QHBoxLayout(repo_button)
+        repo_layout = QHBoxLayout(self.repo_button)
         repo_layout.setContentsMargins(16, 8, 16, 8)
         repo_layout.setSpacing(12)
         
         # Icono del repositorio
-        repo_icon = QLabel("📁")
-        repo_icon.setObjectName("repo_icon")
-        repo_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repo_icon = QLabel("📁")
+        self.repo_icon.setObjectName("repo_icon")
+        self.repo_icon.setCursor(Qt.CursorShape.PointingHandCursor)
         
         # Texto del repositorio
         repo_text_layout = QVBoxLayout()
         repo_text_layout.setSpacing(2)
         repo_text_layout.setContentsMargins(0, 0, 0, 0)
         
-        repo_title = QLabel("Repositorio")
-        repo_title.setObjectName("repo_title")
-        repo_title.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repo_title = QLabel("Repositorio")
+        self.repo_title.setObjectName("button_link_title")
+        self.repo_title.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        repo_link = QLabel(APP_REPOSITORY_URL)
-        repo_link.setObjectName("repo_link")
-        repo_link.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repo_link = QLabel(APP_REPOSITORY_URL)
+        self.repo_link.setObjectName("text_link")
+        self.repo_link.setCursor(Qt.CursorShape.PointingHandCursor)
         
-        repo_text_layout.addWidget(repo_title)
-        repo_text_layout.addWidget(repo_link)
+        repo_text_layout.addWidget(self.repo_title)
+        repo_text_layout.addWidget(self.repo_link)
         
         # Agregar elementos al layout del botón
-        repo_layout.addWidget(repo_icon)
+        repo_layout.addWidget(self.repo_icon)
         repo_layout.addLayout(repo_text_layout)
         repo_layout.addStretch()
         
         # Agregar el botón del repositorio al layout principal
-        parent_layout.addWidget(repo_button)
+        parent_layout.addWidget(self.repo_button)
         parent_layout.addSpacing(10)
     
     def create_tutorial_button(self, parent_layout):
         """Crea el botón del tutorial"""
-        tutorial_button = QPushButton()
-        tutorial_button.setObjectName("tutorial_button")
-        tutorial_button.setFixedHeight(50)
-        tutorial_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        tutorial_button.clicked.connect(self.open_tutorial)
+        self.tutorial_button = QPushButton()
+        self.tutorial_button.setObjectName("tutorial_button")
+        self.tutorial_button.setFixedHeight(50)
+        self.tutorial_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tutorial_button.clicked.connect(self.open_tutorial)
 
-        tutorial_layout = QHBoxLayout(tutorial_button)
+        tutorial_layout = QHBoxLayout(self.tutorial_button)
         tutorial_layout.setContentsMargins(16, 8, 16, 8)
         tutorial_layout.setSpacing(12)
 
-        tutorial_icon = QLabel("🎓")
-        tutorial_icon.setObjectName("tutorial_icon")
-        tutorial_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tutorial_icon = QLabel("🎓")
+        self.tutorial_icon.setObjectName("tutorial_icon")
+        self.tutorial_icon.setCursor(Qt.CursorShape.PointingHandCursor)
 
         tutorial_text_layout = QVBoxLayout()
         tutorial_text_layout.setSpacing(2)
         tutorial_text_layout.setContentsMargins(0, 0, 0, 0)
 
-        tutorial_title = QLabel("Tutorial")
-        tutorial_title.setObjectName("tutorial_title")
-        tutorial_title.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tutorial_title = QLabel("Tutorial")
+        self.tutorial_title.setObjectName("button_link_title")
+        self.tutorial_title.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        tutorial_link = QLabel(APP_TUTORIAL_URL)
-        tutorial_link.setObjectName("tutorial_link")
-        tutorial_link.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.tutorial_link = QLabel(APP_TUTORIAL_URL)
+        self.tutorial_link.setObjectName("text_link")
+        self.tutorial_link.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        tutorial_text_layout.addWidget(tutorial_title)
-        tutorial_text_layout.addWidget(tutorial_link)
+        tutorial_text_layout.addWidget(self.tutorial_title)
+        tutorial_text_layout.addWidget(self.tutorial_link)
 
-        tutorial_layout.addWidget(tutorial_icon)
+        tutorial_layout.addWidget(self.tutorial_icon)
         tutorial_layout.addLayout(tutorial_text_layout)
         tutorial_layout.addStretch()
 
-        parent_layout.addWidget(tutorial_button)
+        parent_layout.addWidget(self.tutorial_button)
     
     def create_copyright(self, parent_layout):
         """Crea la sección de copyright y licencia"""
@@ -189,25 +203,55 @@ class AboutDialog(QDialog):
         parent_layout.addWidget(credit_label)
 
     def open_github_repo(self):
-        """Abre el repositorio de GitHub en el navegador con manejo de errores"""
+        """Abre el repositorio de GitHub y deshabilita temporalmente el botón"""
+        self.enable_repo_button(False)
+
         try:
             webbrowser.open(APP_REPOSITORY_URL)
-        except webbrowser.Error as e:
-            error_msg = f"Error al abrir el enlace"
-            print_in_debug_mode(f"{error_msg}")
-        except Exception as e:
-            error_msg = f"Error inesperado"
-            print_in_debug_mode(f"✗ {error_msg}")
+        except Exception:
+            print_in_debug_mode("Error al abrir el repositorio")
+        finally:
+            self.repo_timer.start(OPEN_LINK_REPEAT_DELAY)
     
     def open_tutorial(self):
-        """Abre el tutorial de la aplicación en el navegador"""
+        """Abre el tutorial y deshabilita temporalmente el botón"""
+        self.enable_tutorial_button(False)
+
         try:
             webbrowser.open(APP_TUTORIAL_URL)
-        except webbrowser.Error:
-            print_in_debug_mode("Error al abrir el tutorial")
         except Exception:
-            print_in_debug_mode("Error inesperado al abrir el tutorial")
-    
+            print_in_debug_mode("Error al abrir el tutorial")
+        finally:
+            self.tutorial_timer.start(OPEN_LINK_REPEAT_DELAY)
+
+    def enable_repo_button(self, enabled):
+        """Habilita o deshabilita el botón de repositorio y sus elementos"""
+        self.repo_button.setEnabled(enabled)
+        self.repo_title.setEnabled(enabled)
+        self.repo_link.setEnabled(enabled)
+        self.repo_icon.setEnabled(enabled)
+        
+        # Cambiar el cursor según el estado
+        cursor = Qt.CursorShape.PointingHandCursor if enabled else Qt.CursorShape.ArrowCursor
+        self.repo_button.setCursor(cursor)
+        self.repo_title.setCursor(cursor)
+        self.repo_link.setCursor(cursor)
+        self.repo_icon.setCursor(cursor)
+
+    def enable_tutorial_button(self, enabled):
+        """Habilita o deshabilita el botón de tutorial y sus elementos"""
+        self.tutorial_button.setEnabled(enabled)
+        self.tutorial_title.setEnabled(enabled)
+        self.tutorial_link.setEnabled(enabled)
+        self.tutorial_icon.setEnabled(enabled)
+        
+        # Cambiar el cursor según el estado
+        cursor = Qt.CursorShape.PointingHandCursor if enabled else Qt.CursorShape.ArrowCursor
+        self.tutorial_button.setCursor(cursor)
+        self.tutorial_title.setCursor(cursor)
+        self.tutorial_link.setCursor(cursor)
+        self.tutorial_icon.setCursor(cursor)
+
     def keyPressEvent(self, event):
         """Permite cerrar el diálogo con la tecla Escape"""
         if event.key() == Qt.Key.Key_Escape:
