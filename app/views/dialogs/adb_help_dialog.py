@@ -85,10 +85,10 @@ class ADBHelpDialog(QDialog):
         <p style="margin-left:2em;">• Extrae el paquete y asegúrate de que ADB permanezca junto con los demás archivos incluidos.</p>
         
         <p><b>2. Android Studio (Opcional)</b>
-        <p style="margin-left:2em;">• Si ya tienes Android Studio instalado, ADB se encuentra en:</p>
+        <p style="margin-left:2em;">Si ya tienes Android Studio instalado, ADB se encuentra en:</p>
         <p style="margin-left:2em;">• Linux: <code>~/Android/Sdk/platform-tools/adb</code></p>
         <p style="margin-left:2em;">• Windows: <code>C:\\Users\\[Usuario]\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe</code></p>
-        <p style="margin-left:2em;">• No es necesario instalar Android Studio solo para obtener ADB; usa esta opción únicamente si ya lo tienes instalado y deseas evitar descargar Platform Tools por separado.</p>
+        <p style="margin-left:2em;">No es necesario instalar Android Studio solo para obtener ADB; usa esta opción únicamente si ya lo tienes instalado y deseas evitar descargar Platform Tools por separado.</p>
         
         <p><b>3. Gestores de Paquetes (Linux)</b>
         <p style="margin-left:2em;">• En Linux, muchas distribuciones incluyen ADB en sus gestores de paquetes. Puedes instalarlo ya sea desde la interfaz gráfica de tu gestor de paquetes o desde la línea de comandos, según prefieras.</p>
