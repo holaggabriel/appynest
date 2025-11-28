@@ -220,13 +220,15 @@ class ADBManager:
             if not self.copy_platform_tools(source_adb_path):
                 return False, "Error al copiar la carpeta platform-tools"
 
-            # Configurar ruta local de ADB
-            local_adb_path = self.get_adb_path()
-            if not self.config_manager.set_adb_path(local_adb_path):
+            # Nueva ruta local tras copiar
+            new_local_adb = str(self.local_platform_tools_dir / self._adb_filename)
+
+            # Guardar en config
+            if not self.config_manager.set_adb_path(new_local_adb):
                 return False, "Error al guardar la configuración de ADB"
 
             # Verificar funcionalidad del ADB
-            if not self._test_adb_functionality(local_adb_path):
+            if not self._test_adb_functionality(new_local_adb):
                 return False, (
                     "El ADB dentro de la carpeta 'platform-tools' copiada no funciona correctamente.\n"
                     "Verifica que la carpeta seleccionada contenga el ADB junto con todos los archivos necesarios de platform-tools."
