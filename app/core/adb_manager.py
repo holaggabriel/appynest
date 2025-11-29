@@ -75,10 +75,10 @@ class ADBManager:
         """Retorna las rutas comunes según la plataforma"""
         if PLATFORM == Platform.LINUX:
             return [
-                # "/usr/bin/adb",
-                # "/usr/local/bin/adb",
-                # str(Path.home() / "Android/Sdk/platform-tools/adb"),
-                # str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
+                "/usr/bin/adb",
+                "/usr/local/bin/adb",
+                str(Path.home() / "Android/Sdk/platform-tools/adb"),
+                str(Path.home() / ".local/share/android-sdk/platform-tools/adb"),
             ]
         elif PLATFORM == Platform.WIN32:
             return [
