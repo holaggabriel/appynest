@@ -230,7 +230,7 @@ class UIDevicePanel:
         self.selected_device_info = {}
         self.devices_data = []
         self._update_device_ui_state()
-        self.check_adb_availability_async()
+        self.check_adb_availability_async(load_devices=True)
 
     def show_devices_message(self, message, message_type="info", shimmer_enabled=False):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
