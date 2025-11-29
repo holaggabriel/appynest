@@ -15,6 +15,7 @@ from app.core.threads import ADBCheckThread
 from app.utils.helpers import execute_after_delay, shorten_path, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 from pathlib import Path
+from app.views.widgets.shimmer_label import ShimmerLabel
 
 class UIConfigSection:
 
@@ -30,7 +31,7 @@ class UIConfigSection:
         layout.addWidget(adb_title)
         
         # Label para indicar que se está verificando (inicialmente oculto)
-        self.verifying_label = QLabel("Verificando disponibilidad del ADB...")
+        self.verifying_label = ShimmerLabel("Verificando disponibilidad del ADB...")
         self.verifying_label.setObjectName('status_info_message')
         self.verifying_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.verifying_label.setVisible(False)
@@ -144,6 +145,7 @@ class UIConfigSection:
         self.verifying_label.setText(message)
         self.apply_style_update(self.verifying_label, 'status_info_message')
         self.verifying_label.setVisible(True)
+        self.verifying_label.start_shimmer()
 
     def _set_adb_status(self, status, path_text, status_type="success"):
         """Configura el estado de ADB de manera centralizada"""
@@ -153,6 +155,7 @@ class UIConfigSection:
         if status_type == "success":
             self.apply_style_update(self.verifying_label, 'status_success_message')
             self.verifying_label.setVisible(False)
+            self.verifying_label.stop_shimmer()
         elif status_type == "warning":
             self.apply_style_update(self.verifying_label, 'status_warning_message')
             self.verifying_label.setVisible(True)
@@ -200,7 +203,7 @@ class UIConfigSection:
                 return
 
             # Mostrar mensaje de progreso
-            self._show_verifying_status("Verificando disponibilidad del ADB...")
+            self._show_verifying_status()
             
             # Usar el método del ADBManager para todo el proceso
             success, message = self.adb_manager.set_custom_adb_path(folder_path)
