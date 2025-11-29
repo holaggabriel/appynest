@@ -11,7 +11,7 @@ from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog
 from app.views.dialogs.donation_info_dialog import DonationInfoDialog
 from app.views.widgets.info_button import InfoButton
-from app.core.threads import ADBCheckThread
+from app.core.threads import ADBCheckThread, CustomADBThread
 from app.utils.helpers import execute_after_delay, shorten_path, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY
 from pathlib import Path
@@ -179,7 +179,7 @@ class UIConfigSection:
         self.check_adb_availability_async()
 
     def select_custom_adb(self):
-        """Selecciona una carpeta platform-tools personalizada y la copia localmente"""
+        """Selecciona una carpeta platform-tools personalizada de forma asíncrona"""
         if self.cleaning_up:
             return
 
@@ -203,28 +203,30 @@ class UIConfigSection:
                 return
 
             # Mostrar mensaje de progreso
-            self._show_verifying_status()
+            self._show_verifying_status("Configurando ADB personalizado...")
             
-            # Usar el método del ADBManager para todo el proceso
-            success, message = self.adb_manager.set_custom_adb_path(folder_path)
+            # Deshabilitar botones durante la operación
+            self._disable_buttons_context(False)
             
-            self.update_adb_status()
-            
-            if success:
-                # Actualizar el device manager y verificar estado
-                self.device_manager = DeviceManager(self.adb_manager)
-                
-                QMessageBox.information(
-                    self, 
-                    "Configuración exitosa", 
-                    f"{message}"
-                )
-            else:
-                QMessageBox.warning(
-                    self,
-                    "Error en configuración",
-                    f"{message}"
-                )
+            # Ejecutar en un hilo para no bloquear la interfaz
+            self._set_custom_adb_async(folder_path)
+
+    def _set_custom_adb_async(self, folder_path):
+        """Ejecuta set_custom_adb_path en un hilo asíncrono"""
+        if self.is_thread_type_running(ADBCheckThread):
+            return
+
+        # Crear un thread personalizado para esta operación
+        self.custom_adb_thread = CustomADBThread(self.adb_manager, folder_path)
+        
+        # Conectar señales
+        self.custom_adb_thread.finished_signal.connect(
+            lambda success, msg: self._on_adb_check_complete_simple(success, msg)
+        )
+        self.custom_adb_thread.error_signal.connect(self._on_adb_check_error_simple)
+        
+        self.register_thread(self.custom_adb_thread)
+        execute_after_delay(lambda: self.custom_adb_thread.start(), GLOBAL_ACTION_DELAY)
 
     def update_adb_availability(self, available):
         """Actualiza el estado de disponibilidad de ADB"""
@@ -272,10 +274,6 @@ class UIConfigSection:
         
         # Habilitar botones
         self._disable_buttons_context(True)
-        
-        # Auto-eliminar el thread
-        if hasattr(self, 'adb_check_thread'):
-            self.unregister_thread(self.adb_check_thread)
 
     def _on_adb_check_error_simple(self, error_message):
         """Callback simple para errores"""
@@ -283,10 +281,6 @@ class UIConfigSection:
         
         # Habilitar botones cuando termine (específico para la sección de configuración)
         self._disable_buttons_context(True)
-        
-        # Auto-eliminar el thread
-        if hasattr(self, 'adb_check_thread'):
-            self.unregister_thread(self.adb_check_thread)
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)

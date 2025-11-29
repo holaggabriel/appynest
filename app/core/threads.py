@@ -237,3 +237,22 @@ class ADBCheckThread(BaseThread):
         except Exception as e:
             if self.is_running():
                 self.error_signal.emit(f"Error verificando ADB: {str(e)}")
+
+class CustomADBThread(QThread):
+    """Thread para configurar ADB personalizado sin bloquear la interfaz"""
+    
+    finished_signal = Signal(bool, str)  # success, message
+    error_signal = Signal(str)  # error_message
+    
+    def __init__(self, adb_manager, folder_path):
+        super().__init__()
+        self.adb_manager = adb_manager
+        self.folder_path = folder_path
+    
+    def run(self):
+        try:
+            # Ejecutar la operación que podría bloquear la interfaz
+            success, message = self.adb_manager.set_custom_adb_path(self.folder_path)
+            self.finished_signal.emit(success, message)
+        except Exception as e:
+            self.error_signal.emit(str(e))
