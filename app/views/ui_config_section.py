@@ -30,12 +30,19 @@ class UIConfigSection:
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(adb_title)
         
-        # Label para indicar que se está verificando (inicialmente oculto)
-        self.verifying_label = ShimmerLabel("Verificando disponibilidad del ADB...")
-        self.verifying_label.setObjectName('status_info_message')
-        self.verifying_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.verifying_label.setVisible(False)
-        layout.addWidget(self.verifying_label)
+        # Label para mensajes de estado (info, success, error, warning)
+        self.status_message_label = QLabel("")
+        self.status_message_label.setObjectName('status_info_message')
+        self.status_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.status_message_label.setVisible(False)
+        layout.addWidget(self.status_message_label)
+
+        # Label exclusivo para shimmer de carga
+        self.shimmer_label = ShimmerLabel("Verificando disponibilidad del ADB...")
+        self.shimmer_label.setObjectName('status_info_message')
+        self.shimmer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.shimmer_label.setVisible(False)
+        layout.addWidget(self.shimmer_label)
         
         # Contenedor para estado ADB y botón de actualizar
         status_container = QHBoxLayout()
@@ -140,12 +147,18 @@ class UIConfigSection:
         
         return widget
 
-    def _show_verifying_status(self, message="Verificando disponibilidad del ADB..."):
+    def _show_verifying_status(self, message="Verificando disponibilidad del ADB...", show=True):
         """Muestra el estado de verificación"""
-        self.verifying_label.setText(message)
-        self.apply_style_update(self.verifying_label, 'status_info_message')
-        self.verifying_label.setVisible(True)
-        self.verifying_label.start_shimmer()
+        self.shimmer_label.setText(message)
+        self.shimmer_label.setVisible(show)
+        
+        if show:
+            self.shimmer_label.start_shimmer()
+            # Asegurar que el mensaje regular esté oculto durante carga
+            self.status_message_label.setVisible(False)
+            self.apply_style_update(self.status_message_label)
+        else:
+            self.shimmer_label.stop_shimmer()
 
     def _set_adb_status(self, status, path_text, status_type="success"):
         """Configura el estado de ADB de manera centralizada"""
@@ -153,16 +166,16 @@ class UIConfigSection:
         self.adb_path_label.setText(f"Ruta: {path_text}")
         
         if status_type == "success":
-            self.apply_style_update(self.verifying_label, 'status_success_message')
-            self.verifying_label.setVisible(False)
-            self.verifying_label.stop_shimmer()
-        elif status_type == "warning":
-            self.apply_style_update(self.verifying_label, 'status_warning_message')
-            self.verifying_label.setVisible(True)
+            # No es necerio actualizar su diseño si no se va a mostrar
+            # self.apply_style_update(self.status_message_label, 'status_success_message')
+            self.status_message_label.setVisible(False)
+        # elif status_type == "warning":
+        #     self.apply_style_update(self.status_message_label, 'status_warning_message')
+        #     self.status_message_label.setVisible(True)
         elif status_type == "error":
-            self.verifying_label.setText("ADB no disponible - Verifica la configuración")
-            self.apply_style_update(self.verifying_label, 'status_error_message')
-            self.verifying_label.setVisible(True)
+            self.status_message_label.setText("ADB no disponible - Verifica la configuración")
+            self.apply_style_update(self.status_message_label, 'status_error_message')
+            self.status_message_label.setVisible(True)
 
     def set_buttons_enabled(self, enabled):
         """Context manager para manejar estado de botones durante verificación"""
@@ -265,7 +278,7 @@ class UIConfigSection:
 
     def _on_adb_verify_complete_simple(self, success, message, load_devices=False):
         """Callback simple que actualiza el estado de ADB"""
-        self.verifying_label.stop_shimmer()
+        self._show_verifying_status(show=False)
         self.update_adb_availability(success)
         
         # Si es la primera verificación al inicio, cargar dispositivos
@@ -277,7 +290,7 @@ class UIConfigSection:
 
     def _on_adb_verify_error_simple(self, error_message):
         """Callback simple para errores"""
-        self.verifying_label.stop_shimmer()
+        self._show_verifying_status(show=False)
         self.update_adb_availability(False)
         
         # Habilitar botones cuando termine (específico para la sección de configuración)
