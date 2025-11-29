@@ -164,15 +164,14 @@ class UIConfigSection:
             self.apply_style_update(self.verifying_label, 'status_error_message')
             self.verifying_label.setVisible(True)
 
-    @contextlib.contextmanager
-    def _disable_buttons_context(self, enabled):
+    def set_buttons_enabled(self, enabled):
         """Context manager para manejar estado de botones durante verificación"""
         self.update_adb_btn.setEnabled(enabled)
         self.folder_adb_btn.setEnabled(enabled)
 
     def update_adb_status(self):
         """Inicia la verificación del estado de ADB"""
-        self._disable_buttons_context(False)
+        self.set_buttons_enabled(False)
         self._show_verifying_status()
         
         # En lugar del delay y _perform_adb_check, usar el thread asíncrono
@@ -206,7 +205,7 @@ class UIConfigSection:
             self._show_verifying_status("Configurando ADB personalizado...")
             
             # Deshabilitar botones durante la operación
-            self._disable_buttons_context(False)
+            self.set_buttons_enabled(False)
             
             # Ejecutar en un hilo para no bloquear la interfaz
             self._set_custom_adb_async(folder_path)
@@ -274,7 +273,7 @@ class UIConfigSection:
             self.load_devices()
         
         # Habilitar botones
-        self._disable_buttons_context(True)
+        self.set_buttons_enabled(True)
 
     def _on_adb_verify_error_simple(self, error_message):
         """Callback simple para errores"""
@@ -282,7 +281,7 @@ class UIConfigSection:
         self.update_adb_availability(False)
         
         # Habilitar botones cuando termine (específico para la sección de configuración)
-        self._disable_buttons_context(True)
+        self.set_buttons_enabled(True)
        
     def show_adb_help_dialog(self):
         dialog = ADBHelpDialog(self)
