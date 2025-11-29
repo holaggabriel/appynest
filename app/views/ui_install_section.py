@@ -10,6 +10,7 @@ from app.core.threads import InstallationThread
 from app.views.dialogs.apk_installation_info_dialog import ApkInstallationInfoDialog
 from app.views.widgets.info_button import InfoButton
 from app.constants.delays import GLOBAL_ACTION_DELAY
+from app.views.widgets.shimmer_label import ShimmerLabel
         
 class UIInstallSection:
     def setup_install_section(self):
@@ -43,7 +44,7 @@ class UIInstallSection:
         # Añadir el layout horizontal al layout principal
         layout.addLayout(title_section_layout)
 
-        self.status_label = QLabel("Selecciona al menos un APK")
+        self.status_label = ShimmerLabel("Selecciona al menos un APK")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_label.setObjectName('status_info_message')
         layout.addWidget(self.status_label)
@@ -153,6 +154,7 @@ class UIInstallSection:
         
         self.apply_style_update(self.status_label, 'status_info_message')
         self.status_label.setText(f"Instalando {len(self.selected_apks)} APK(s)...")
+        self.status_label.start_shimmer()
         
         # Bloquear controles durante instalación (INSTANTÁNEO)
         self.set_install_section_enabled(False)
@@ -189,6 +191,8 @@ class UIInstallSection:
         if self._is_app_closing():
             print_in_debug_mode("Ignorando resultado de instalación - aplicación cerrando")
             return
+        
+        self.status_label.stop_shimmer()
         
         # Mostrar el resultado en un messagebox
         if success:
