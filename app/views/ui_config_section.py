@@ -266,6 +266,7 @@ class UIConfigSection:
 
     def _on_adb_verify_complete_simple(self, success, message, load_devices=False):
         """Callback simple que actualiza el estado de ADB"""
+        self.verifying_label.stop_shimmer()
         self.update_adb_availability(success)
         
         # Si es la primera verificación al inicio, cargar dispositivos
@@ -277,6 +278,7 @@ class UIConfigSection:
 
     def _on_adb_verify_error_simple(self, error_message):
         """Callback simple para errores"""
+        self.verifying_label.stop_shimmer()
         self.update_adb_availability(False)
         
         # Habilitar botones cuando termine (específico para la sección de configuración)
