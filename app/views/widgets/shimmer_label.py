@@ -1,14 +1,17 @@
-from PySide6.QtCore import QPropertyAnimation, Property
+from PySide6.QtCore import QPropertyAnimation, Property, QSequentialAnimationGroup, QPauseAnimation
 from PySide6.QtWidgets import QLabel
-from PySide6.QtGui import QLinearGradient, QPainter, QColor, Qt, QPainterPath
+from PySide6.QtGui import QLinearGradient, QPainter, QColor, QPainterPath
+import math
 
 class ShimmerLabel(QLabel):
-    def __init__(self, text="", parent=None, border_radius=4):
+    def __init__(self, text="", parent=None, border_radius=4, angle=25):
         super().__init__(text, parent)
-        self._offset = -0.3  # Valor inicial más cercano al inicio
+        self._offset = -0.3  # Valor inicial del shimmer
         self.animation = None
-        self.border_radius = border_radius  # respeta el borde redondeado
+        self.border_radius = border_radius
+        self.angle = angle  # Ángulo del shimmer en grados
 
+    # --- Property offset para animación ---
     def get_offset(self):
         return self._offset
 
@@ -18,8 +21,8 @@ class ShimmerLabel(QLabel):
 
     offset = Property(float, get_offset, set_offset)
 
+    # --- Pintado del shimmer ---
     def paintEvent(self, event):
-        # --- Primero pinta el contenido normal ---
         super().paintEvent(event)
 
         if self._offset < 0:
@@ -31,48 +34,62 @@ class ShimmerLabel(QLabel):
         w = self.width()
         h = self.height()
 
-        # --- Gradiente diagonal más suave ---
-        gradient = QLinearGradient(
-            w * (self._offset - 0.4),  # Más ancho para transición más suave
-            0,
-            w * (self._offset + 0.4),  # Más ancho para transición más suave
-            h
-        )
+        rad = math.radians(self.angle)
+        dx = math.cos(rad)
+        dy = math.sin(rad)
 
-        # Gradiente más ancho y suave
+        length = abs(w*dx) + abs(h*dy)
+        start_pos = -0.4*length + self._offset * (1.3 + 0.4) * length
+        end_pos = 0.4*length + self._offset * (1.3 + 0.4) * length
+
+        start_x = start_pos * dx
+        start_y = start_pos * dy
+        end_x   = end_pos * dx
+        end_y   = end_pos * dy
+
+        gradient = QLinearGradient(start_x, start_y, end_x, end_y)
         gradient.setColorAt(0.00, QColor(255, 255, 255, 0))
-        gradient.setColorAt(0.25, QColor(230, 230, 230, 25))
-        gradient.setColorAt(0.40, QColor(230, 230, 230, 40))
-        gradient.setColorAt(0.50, QColor(230, 230, 230, 55))  # pico suave
-        gradient.setColorAt(0.60, QColor(230, 230, 230, 40))
-        gradient.setColorAt(0.75, QColor(230, 230, 230, 25))
+        gradient.setColorAt(0.20, QColor(230, 230, 230, 15))
+        gradient.setColorAt(0.40, QColor(230, 230, 230, 30))
+        gradient.setColorAt(0.50, QColor(230, 230, 230, 40))
+        gradient.setColorAt(0.60, QColor(230, 230, 230, 30))
+        gradient.setColorAt(0.80, QColor(230, 230, 230, 15))
         gradient.setColorAt(1.00, QColor(255, 255, 255, 0))
 
-
-        # --- Crear path redondeado para respetar border-radius ---
-        radius = self.border_radius
         path = QPainterPath()
-        path.addRoundedRect(self.rect(), radius, radius)
-
-        # Pintar el shimmer solo dentro del borde redondeado
+        path.addRoundedRect(self.rect(), self.border_radius, self.border_radius)
         painter.fillPath(path, gradient)
-
         painter.end()
 
-    def start_shimmer(self):
+    # --- Animación ---
+    def start_shimmer(self, duration=1150, pause=100):
+        """Inicia el shimmer.
+
+        Args:
+            duration (int): Tiempo que tarda en recorrer el label (ms)
+            pause (int): Tiempo de espera antes de repetir (ms)
+        """
         if self.animation:
             self.animation.stop()
 
-        self.animation = QPropertyAnimation(self, b"offset")
-        self.animation.setStartValue(-0.3)  # Empieza más cerca del borde visible
-        self.animation.setEndValue(1.3)
-        self.animation.setDuration(1000)    # Ligeramente más lento para suavidad
-        self.animation.setLoopCount(-1)
-        
-        # Forzar una actualización inmediata
+        # Animación principal
+        anim = QPropertyAnimation(self, b"offset")
+        anim.setStartValue(-0.3)
+        anim.setEndValue(1.3)
+        anim.setDuration(duration)
+
+        # Pausa antes de repetir
+        pause_anim = QPauseAnimation(pause)
+
+        # Grupo secuencial
+        group = QSequentialAnimationGroup()
+        group.addAnimation(anim)
+        group.addAnimation(pause_anim)
+        group.setLoopCount(-1)  # repetir indefinidamente
+
+        self.animation = group
         self._offset = -0.3
         self.update()
-        
         self.animation.start()
 
     def stop_shimmer(self):
