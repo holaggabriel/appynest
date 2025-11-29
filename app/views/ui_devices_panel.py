@@ -9,6 +9,7 @@ from app.views.widgets.info_button import InfoButton
 from app.utils.helpers import execute_after_delay, resource_path
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.constants.delays import GLOBAL_ACTION_DELAY
+from app.views.widgets.shimmer_label import ShimmerLabel
 
 class UIDevicePanel:
     def setup_devices_panel(self):
@@ -51,7 +52,7 @@ class UIDevicePanel:
         layout.addLayout(banner_container)
         
         # Indicador de carga de detalles
-        self.loading_details_label = QLabel("Cargando detalles del dispositivo...")
+        self.loading_details_label = ShimmerLabel("Cargando detalles del dispositivo...")
         self.loading_details_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_details_label.setObjectName('status_info_message')
         self.loading_details_label.setVisible(False)
@@ -82,11 +83,10 @@ class UIDevicePanel:
         layout.addWidget(title_widget)
         
         # Mensaje de estado
-        self.devices_message_label = QLabel()
+        self.devices_message_label = ShimmerLabel("Cargando detalles del dispositivo...")
         self.devices_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.devices_message_label.setObjectName('status_info_message')
         self.devices_message_label.setVisible(False)
-        self.devices_message_label.setWordWrap(True)
         layout.addWidget(self.devices_message_label)
         
         # Lista de dispositivos
@@ -189,7 +189,7 @@ class UIDevicePanel:
         
     def load_devices(self):
         """Inicia la carga de dispositivos con estado visual usando thread"""
-        self.show_devices_message("Actualizando lista de dispositivos...", "info")
+        self.show_devices_message("Actualizando lista de dispositivos...", "info", shimmer_enabled=True)
         self.refresh_devices_btn.setEnabled(False)
         self._set_refresh_button_state(False)
         
@@ -232,7 +232,7 @@ class UIDevicePanel:
         self._update_device_ui_state()
         self.check_adb_availability_async()
 
-    def show_devices_message(self, message, message_type="info"):
+    def show_devices_message(self, message, message_type="info", shimmer_enabled=False):
         """Muestra mensajes en el label entre el título y la lista de dispositivos"""
         style_map = {
             "info": 'status_info_message',
@@ -247,10 +247,15 @@ class UIDevicePanel:
         self.devices_message_label.setObjectName(object_name)
         self.apply_style_update(self.devices_message_label)
         self.devices_message_label.setVisible(True)
+        if shimmer_enabled:
+            self.devices_message_label.start_shimmer()
+        else:
+            self.devices_message_label.stop_shimmer()
 
     def hide_devices_message(self):
         """Oculta el mensaje de dispositivos"""
         self.devices_message_label.setVisible(False)
+        self.devices_message_label.stop_shimmer()
 
     def set_devices_section_enabled(self, enabled):
         """Habilita o deshabilita los controles de la sección de dispositivos"""
@@ -356,6 +361,7 @@ class UIDevicePanel:
         
         self.confirm_device_btn.setEnabled(False)
         self.loading_details_label.setVisible(True)
+        self.loading_details_label.start_shimmer()
         self.details_container.setVisible(False)
         # Verificar si es un cambio de dispositivo ANTES de asignar
         is_device_changed = self.selected_device != self.last_device_selected
@@ -377,6 +383,7 @@ class UIDevicePanel:
             self.selected_device_banner.setText("No hay dispositivo seleccionado")
             self.details_container.setVisible(False)
             self.loading_details_label.setVisible(False)
+            self.loading_details_label.stop_shimmer()
             return
         
         if self.selected_device_info:
@@ -454,6 +461,7 @@ class UIDevicePanel:
         self.loading_details_label.setObjectName(object_name)
         self.apply_style_update(self.loading_details_label)
         self.loading_details_label.setVisible(True)
+        self.loading_details_label.start_shimmer()
 
     def _load_device_details(self, device_id):
         """Carga los detalles del dispositivo usando thread"""
@@ -479,6 +487,7 @@ class UIDevicePanel:
         """Maneja la carga exitosa de detalles del dispositivo"""
         self.selected_device_info = device_info
         self.loading_details_label.setVisible(False)
+        self.loading_details_label.stop_shimmer()
         self._set_refresh_button_state(True)
         
         self._update_device_banner()
