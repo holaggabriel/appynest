@@ -2,7 +2,6 @@ from PySide6.QtCore import QPropertyAnimation, Property
 from PySide6.QtWidgets import QLabel
 from PySide6.QtGui import QLinearGradient, QPainter, QColor, Qt, QPainterPath
 
-
 class ShimmerLabel(QLabel):
     def __init__(self, text="", parent=None, border_radius=4):
         super().__init__(text, parent)

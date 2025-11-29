@@ -17,6 +17,7 @@ from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
 from app.utils.helpers import execute_after_delay
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
 from app.constants.labels import OPERATION_LABELS
+from app.views.widgets.shimmer_label import ShimmerLabel
 
 class UIAppsSection:
 
@@ -87,7 +88,7 @@ class UIAppsSection:
 
         left_layout.addLayout(search_layout)
 
-        self.apps_message_label = QLabel()  # Inicializamos vacío
+        self.apps_message_label = ShimmerLabel()  # Inicializamos vacío
         self.apps_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.apps_message_label.setObjectName("status_warning_message")
         self.apps_message_label.setWordWrap(True)
@@ -127,7 +128,7 @@ class UIAppsSection:
         info_title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         right_layout.addWidget(info_title)
         
-        self.operation_status_label = QLabel()
+        self.operation_status_label = ShimmerLabel()
         self.operation_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.operation_status_label.setObjectName("status_info_message")
         self.operation_status_label.setVisible(False)
@@ -207,7 +208,7 @@ class UIAppsSection:
 
         # Bloquear controles durante la carga
         self.set_ui_state(False)
-        self.show_apps_message("Actualizando lista de aplicaciones...", "info")
+        self.show_apps_message("Actualizando lista de aplicaciones...", "info", shimmer_enabled=True)
 
         # Usar el método helper para el delay antes de iniciar el thread
         execute_after_delay(self._perform_apps_loading, GLOBAL_ACTION_DELAY)
@@ -374,7 +375,7 @@ class UIAppsSection:
         ]):
             self.handle_app_operations("load", force_load=True)
 
-    def show_apps_message(self, message, message_type="info"):
+    def show_apps_message(self, message, message_type="info", shimmer_enabled=False):
         """Muestra mensajes en el label entre radio buttons y lista"""
         style_map = {
             "info": "status_info_message",
@@ -389,10 +390,15 @@ class UIAppsSection:
         self.apps_message_label.setObjectName(object_name)
         self.apply_style_update(self.apps_message_label)
         self.apps_message_label.setVisible(True)
+        if shimmer_enabled:
+            self.apps_message_label.start_shimmer()
+        else:
+            self.apps_message_label.stop_shimmer()
 
     def hide_apps_message(self):
         """Oculta el mensaje (cuando hay aplicaciones en la lista)"""
         self.apps_message_label.setVisible(False)
+        self.apps_message_label.stop_shimmer()
         
     def enable_load_controls(self, enabled):
         self.all_apps_radio.setEnabled(enabled)
@@ -525,10 +531,12 @@ class UIAppsSection:
         """Muestra el estado de la operación en curso"""
         self.operation_status_label.setText(message)
         self.operation_status_label.setVisible(True)
+        self.operation_status_label.start_shimmer()
 
     def hide_operation_status(self):
         """Oculta el estado de la operación"""
         self.operation_status_label.setVisible(False)
+        self.operation_status_label.stop_shimmer()
 
     def uninstall_app(self):
         """Maneja la desinstalación de aplicaciones"""
