@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                            QPushButton, QFrame)
+                            QPushButton, QFrame, QStackedWidget)
 from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.dialog_theme import DialogTheme
@@ -26,6 +26,16 @@ class AboutDialog(QDialog):
         self.tutorial_timer = QTimer()
         self.tutorial_timer.setSingleShot(True)
         self.tutorial_timer.timeout.connect(lambda: self.enable_tutorial_button(True))
+        
+        # Timer para el enlace de copyright
+        self.copyright_timer = QTimer()
+        self.copyright_timer.setSingleShot(True)
+        self.copyright_timer.timeout.connect(self.restore_copyright_links)
+        
+        # Timer para el enlace de credits
+        self.credits_timer = QTimer()
+        self.credits_timer.setSingleShot(True)
+        self.credits_timer.timeout.connect(self.restore_credits_links)
     
     def setup_styles(self):
         DialogTheme.setup_dialog_palette(self)
@@ -168,8 +178,13 @@ class AboutDialog(QDialog):
         parent_layout.addWidget(self.tutorial_button)
     
     def create_copyright(self, parent_layout):
-        """Crea la sección de copyright y licencia"""
-        copyright_text = """
+        """Crea la sección de copyright y licencia con dos versiones"""
+        copyright_layout = QVBoxLayout()
+        copyright_layout.setContentsMargins(0, 0, 0, 0)
+        copyright_layout.setSpacing(0)
+        
+        # Versión con enlaces (subrayado)
+        copyright_with_links = """
         <p style='margin: 0;'>
         Copyright © 2025-2026 Gabriel Beltran<br>
         This application comes with absolutely no warranty. See the 
@@ -177,17 +192,47 @@ class AboutDialog(QDialog):
         or later for details.
         </p>
         """
-        copyright_label = QLabel(copyright_text)
-        copyright_label.setObjectName("copyright")
-        copyright_label.setOpenExternalLinks(True)
-        copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        copyright_label.setWordWrap(True)
-        parent_layout.addWidget(copyright_label)
+        
+        # Versión sin subrayado (mismo texto pero sin formato de enlace)
+        copyright_without_links = """
+        <p style='margin: 0;'>
+        Copyright © 2025-2026 Gabriel Beltran<br>
+        This application comes with absolutely no warranty. See the 
+        GNU General Public License, version 3 or later for details.
+        </p>
+        """
+        
+        # Crear los dos labels
+        self.copyright_with_links = QLabel(copyright_with_links)
+        self.copyright_with_links.setObjectName("copyright")
+        self.copyright_with_links.setOpenExternalLinks(False)
+        self.copyright_with_links.linkActivated.connect(self.on_copyright_link_activated)
+        self.copyright_with_links.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.copyright_with_links.setWordWrap(True)
+        
+        self.copyright_without_links = QLabel(copyright_without_links)
+        self.copyright_without_links.setObjectName("copyright")
+        self.copyright_without_links.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.copyright_without_links.setWordWrap(True)
+        
+        # Agregar al layout (mostrar solo el con enlaces inicialmente)
+        copyright_layout.addWidget(self.copyright_with_links)
+        copyright_layout.addWidget(self.copyright_without_links)
+        
+        # Ocultar la versión sin enlaces
+        self.copyright_without_links.hide()
+        
+        parent_layout.addLayout(copyright_layout)
         parent_layout.addSpacing(10)
     
     def create_credits(self, parent_layout):
-        """Crea la sección de créditos"""
-        kerismaker_credit = """
+        """Crea la sección de créditos con dos versiones"""
+        credits_layout = QVBoxLayout()
+        credits_layout.setContentsMargins(0, 0, 0, 0)
+        credits_layout.setSpacing(0)
+        
+        # Versión con enlaces (subrayado)
+        kerismaker_credit_with_links = """
         <p style='margin: 0;'>
         Design elements derived from "Animal Flat Colors (25 Icons)" by 
         <a href='https://dribbble.com/kerismaker'>kerismaker</a>, 
@@ -195,12 +240,72 @@ class AboutDialog(QDialog):
         available for free for commercial use.
         </p>
         """
-        credit_label = QLabel(kerismaker_credit)
-        credit_label.setObjectName("credit")
-        credit_label.setOpenExternalLinks(True)
-        credit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        credit_label.setWordWrap(True)
-        parent_layout.addWidget(credit_label)
+        
+        # Versión sin subrayado (mismo texto pero sin formato de enlace)
+        kerismaker_credit_without_links = """
+        <p style='margin: 0;'>
+        Design elements derived from "Animal Flat Colors (25 Icons)" by 
+        kerismaker, from icon-icons.com, available for free for commercial use.
+        </p>
+        """
+        
+        # Crear los dos labels
+        self.credit_with_links = QLabel(kerismaker_credit_with_links)
+        self.credit_with_links.setObjectName("credit")
+        self.credit_with_links.setOpenExternalLinks(False)
+        self.credit_with_links.linkActivated.connect(self.on_credits_link_activated)
+        self.credit_with_links.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.credit_with_links.setWordWrap(True)
+        
+        self.credit_without_links = QLabel(kerismaker_credit_without_links)
+        self.credit_without_links.setObjectName("credit")
+        self.credit_without_links.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.credit_without_links.setWordWrap(True)
+        
+        # Agregar al layout (mostrar solo el con enlaces inicialmente)
+        credits_layout.addWidget(self.credit_with_links)
+        credits_layout.addWidget(self.credit_without_links)
+        
+        # Ocultar la versión sin enlaces
+        self.credit_without_links.hide()
+        
+        parent_layout.addLayout(credits_layout)
+
+    def on_copyright_link_activated(self, link):
+        """Maneja la activación de enlaces en la sección de copyright"""
+        # Cambiar a la versión sin subrayado
+        self.copyright_with_links.hide()
+        self.copyright_without_links.show()
+        
+        try:
+            webbrowser.open(link)
+        except Exception:
+            print_in_debug_mode(f"Error al abrir el enlace de copyright: {link}")
+        finally:
+            self.copyright_timer.start(OPEN_LINK_REPEAT_DELAY)
+
+    def on_credits_link_activated(self, link):
+        """Maneja la activación de enlaces en la sección de créditos"""
+        # Cambiar a la versión sin subrayado
+        self.credit_with_links.hide()
+        self.credit_without_links.show()
+        
+        try:
+            webbrowser.open(link)
+        except Exception:
+            print_in_debug_mode(f"Error al abrir el enlace de créditos: {link}")
+        finally:
+            self.credits_timer.start(OPEN_LINK_REPEAT_DELAY)
+
+    def restore_copyright_links(self):
+        """Restaura la versión con enlaces subrayados para copyright"""
+        self.copyright_without_links.hide()
+        self.copyright_with_links.show()
+
+    def restore_credits_links(self):
+        """Restaura la versión con enlaces subrayados para créditos"""
+        self.credit_without_links.hide()
+        self.credit_with_links.show()
 
     def open_github_repo(self):
         """Abre el repositorio de GitHub y deshabilita temporalmente el botón"""
