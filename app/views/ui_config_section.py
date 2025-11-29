@@ -213,7 +213,7 @@ class UIConfigSection:
 
     def _set_custom_adb_async(self, folder_path):
         """Ejecuta set_custom_adb_path en un hilo asíncrono"""
-        if self.is_thread_type_running(ADBCheckThread):
+        if self.is_thread_type_running([ADBCheckThread, CustomADBThread]):
             return
 
         # Crear un thread personalizado para esta operación
@@ -250,7 +250,7 @@ class UIConfigSection:
         Verifica la disponibilidad de ADB de forma asíncrona usando thread.
         load_devices: si es True, cargará la lista de dispositivos después de la verificación
         """
-        if self.is_thread_type_running(ADBCheckThread):
+        if self.is_thread_type_running([ADBCheckThread, CustomADBThread]):
             return
 
         self.adb_check_thread = ADBCheckThread(self.adb_manager)
