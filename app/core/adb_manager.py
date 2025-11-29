@@ -136,28 +136,6 @@ class ADBManager:
         try:
             source_platform_tools_dir = Path(source_adb_path).parent
             
-            # Primero verificar si ya existe una carpeta platform-tools local con ADB válido
-            if self.local_platform_tools_dir.exists():
-                local_adb_path = self.local_platform_tools_dir / self._adb_filename
-                
-                # Verificar si el ADB local es válido
-                is_valid, message = self._validate_adb_file(str(local_adb_path))
-                if is_valid and self._test_adb_functionality(str(local_adb_path)):
-                    print("Ya existe una carpeta platform-tools local con ADB válido")
-                    
-                    # Verificar si el path configurado actualmente es válido
-                    current_adb_path = self.get_adb_path()
-                    if (not os.path.exists(current_adb_path) or 
-                        not self._test_adb_functionality(current_adb_path)):
-                        # El path configurado no es válido, pero tenemos ADB local válido
-                        print("El path configurado no es válido, actualizando el path..")
-                        self.config_manager.set_adb_path(str(local_adb_path))
-                        return True
-                    else:
-                        # Ambos son válidos, no necesitamos copiar
-                        print("ADB local y path configurado son válidos")
-                        return True
-            
             # Si llegamos aquí, necesitamos copiar platform-tools
             if not self._is_in_platform_tools(source_adb_path):
                 print(f"ERROR: ADB no está en carpeta platform-tools: {source_platform_tools_dir}")
@@ -190,6 +168,27 @@ class ADBManager:
             print(f"Error copiando platform-tools: {e}")
             return False
 
+    def verify_and_copy_platform_tools(self, source_adb_path):
+        """Versión que verifica antes de copiar (para el botón verificar)"""
+        try:
+            
+            # Verificar si ya existe una carpeta platform-tools local con ADB válido
+            if self.local_platform_tools_dir.exists():
+                local_adb_path = self.local_platform_tools_dir / self._adb_filename
+                
+                # Verificar si el ADB local es válido
+                is_valid, message = self._validate_adb_file(str(local_adb_path))
+                if is_valid and self._test_adb_functionality(str(local_adb_path)):
+                    print("Ya existe una carpeta platform-tools local con ADB válido")
+                    return True  # No copiar, ya existe uno válido
+            
+            # Si no existe o no es válido, proceder con la copia normal
+            return self.copy_platform_tools(source_adb_path)
+                
+        except Exception as e:
+            print(f"Error en verificación: {e}")
+            return False
+
     def resolve_adb_path(self):
         """Obtiene o busca la ruta de ADB, hace copia local y guarda la configuración"""
         # Verificar si ya tenemos una copia local funcional
@@ -204,7 +203,7 @@ class ADBManager:
             return None
         
         # Copiar platform-tools
-        if not self.copy_platform_tools(system_adb_path):
+        if not self.verify_and_copy_platform_tools(system_adb_path):
             print_in_debug_mode("No se pudo copiar platform-tools")
             return None
 
