@@ -62,8 +62,13 @@ class ShimmerLabel(QLabel):
         painter.end()
 
     # --- Animación ---
-    def start_shimmer(self, duration=1150, pause=100):
+    def start_shimmer(self, duration=1100, pause=100):
         """Inicia el shimmer.
+        
+        # Animación de pulso a 50 BPM:
+        # duration = 1100 ms -> tiempo de subida y bajada del gradiente
+        # pause = 100 ms -> breve respiro entre latidos
+        # Total del ciclo = 1200 ms → 50 pulsos por minuto
 
         Args:
             duration (int): Tiempo que tarda en recorrer el label (ms)
