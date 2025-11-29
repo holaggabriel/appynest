@@ -221,9 +221,9 @@ class UIConfigSection:
         
         # Conectar señales
         self.custom_adb_thread.finished_signal.connect(
-            lambda success, msg: self._on_adb_check_complete_simple(success, msg)
+            lambda success, msg: self._on_adb_verify_complete_simple(success, msg)
         )
-        self.custom_adb_thread.error_signal.connect(self._on_adb_check_error_simple)
+        self.custom_adb_thread.error_signal.connect(self._on_adb_verify_error_simple)
         
         self.register_thread(self.custom_adb_thread)
         execute_after_delay(lambda: self.custom_adb_thread.start(), GLOBAL_ACTION_DELAY)
@@ -257,14 +257,14 @@ class UIConfigSection:
         
         # Conectar callback, pasando el parámetro load_devices
         self.adb_check_thread.finished_signal.connect(
-            lambda success, msg: self._on_adb_check_complete_simple(success, msg, load_devices)
+            lambda success, msg: self._on_adb_verify_complete_simple(success, msg, load_devices)
         )
-        self.adb_check_thread.error_signal.connect(self._on_adb_check_error_simple)
+        self.adb_check_thread.error_signal.connect(self._on_adb_verify_error_simple)
         
         self.register_thread(self.adb_check_thread)
         execute_after_delay(lambda: self.adb_check_thread.start(), GLOBAL_ACTION_DELAY)
 
-    def _on_adb_check_complete_simple(self, success, message, load_devices=False):
+    def _on_adb_verify_complete_simple(self, success, message, load_devices=False):
         """Callback simple que actualiza el estado de ADB"""
         self.update_adb_availability(success)
         
@@ -275,7 +275,7 @@ class UIConfigSection:
         # Habilitar botones
         self._disable_buttons_context(True)
 
-    def _on_adb_check_error_simple(self, error_message):
+    def _on_adb_verify_error_simple(self, error_message):
         """Callback simple para errores"""
         self.update_adb_availability(False)
         
