@@ -109,25 +109,25 @@ class ADBManager:
             if os.path.exists(path) and os.access(path, os.X_OK):
                 if self._is_in_platform_tools(path):
                     platform_tools_paths.append(path)
-                    print(f"ADB válido encontrado en platform-tools: {path}")
+                    print_in_debug_mode(f"ADB válido encontrado en platform-tools: {path}")
                 else:
-                    print(f"ADB descartado (no está en platform-tools): {path}")
+                    print_in_debug_mode(f"ADB descartado (no está en platform-tools): {path}")
         
         # Buscar en PATH
         for path in self._search_in_path():
             if os.path.exists(path):
                 if self._is_in_platform_tools(path):
                     platform_tools_paths.append(path)
-                    print(f"ADB válido encontrado en PATH (platform-tools): {path}")
+                    print_in_debug_mode(f"ADB válido encontrado en PATH (platform-tools): {path}")
                 else:
-                    print(f"ADB en PATH descartado (no está en platform-tools): {path}")
+                    print_in_debug_mode(f"ADB en PATH descartado (no está en platform-tools): {path}")
         
         # Log resultados
         if platform_tools_paths:
-            print(f"ADB válidos encontrados: {platform_tools_paths}")
-            print(f"Se seleccionará: {platform_tools_paths[0]}")
+            print_in_debug_mode(f"ADB válidos encontrados: {platform_tools_paths}")
+            print_in_debug_mode(f"Se seleccionará: {platform_tools_paths[0]}")
         else:
-            print("No se encontró ADB en ninguna carpeta platform-tools válida")
+            print_in_debug_mode("No se encontró ADB en ninguna carpeta platform-tools válida")
             
         return platform_tools_paths[0] if platform_tools_paths else None
 
@@ -138,11 +138,11 @@ class ADBManager:
             
             # Si llegamos aquí, necesitamos copiar platform-tools
             if not self._is_in_platform_tools(source_adb_path):
-                print(f"ERROR: ADB no está en carpeta platform-tools: {source_platform_tools_dir}")
-                print("No se copiará ADB suelto. Solo se aceptan ADB en carpetas platform-tools.")
+                print_in_debug_mode(f"ERROR: ADB no está en carpeta platform-tools: {source_platform_tools_dir}")
+                print_in_debug_mode("No se copiará ADB suelto. Solo se aceptan ADB en carpetas platform-tools.")
                 return False
             
-            print(f"Copiando platform-tools desde: {source_platform_tools_dir}")
+            print_in_debug_mode(f"Copiando platform-tools desde: {source_platform_tools_dir}")
             
             # Eliminar copia anterior si existe
             if self.local_platform_tools_dir.exists():
@@ -161,11 +161,11 @@ class ADBManager:
             new_local_adb_path = str(self.local_platform_tools_dir / self._adb_filename)
             self.config_manager.set_adb_path(new_local_adb_path)
             
-            print(f"Platform-tools copiado exitosamente a: {self.local_platform_tools_dir}")
+            print_in_debug_mode(f"Platform-tools copiado exitosamente a: {self.local_platform_tools_dir}")
             return True
             
         except Exception as e:
-            print(f"Error copiando platform-tools: {e}")
+            print_in_debug_mode(f"Error copiando platform-tools: {e}")
             return False
 
     def verify_and_copy_platform_tools(self, source_adb_path):
@@ -179,14 +179,14 @@ class ADBManager:
                 # Verificar si el ADB local es válido
                 is_valid, message = self._validate_adb_file(str(local_adb_path))
                 if is_valid and self._test_adb_functionality(str(local_adb_path)):
-                    print("Ya existe una carpeta platform-tools local con ADB válido")
+                    print_in_debug_mode("Ya existe una carpeta platform-tools local con ADB válido")
                     return True  # No copiar, ya existe uno válido
             
             # Si no existe o no es válido, proceder con la copia normal
             return self.copy_platform_tools(source_adb_path)
                 
         except Exception as e:
-            print(f"Error en verificación: {e}")
+            print_in_debug_mode(f"Error en verificación: {e}")
             return False
 
     def resolve_adb_path(self):
@@ -291,8 +291,8 @@ class ADBManager:
         try:
             if self.local_platform_tools_dir.exists():
                 shutil.rmtree(self.local_platform_tools_dir)
-                print(f"Platform-tools local eliminado: {self.local_platform_tools_dir}")
+                print_in_debug_mode(f"Platform-tools local eliminado: {self.local_platform_tools_dir}")
                 return True
         except Exception as e:
-            print(f"Error eliminando platform-tools local: {e}")
+            print_in_debug_mode(f"Error eliminando platform-tools local: {e}")
         return False
