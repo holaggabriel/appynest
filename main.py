@@ -69,8 +69,8 @@ def main():
     app.setWindowIcon(icon)
     window.setWindowIcon(icon)
     window.setWindowTitle(APP_NAME)
-    window.resize(1000, 700)  # Tamaño inicial
-    window.setMinimumSize(800, 600)  # Tamaño mínimo
+    window.resize(1000, 650)  # Tamaño inicial
+    window.setMinimumSize(800, 500)  # Tamaño mínimo
 
     window.show()
     sys.exit(app.exec())
