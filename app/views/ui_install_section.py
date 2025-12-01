@@ -168,6 +168,7 @@ class UIInstallSection:
         # VERIFICAR SI EL DISPOSITIVO ESTÁ DISPONIBLE
         if not self.device_manager.is_device_available(self.selected_device):
             execute_after_delay(self._enable_controls_after_delay, GLOBAL_ACTION_DELAY)
+            self.status_label.stop_shimmer()
             QMessageBox.critical(self, "Dispositivo no disponible", 
                             f"El dispositivo {self.selected_device} no está conectado o disponible.")
             return
