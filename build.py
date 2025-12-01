@@ -172,10 +172,10 @@ class BuildSystem:
         desktop_content = textwrap.dedent(f"""\
             [Desktop Entry]
             Type=Application
-            Name={APP_NAME} v{APP_VERSION}
+            Name={APP_NAME} ({APP_VERSION})
             Exec=usr/bin/{binary_name}
             Icon=logo_512
-            Comment=Application v{APP_VERSION} built for 64-bit systems
+            Comment=Instala, desinstala y extrae apps de tu dispositivo Android con ADB
             Categories=Utility;
         """)
         (Path(appdir) / f"{PACKAGE_NAME}.desktop").write_text(desktop_content)
