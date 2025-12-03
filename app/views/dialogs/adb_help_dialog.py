@@ -40,15 +40,9 @@ class ADBHelpDialog(QDialog):
         self.scroll_widget.setObjectName("scrollWidget")
         self.scroll_layout = QVBoxLayout(self.scroll_widget)
         self.scroll_layout.setSpacing(5)
-        self.scroll_layout.setContentsMargins(28, 24, 28, 24)
+        self.scroll_layout.setContentsMargins(24, 20, 24, 24)
         
-        # Título
-        self.title_label = QLabel("Configuración de ADB")
-        self.title_label.setObjectName("title")
-        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_layout.addWidget(self.title_label)
-        
-        self.add_section("¿Dónde obtener ADB?", self.get_adb_locations_content)
+        self.add_section("¿Dónde obtener ADB?", self.get_adb_locations_content, show_separator=False)
         self.add_section("Rutas típicas de ADB", self.get_common_paths_content)
         self.add_section("Configurar el ADB", self.get_setup_instructions_content)
         self.add_section("ADB en la aplicación", self.get_adb_in_app)
@@ -63,9 +57,10 @@ class ADBHelpDialog(QDialog):
         sep.setFrameShape(QFrame.Shape.HLine)
         self.scroll_layout.addWidget(sep)
     
-    def add_section(self, title, content_method):
+    def add_section(self, title, content_method, show_separator=True):
         """Agrega una sección con título y contenido"""
-        self.add_separator()
+        if show_separator:
+            self.add_separator()
         
         subtitle = QLabel(title)
         subtitle.setObjectName("subtitle_base")

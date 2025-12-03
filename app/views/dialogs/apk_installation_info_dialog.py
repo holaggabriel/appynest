@@ -40,19 +40,7 @@ class ApkInstallationInfoDialog(QDialog):
         scroll_widget.setObjectName("scrollWidget")
         scroll_layout = QVBoxLayout(scroll_widget)
         scroll_layout.setSpacing(10)
-        scroll_layout.setContentsMargins(28, 24, 28, 24)
-        
-        # Título
-        title_label = QLabel("Consideraciones sobre la instalación de APKs")
-        title_label.setObjectName("title")
-        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        scroll_layout.addWidget(title_label)
-        
-        # Separador
-        separator_top = QFrame()
-        separator_top.setObjectName("separator")
-        separator_top.setFrameShape(QFrame.Shape.HLine)
-        scroll_layout.addWidget(separator_top)
+        scroll_layout.setContentsMargins(24, 20, 24, 24)
         
         split_subtitle = QLabel("APK Divididos (Split APKs)")
         split_subtitle.setObjectName("subtitle_base")
