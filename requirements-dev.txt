@@ -1,3 +1,5 @@
 pyinstaller==6.16.0
+# Para crear el appimage se utiliza appimagetool, no esta libreria
+# se queda aqui comentado para no olvidarse de ella y en algún momento usarla
 # appimage-builder==1.1.0
 pipreqs==0.4.13
