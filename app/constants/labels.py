@@ -1,8 +1,8 @@
-from app.constants.config import APP_NAME
+from app.constants.config import APP_DISPLAY_NAME
 
 OPERATION_LABELS = {
     "uninstall": "desinstalar",
     "extract": "extraer",
     "load": "cargar",
 }
-APP_DESCRIPTION = f"{APP_NAME} es una aplicación de escritorio que facilita la gestión de dispositivos y aplicaciones Android. Permite realizar tareas comunes como instalar, desinstalar o extraer aplicaciones de forma sencilla mediante ADB."
+APP_DESCRIPTION = f"{APP_DISPLAY_NAME} es una aplicación de escritorio que facilita la gestión de dispositivos y aplicaciones Android. Permite realizar tareas comunes como instalar, desinstalar o extraer aplicaciones de forma sencilla mediante ADB."

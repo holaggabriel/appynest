@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.theme.app_theme import AppTheme
 from app.theme.dialog_theme import DialogTheme
-from app.constants.config import APP_NAME, DONATION_URL
+from app.constants.config import APP_DISPLAY_NAME, DONATION_URL
 from app.constants.delays import OPEN_LINK_REPEAT_DELAY
 import webbrowser
 
@@ -59,7 +59,7 @@ class DonationInfoDialog(QDialog):
         
         # Mensaje de agradecimiento
         thank_you_text = f"""
-        <p>¡Gracias por usar {APP_NAME}!
+        <p>¡Gracias por usar {APP_DISPLAY_NAME}!
         """
         
         thank_you_label = QLabel(thank_you_text)

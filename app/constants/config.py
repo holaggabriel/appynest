@@ -2,7 +2,8 @@ import os
 import sys
 from app.constants.enums import Environment, Platform
 
-APP_NAME = "Appy Nest"
+APP_DISPLAY_NAME = "Appy Nest"
+APP_NAME = "appynest"
 APP_VERSION = "1.0.0"
 ORGANIZATION_NAME = "holaggabriel"
 ORGANIZATION_DOMAIN = "appynest.dev"

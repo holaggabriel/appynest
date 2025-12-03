@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel,
                             QFrame)
 from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
-from app.constants.config import APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME
+from app.constants.config import APP_DISPLAY_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME
 
 class ADBHelpDialog(QDialog):
     def __init__(self, parent=None):
@@ -109,17 +109,17 @@ class ADBHelpDialog(QDialog):
 
     def get_setup_instructions_content(self):
         return f"""
-        <p><span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</p>
+        <p><span style="color:#4DBD8B; font-weight:bold;">{APP_DISPLAY_NAME}</span> guarda la configuración en una carpeta oculta dentro de tu directorio personal:</p>
         <p><code>~/{CONFIG_DIR_NAME}/{CONFIG_FILE_NAME}</code></p>
         <p><b>Opción 1:</b></p> 
-        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
+        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_DISPLAY_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
         <p style="margin-left:2em;">• Funciona si tienes Android Studio instalado o si ADB se instaló mediante paquetes del sistema.</p>
         <p style="margin-left:2em;">• Si la verificación tiene éxito, la ruta y el estado de ADB se mostrarán en la sección de Configuración.</p>
         <p style="margin-left:2em;">• Si la verificación falla, no te preocupes: puedes usar la opción 2.</p>
 
         <p><b>Opción 2:</b></p> 
         <p style="margin-left:2em;">• Descarga SDK Platform Tools desde la página oficial si aún no lo tienes.</p>
-        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span> (no solo el archivo <code>adb</code>).</p>
+        <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_DISPLAY_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Seleccionar</span> y elige manualmente la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span> (no solo el archivo <code>adb</code>).</p>
         <p style="margin-left:2em;">• Esta opción es útil si ADB está en una ruta no estándar o la detección automática no funcionó.</p>
         
         <p style="font-style:italic;">

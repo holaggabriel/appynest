@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from app.constants.config import CONFIG_DIR_NAME, APP_NAME, CONFIG_FILE_NAME
+from app.constants.config import CONFIG_DIR_NAME, APP_DISPLAY_NAME, CONFIG_FILE_NAME
 from app.utils.print_in_debug_mode import print_in_debug_mode
 
 class ConfigManager:
@@ -9,7 +9,7 @@ class ConfigManager:
         self.config_dir = Path.home() / CONFIG_DIR_NAME
         self.config_file = self.config_dir / CONFIG_FILE_NAME
         self.default_config = {
-            "_comment": f"Configuracion basica de {APP_NAME}",
+            "_comment": f"Configuracion basica de {APP_DISPLAY_NAME}",
             "adb_path": ""
         }
         self.ensure_config()

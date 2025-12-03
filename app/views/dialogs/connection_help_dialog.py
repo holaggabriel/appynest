@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QLabel, QDialog,
                              QScrollArea, QWidget, QFrame)
 from PySide6.QtCore import Qt
 from app.theme.dialog_theme import DialogTheme
-from app.constants.config import APP_NAME
+from app.constants.config import APP_DISPLAY_NAME
 
 class ConnectionHelpDialog(QDialog):
     def __init__(self, parent=None):
@@ -71,7 +71,7 @@ class ConnectionHelpDialog(QDialog):
         <p style="margin-left:2em;">• Selecciona <b>"Permitir depuración USB"</b> o similar</p>
 
         <p>9. Verifica que el modo USB esté configurado como <b>Transferencia de archivos (MTP)</b> en el dispositivo:</p>
-        <p style="margin-left:2em;">• Antes de hacer cambios, intenta actualizar la lista de dispositivos en <b>{APP_NAME}</b>, ya que algunos dispositivos ya vienen configurados con el modo adecuado</p>
+        <p style="margin-left:2em;">• Antes de hacer cambios, intenta actualizar la lista de dispositivos en <b>{APP_DISPLAY_NAME}</b>, ya que algunos dispositivos ya vienen configurados con el modo adecuado</p>
         <p style="margin-left:2em;">• Si el dispositivo no aparece, asegúrate de que esté usando un modo de conexión compatible como <b>Transferencia de archivos (MTP)</b></p>
         <p style="margin-left:2em;">• Para cambiar al modo MTP:</p>
         <p style="margin-left:4em;">- Despliega el panel de notificaciones en tu dispositivo</p>
@@ -79,7 +79,7 @@ class ConnectionHelpDialog(QDialog):
         <p style="margin-left:4em;">- Toca esta notificación y selecciona <b>"Transferencia de archivos (MTP)"</b> o <b>"Transferir archivos"</b></p>
         <p style="margin-left:4em;"><i>Esta configuración puede variar dependiendo del fabricante y versión de Android</i></p>
         
-        <p>10. En <b>{APP_NAME}</b>, haz clic en <b>"Actualizar"</b> en la sección de dispositivos</p>
+        <p>10. En <b>{APP_DISPLAY_NAME}</b>, haz clic en <b>"Actualizar"</b> en la sección de dispositivos</p>
 
         <p>11. ¡Listo! Tu dispositivo debería aparecer en la lista</p>
         """

@@ -6,7 +6,7 @@ from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.utils.helpers import resource_path
 from app.theme.dialog_theme import DialogTheme
 from app.constants.labels import APP_DESCRIPTION
-from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
+from app.constants.config import APP_DISPLAY_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
 from app.constants.delays import OPEN_LINK_REPEAT_DELAY
 import webbrowser
 
@@ -45,7 +45,7 @@ class AboutDialog(QDialog):
         self.setStyleSheet(all_styles)
     
     def init_ui(self):
-        self.setWindowTitle(f"Acerca de {APP_NAME}")
+        self.setWindowTitle(f"Acerca de {APP_DISPLAY_NAME}")
         self.setFixedSize(430, 470)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         self.setObjectName("dialog_base")
@@ -70,7 +70,7 @@ class AboutDialog(QDialog):
         header_layout = QVBoxLayout()
         header_layout.setSpacing(0)
         
-        app_name = QLabel(APP_NAME.upper())
+        app_name = QLabel(APP_DISPLAY_NAME.upper())
         app_name.setObjectName("app_name")
         app_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(app_name)

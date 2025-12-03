@@ -6,7 +6,7 @@ import platform
 import struct
 import textwrap
 from pathlib import Path
-from app.constants.config import PACKAGE_NAME, APP_VERSION, APP_NAME
+from app.constants.config import PACKAGE_NAME, APP_VERSION, APP_DISPLAY_NAME
 
 class BuildSystem:
     """Sistema de build optimizado para generar binarios multiplataforma 64-bit"""
@@ -126,7 +126,7 @@ class BuildSystem:
         self._verify_environment()
         
         binary_name = self.get_binary_name()
-        cmd = self._get_base_pyinstaller_cmd(binary_name, "assets/logo/png/logo_512.png")
+        cmd = self._get_base_pyinstaller_cmd(binary_name, f"assets/logo/{PACKAGE_NAME}.png")
         
         # PyInstaller maneja automáticamente las dependencias del venv
         # No necesitamos buscar librerías manualmente
@@ -172,16 +172,27 @@ class BuildSystem:
         desktop_content = textwrap.dedent(f"""\
             [Desktop Entry]
             Type=Application
-            Name={APP_NAME} ({APP_VERSION})
+            Name={APP_DISPLAY_NAME} ({APP_VERSION})
             Exec=usr/bin/{binary_name}
-            Icon=logo_512
+            Icon={PACKAGE_NAME}
             Comment=Instala, desinstala y extrae apps de tu dispositivo Android con ADB
+            StartupWMClass={PACKAGE_NAME}
             Categories=Utility;
         """)
         (Path(appdir) / f"{PACKAGE_NAME}.desktop").write_text(desktop_content)
 
         # Copiar ícono
-        shutil.copy("assets/logo/png/logo_512.png", f"{appdir}/logo_512.png")
+
+        # Iconos hicolor para GNOME
+        icon_sizes = [64, 128, 256, 512]
+
+        for size in icon_sizes:
+            src = f"assets/logo/png/logo_{size}.png"
+            dst = f"{appdir}/usr/share/icons/hicolor/{size}x{size}/apps/{PACKAGE_NAME}.png"
+            Path(os.path.dirname(dst)).mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, dst)
+
+        shutil.copy("assets/logo/png/logo_512.png", f"{appdir}/{PACKAGE_NAME}.png")
 
         # Generar AppImage
         self._run_command(["appimagetool", appdir, appimage_name])
