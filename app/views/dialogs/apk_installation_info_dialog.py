@@ -17,7 +17,7 @@ class ApkInstallationInfoDialog(QDialog):
         self.setStyleSheet(all_styles)
     
     def init_ui(self):
-        self.setWindowTitle("Información - Consideraciones sobre la instalación de APKs")
+        self.setWindowTitle("Consideraciones al instalar APKs")
         self.setFixedSize(600, 600)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         self.setObjectName("dialog_base")

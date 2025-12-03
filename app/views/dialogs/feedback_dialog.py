@@ -28,7 +28,7 @@ class FeedbackDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Comentarios")
-        self.setFixedSize(370, 300)
+        self.setFixedSize(400, 300)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")

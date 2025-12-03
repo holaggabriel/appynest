@@ -28,7 +28,7 @@ class DonationInfoDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Apoyar el proyecto")
-        self.setFixedSize(370, 260)
+        self.setFixedSize(420, 260)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")

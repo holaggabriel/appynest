@@ -17,7 +17,7 @@ class ADBHelpDialog(QDialog):
         self.setStyleSheet(all_styles)
         
     def init_ui(self):
-        self.setWindowTitle("Ayuda - Configuración de ADB")
+        self.setWindowTitle("Configuración de ADB")
         self.setFixedSize(600, 600)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         self.setObjectName("dialog_base")
