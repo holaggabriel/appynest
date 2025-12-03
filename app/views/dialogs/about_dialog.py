@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                            QPushButton, QFrame, QStackedWidget)
+                            QPushButton, QFrame)
+from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtCore import Qt, QTimer
 from app.utils.print_in_debug_mode import print_in_debug_mode
+from app.utils.helpers import resource_path
 from app.theme.dialog_theme import DialogTheme
 from app.constants.labels import APP_DESCRIPTION
 from app.constants.config import APP_NAME, APP_VERSION, APP_REPOSITORY_URL, APP_TUTORIAL_URL
@@ -111,9 +113,8 @@ class AboutDialog(QDialog):
         repo_layout.setSpacing(12)
         
         # Icono del repositorio
-        self.repo_icon = QLabel("📁")
-        self.repo_icon.setObjectName("repo_icon")
-        self.repo_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.repo_icon = QSvgWidget(resource_path("assets/icons/folder.svg"))
+        self.repo_icon.setFixedSize(18, 18)
         
         # Texto del repositorio
         repo_text_layout = QVBoxLayout()
@@ -151,10 +152,9 @@ class AboutDialog(QDialog):
         tutorial_layout = QHBoxLayout(self.tutorial_button)
         tutorial_layout.setContentsMargins(16, 8, 16, 8)
         tutorial_layout.setSpacing(12)
-
-        self.tutorial_icon = QLabel("🎓")
-        self.tutorial_icon.setObjectName("tutorial_icon")
-        self.tutorial_icon.setCursor(Qt.CursorShape.PointingHandCursor)
+        
+        self.tutorial_icon = QSvgWidget(resource_path("assets/icons/book.svg"))
+        self.tutorial_icon.setFixedSize(18, 18)
 
         tutorial_text_layout = QVBoxLayout()
         tutorial_text_layout.setSpacing(2)
