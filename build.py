@@ -211,7 +211,7 @@ class BuildSystem:
 
     def clean_build(self):
         """Limpia los archivos generados por PyInstaller"""
-        folders_to_remove = ['build', 'dist']
+        folders_to_remove = ['build', 'dist', 'AppDir']
         spec_files = [f for f in os.listdir('.') 
                      if f.endswith('.spec') and PACKAGE_NAME in f]
         
