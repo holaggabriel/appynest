@@ -23,7 +23,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
-    app.setApplicationDisplayName(APP_DISPLAY_NAME)
+    # app.setApplicationDisplayName(APP_DISPLAY_NAME) # Agrega en cada titulo de las ventanas el nombre de l app
     app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName(ORGANIZATION_NAME)
     app.setOrganizationDomain(ORGANIZATION_DOMAIN)
