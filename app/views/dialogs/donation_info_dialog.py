@@ -27,8 +27,8 @@ class DonationInfoDialog(QDialog):
         self.setStyleSheet(all_styles)
     
     def init_ui(self):
-        self.setWindowTitle("Apoyar el proyecto")
-        self.setFixedSize(420, 260)
+        self.setWindowTitle("Apoyar")
+        self.setFixedSize(370, 250)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")
@@ -75,14 +75,15 @@ class DonationInfoDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         separator2.setFixedHeight(1)
         layout.addWidget(separator2)
-        layout.addSpacing(8)
+        
+        layout.addStretch()
         
         # Nota adicional
         note_label = QLabel("<i>Haz clic abajo para abrir la página de donaciones</i>")
         note_label.setObjectName("subtitle")
         note_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         note_label.setWordWrap(True)
-        note_label.setMinimumWidth(200)
+        note_label.setMinimumWidth(100)
         layout.addWidget(note_label)
         
         # Botón

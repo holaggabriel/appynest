@@ -28,7 +28,7 @@ class FeedbackDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle("Comentarios")
-        self.setFixedSize(400, 300)
+        self.setFixedSize(370, 300)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         
         self.setObjectName("dialog_base")
@@ -81,14 +81,14 @@ class FeedbackDialog(QDialog):
         separator2.setFrameShape(QFrame.Shape.HLine)
         separator2.setFixedHeight(1)
         layout.addWidget(separator2)
-        layout.addSpacing(8)
+        layout.addStretch()
         
         # Nota adicional
         note_label = QLabel("<i>Haz clic abajo para abrir el formulario en el navegador</i>")
         note_label.setObjectName("subtitle")
         note_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         note_label.setWordWrap(True)
-        note_label.setMinimumWidth(200)
+        note_label.setMinimumWidth(100)
         layout.addWidget(note_label)
         
         # Botón - ahora usa propiedad en lugar de stylesheet directo
