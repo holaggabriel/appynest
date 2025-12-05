@@ -1,11 +1,9 @@
-import contextlib
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QLabel, 
                              QWidget, QFileDialog, QMessageBox,
                              QFrame, QSizePolicy)
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
-from app.core.device_manager import DeviceManager
 from app.views.dialogs.about_dialog import AboutDialog
 from app.views.dialogs.adb_help_dialog import ADBHelpDialog
 from app.views.dialogs.feedback_dialog import FeedbackDialog

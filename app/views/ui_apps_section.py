@@ -16,7 +16,7 @@ from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QPixmap
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
-from app.utils.helpers import execute_after_delay, resource_path, shorten_path
+from app.utils.helpers import execute_after_delay, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
 from app.constants.labels import OPERATION_LABELS
 from app.views.widgets.shimmer_label import ShimmerLabel
