@@ -588,16 +588,27 @@ class AppTheme:
                 padding: 0px 0px 0px 0px;
                 margin: 0px 0px 0px 0px;
                 border-radius: 4px;
-                font-size: 11px;
                 border: none;
             }}
             
-            QLabel#info_item {{
+            QLabel#info_item_title {{
                 color: {colors['text']};
+                background-color: transparent;
                 padding: 0px 0px 0px 0px;
                 margin: 0px 0px 0px 0px;
                 font-size: 11px;
+                font-weight: bold;
                 border: none;
+            }}
+            
+            QLineEdit#info_item_content {{
+                background-color: transparent;
+                color: {colors['text']};
+                padding: 4px 4px 4px 4px;
+                margin: 0px 0px 0px 0px;
+                font-size: 11px;
+                border: 1px solid {colors['border']};
+                border-radius: 4px;
             }}
             
             QLabel#status_warning_message {{

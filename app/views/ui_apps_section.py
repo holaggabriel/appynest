@@ -12,10 +12,11 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QLineEdit,
 )
+from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QPixmap
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
-from app.utils.helpers import execute_after_delay, resource_path
+from app.utils.helpers import execute_after_delay, resource_path, shorten_path
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
 from app.constants.labels import OPERATION_LABELS
 from app.views.widgets.shimmer_label import ShimmerLabel
@@ -23,6 +24,7 @@ from app.views.widgets.shimmer_label import ShimmerLabel
 class UIAppsSection:
 
     def setup_apps_section(self):
+        
         widget = QWidget()
         main_horizontal_layout = QHBoxLayout(widget)
         main_horizontal_layout.setSpacing(15)
@@ -119,8 +121,8 @@ class UIAppsSection:
         self.apps_list.itemSelectionChanged.connect(self.on_app_selected)
         left_layout.addWidget(self.apps_list)
 
-        right_panel = QWidget()
-        right_layout = QVBoxLayout(right_panel)
+        self.right_panel = QWidget()
+        right_layout = QVBoxLayout(self.right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)
 
         info_title = QLabel("DETALLES")
@@ -175,37 +177,40 @@ class UIAppsSection:
 
         right_layout.addStretch(1)
         main_horizontal_layout.addWidget(left_panel)
-        main_horizontal_layout.addWidget(right_panel)
+        main_horizontal_layout.addWidget(self.right_panel)
 
         main_horizontal_layout.setStretchFactor(left_panel, 2)
-        main_horizontal_layout.setStretchFactor(right_panel, 3)
+        main_horizontal_layout.setStretchFactor(self.right_panel, 3)
 
         return widget
     
-    def _add_detail_row(self, icon_path, label_text):
+    def _add_detail_row(self, icon_path, title, label_text):
         row = QWidget()
         row.setObjectName("info_item")
         layout = QHBoxLayout(row)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)   
         
-        icon_label = QLabel()
-        pix = QPixmap(resource_path(icon_path)).scaled(
-            16, 16,
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation
-        )
-        icon_label.setPixmap(pix)
-
-        text_label = QLabel(label_text)
-        text_label.setObjectName("info_item")
-        text_label.setWordWrap(True)
-
-        layout.addWidget(icon_label)
+        self.icon_label = QSvgWidget(resource_path(icon_path))
+        self.icon_label.setFixedSize(16, 16)
+    
+        title_label = QLabel(title)  # Título como QLabel separado
+        title_label.setObjectName("info_item_title")
+        
+        content_edit = QLineEdit(label_text)
+        content_edit.setObjectName("info_item_content")
+        content_edit.setReadOnly(True)
+        content_edit.setCursorPosition(0)
+        content_edit.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        
+        # Agregar icono y contenedor de texto al layout principal
+        layout.addWidget(self.icon_label)
         layout.addSpacing(10)
-        layout.addWidget(text_label)
-        layout.addStretch()
-
+        layout.addWidget(title_label)
+        layout.addSpacing(5)
+        layout.addWidget(content_edit)
+        
         self.app_info_layout.addWidget(row)
 
     def handle_app_operations(self, operation, app_data=None, force_load=False):
@@ -304,10 +309,10 @@ class UIAppsSection:
             if child.widget():
                 child.widget().deleteLater()
 
-        self._add_detail_row("assets/icons/file-white.svg", f"Aplicación:\n{app_data['name']}")
-        self._add_detail_row("assets/icons/package-white.svg", f"Paquete:\n{app_data['package_name']}")
-        self._add_detail_row("assets/icons/tag-white.svg", f"Versión:\n{app_data['version']}")
-        self._add_detail_row("assets/icons/folder-white.svg", f"Ruta APK:\n{app_data['apk_path']}")
+        self._add_detail_row("assets/icons/file-white.svg", title="Aplicación:", label_text=app_data['name'])
+        self._add_detail_row("assets/icons/package-white.svg", title="Paquete:", label_text=app_data['package_name'])
+        self._add_detail_row("assets/icons/tag-white.svg", title="Versión:", label_text=app_data['version'])
+        self._add_detail_row("assets/icons/folder-white.svg", title="Ruta APK:", label_text=app_data['apk_path'])
         
         self.uninstall_btn.setEnabled(True)
         self.extract_apk_btn.setEnabled(True)
