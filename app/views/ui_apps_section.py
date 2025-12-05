@@ -509,9 +509,9 @@ class UIAppsSection:
 
         if success:
             if operation_type == "extract":
-                title = "APK extraído correctamente"
+                title = "APK extraído"
             elif operation_type == "uninstall":
-                title = "Aplicación desinstalada correctamente"
+                title = "Aplicación desinstalada"
                 self.handle_app_operations("load", force_load=True)
             else:
                 title = f"Operación completada"
@@ -519,9 +519,9 @@ class UIAppsSection:
             QMessageBox.information(self, title, message)
         else:
             if operation_type == "extract":
-                title = "No se pudo extraer el APK"
+                title = "Error al extraer APK"
             elif operation_type == "uninstall":
-                title = "No se pudo desinstalar la aplicación"
+                title = "Error al desinstalar"
             else:
                 title = f"Error en la operación"
 
