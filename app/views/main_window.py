@@ -64,14 +64,14 @@ class MainWindow(QMainWindow, UIDevicePanel, UIInstallSection, UIAppsSection, UI
         
         if has_active_threads:
             reply = QMessageBox.question(
-                self, 'Salir de la aplicación',
+                self, 'Salir',
                 "Hay operaciones en curso. Si sales ahora, se cancelarán. ¿Deseas salir de la aplicación?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )
         else:
             reply = QMessageBox.question(
-                self, 'Salir de la aplicación',
+                self, 'Salir',
                 '¿Deseas salir de la aplicación?',
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
