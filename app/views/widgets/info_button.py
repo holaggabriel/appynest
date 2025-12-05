@@ -14,7 +14,7 @@ class InfoButton(QToolButton):
 
         # Icono inicial
         self.setIcon(self.icon_normal)
-        self.setIconSize(QSize(self.size, self.size))
+        self.setIconSize(QSize(16, 16))
 
         # Cursor tipo "manita"
         self.setCursor(QCursor(Qt.PointingHandCursor))
@@ -38,6 +38,3 @@ class InfoButton(QToolButton):
     def leaveEvent(self, event):
         self.setIcon(self.icon_normal)
         super().leaveEvent(event)
-
-    def sizeHint(self):
-        return QSize(self.size, self.size)

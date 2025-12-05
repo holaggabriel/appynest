@@ -48,11 +48,29 @@ class UIConfigSection:
         status_container = QHBoxLayout()
         status_container.setSpacing(10)
         
-        # Label de estado ADB
-        self.adb_status_label = QLabel("Estado ADB: Verificando...")
-        self.adb_status_label.setObjectName('banner_label')
-        self.adb_status_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        status_container.addWidget(self.adb_status_label)
+        adb_status_frame = QFrame()
+        adb_status_frame.setObjectName('banner_label_container')
+
+        # Layout interno para el frame de los labels
+        adb_status_layout = QHBoxLayout(adb_status_frame)
+        adb_status_layout.setSpacing(0)
+        adb_status_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Agregar los labels dentro del frame
+        self.adb_status_title = QLabel("Estado ADB: ")
+        self.adb_status_title.setObjectName('adb_status_title')
+        adb_status_layout.addWidget(self.adb_status_title)
+
+        self.adb_status_label = QLabel("Verificando...")
+        self.adb_status_label.setObjectName('normal_label')
+        adb_status_layout.addWidget(self.adb_status_label)
+        adb_status_layout.addStretch()
+        
+        status_container = QHBoxLayout()
+        status_container.setSpacing(8)
+
+        # Agregar el frame con borde al contenedor principal
+        status_container.addWidget(adb_status_frame)
 
         # Botón de actualizar/verificar
         self.update_adb_btn = QPushButton("Verificar")
@@ -75,18 +93,23 @@ class UIConfigSection:
         info_label_layout.setContentsMargins(0,0,0,0)
 
         # Agregar widgets al primer contenedor
-        info_button = InfoButton(size=15)
+        info_button = InfoButton(size=16)
         info_button.clicked.connect(self.show_adb_help_dialog)
         info_label_layout.addWidget(info_button)
         
         info_label_layout.addSpacing(10)
+        
+        self.adb_path_title = QLabel("Ruta: ")
+        self.adb_path_title.setObjectName('adb_status_title')
+        info_label_layout.addWidget(self.adb_path_title)
 
-        self.adb_path_label = QLabel("Ruta: No detectada")
+        self.adb_path_label = QLabel("No detectada")
         self.adb_path_label.setObjectName('normal_label')
         self.adb_path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.adb_path_label.setWordWrap(True)
-        info_label_layout.addWidget(self.adb_path_label)
         self.adb_path_label.setToolTip("Ruta completa del ADB")
+        self.adb_path_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        info_label_layout.addWidget(self.adb_path_label)
 
         # CONTENEDOR 2: Contenedor principal que incluye el frame anterior + botón seleccionar
         main_container = QHBoxLayout()
@@ -136,7 +159,7 @@ class UIConfigSection:
         self.donation_btn.setObjectName('donation_button')
         self.donation_btn.setFixedSize(40, 32)
         self.donation_btn.setIcon(QIcon(resource_path("assets/icons/star.svg")))
-        self.donation_btn.setIconSize(QSize(18, 18))
+        self.donation_btn.setIconSize(QSize(16, 16))
         self.donation_btn.clicked.connect(self.show_donation_info_dialog)
         self.donation_btn.setCursor(Qt.PointingHandCursor)
         about_buttons_layout.addWidget(self.donation_btn)
@@ -162,8 +185,8 @@ class UIConfigSection:
 
     def _set_adb_status(self, status, path_text, status_type="success"):
         """Configura el estado de ADB de manera centralizada"""
-        self.adb_status_label.setText(f"Estado ADB: {status}")
-        self.adb_path_label.setText(f"Ruta: {path_text}")
+        self.adb_status_label.setText(status)
+        self.adb_path_label.setText(path_text)
         
         if status_type == "success":
             # No es necerio actualizar su diseño si no se va a mostrar

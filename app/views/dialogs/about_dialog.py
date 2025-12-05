@@ -114,7 +114,7 @@ class AboutDialog(QDialog):
         
         # Icono del repositorio
         self.repo_icon = QSvgWidget(resource_path("assets/icons/folder-yellow.svg"))
-        self.repo_icon.setFixedSize(18, 18)
+        self.repo_icon.setFixedSize(16, 16)
         
         # Texto del repositorio
         repo_text_layout = QVBoxLayout()
@@ -154,7 +154,7 @@ class AboutDialog(QDialog):
         tutorial_layout.setSpacing(12)
         
         self.tutorial_icon = QSvgWidget(resource_path("assets/icons/book-green.svg"))
-        self.tutorial_icon.setFixedSize(18, 18)
+        self.tutorial_icon.setFixedSize(16, 16)
 
         tutorial_text_layout = QVBoxLayout()
         tutorial_text_layout.setSpacing(2)

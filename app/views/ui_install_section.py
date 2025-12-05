@@ -83,7 +83,7 @@ class UIInstallSection:
         self.remove_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
-        self.clear_apk_btn = QPushButton("Limpiar")
+        self.clear_apk_btn = QPushButton("Eliminar Todo")
         self.clear_apk_btn.setObjectName('button_danger_default')
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         self.clear_apk_btn.setEnabled(False)
@@ -152,7 +152,6 @@ class UIInstallSection:
             # Crear item con texto
             item = QListWidgetItem(os.path.basename(apk_path))
             
-            # Cargar SVG y escalar a 18x18
             pixmap = QPixmap(resource_path("assets/icons/file-green.svg")).scaled(
                 icon_size, icon_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             )

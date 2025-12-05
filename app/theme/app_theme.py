@@ -621,6 +621,17 @@ class AppTheme:
                 border: none;
             }}
             
+            QLabel#adb_status_title {{
+                background-color: transparent;
+                color: {colors['text']};
+                padding: 0px 0px 0px 0px;
+                margin: 0px 0px 0px 0px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: bold;
+                border: none;
+            }}
+            
             /* ===== ESTILOS ESPECIALES ===== */
             QLabel#banner_label {{
                 background-color: {colors['banner']};
