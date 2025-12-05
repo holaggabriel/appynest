@@ -582,6 +582,24 @@ class AppTheme:
                 border: none;
             }}
             
+            QWidget#info_item {{
+                background-color: {colors['info_item']};
+                color: {colors['text']};
+                padding: 0px 0px 0px 0px;
+                margin: 0px 0px 0px 0px;
+                border-radius: 4px;
+                font-size: 11px;
+                border: none;
+            }}
+            
+            QLabel#info_item {{
+                color: {colors['text']};
+                padding: 0px 0px 0px 0px;
+                margin: 0px 0px 0px 0px;
+                font-size: 11px;
+                border: none;
+            }}
+            
             QLabel#status_warning_message {{
                 background-color: {colors['status_warning_message']};
                 color: {colors['text']};

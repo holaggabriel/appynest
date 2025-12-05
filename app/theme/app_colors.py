@@ -85,4 +85,6 @@ APP_COLORS = {
     'refresh_button_icon_hover': '#444446',
     'refresh_button_icon_pressed': '#2A2A2C',
     'refresh_button_icon_disabled': '#232324',
+    
+    'info_item': '#262627',
 }

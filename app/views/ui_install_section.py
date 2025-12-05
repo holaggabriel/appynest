@@ -1,10 +1,10 @@
 import os
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, 
                              QPushButton, QListWidget, QLabel, 
-                             QWidget, QFileDialog, QMessageBox)
+                             QWidget, QFileDialog, QMessageBox, QListWidgetItem)
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QDragEnterEvent, QDropEvent
-from app.utils.helpers import execute_after_delay
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QPixmap
+from app.utils.helpers import execute_after_delay, resource_path
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.core.threads import InstallationThread
 from app.views.dialogs.apk_installation_info_dialog import ApkInstallationInfoDialog
@@ -144,10 +144,22 @@ class UIInstallSection:
         self._update_status_message(has_apks, has_device)
 
     def _update_apk_list(self):
-        """Actualizar la visualización de la lista de APKs"""
+        """Actualizar la visualización de la lista de APKs con SVG escalado a 18px"""
         self.apk_list.clear()
+        icon_size = 16  # tamaño fijo en pixeles
+        
         for apk_path in self.selected_apks:
-            self.apk_list.addItem(f"🧩 {os.path.basename(apk_path)}")
+            # Crear item con texto
+            item = QListWidgetItem(os.path.basename(apk_path))
+            
+            # Cargar SVG y escalar a 18x18
+            pixmap = QPixmap(resource_path("assets/icons/file-green.svg")).scaled(
+                icon_size, icon_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+            )
+            icon = QIcon(pixmap)
+            item.setIcon(icon)
+            
+            self.apk_list.addItem(item)
 
     def install_apk(self):
         """Iniciar instalación de APKs"""

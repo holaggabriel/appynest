@@ -13,8 +13,9 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QIcon, QPixmap
 from app.core.threads import UninstallThread, ExtractThread, AppsLoadingThread
-from app.utils.helpers import execute_after_delay
+from app.utils.helpers import execute_after_delay, resource_path
 from app.constants.delays import GLOBAL_ACTION_DELAY, SEARCH_DEBOUNCE_DELAY
 from app.constants.labels import OPERATION_LABELS
 from app.views.widgets.shimmer_label import ShimmerLabel
@@ -148,16 +149,12 @@ class UIAppsSection:
         app_details_layout.setSpacing(12)
         app_details_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.app_info_label = QLabel()
-        self.app_info_label.setMaximumWidth(right_panel.width())
-        self.app_info_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.app_info_label.setObjectName("status_info_message")
-        self.app_info_label.setSizePolicy(
-            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding
-        )
-        self.app_info_label.setWordWrap(True)
-        self.app_info_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        app_details_layout.addWidget(self.app_info_label)
+        self.app_info_container = QWidget()
+        self.app_info_layout = QVBoxLayout(self.app_info_container)
+        self.app_info_layout.setSpacing(6)
+        self.app_info_layout.setContentsMargins(0, 0, 0, 0)
+
+        app_details_layout.addWidget(self.app_info_container)
 
         self.uninstall_btn = QPushButton("Desinstalar")
         self.uninstall_btn.setObjectName("button_danger_default")
@@ -177,7 +174,6 @@ class UIAppsSection:
         self.app_details_widget.setVisible(False)
 
         right_layout.addStretch(1)
-        right_panel.resizeEvent = lambda event: self.app_info_label.setMaximumWidth(right_panel.width())
         main_horizontal_layout.addWidget(left_panel)
         main_horizontal_layout.addWidget(right_panel)
 
@@ -185,6 +181,32 @@ class UIAppsSection:
         main_horizontal_layout.setStretchFactor(right_panel, 3)
 
         return widget
+    
+    def _add_detail_row(self, icon_path, label_text):
+        row = QWidget()
+        row.setObjectName("info_item")
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(0)
+        
+        icon_label = QLabel()
+        pix = QPixmap(resource_path(icon_path)).scaled(
+            16, 16,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        )
+        icon_label.setPixmap(pix)
+
+        text_label = QLabel(label_text)
+        text_label.setObjectName("info_item")
+        text_label.setWordWrap(True)
+
+        layout.addWidget(icon_label)
+        layout.addSpacing(10)
+        layout.addWidget(text_label)
+        layout.addStretch()
+
+        self.app_info_layout.addWidget(row)
 
     def handle_app_operations(self, operation, app_data=None, force_load=False):
         operations = {
@@ -277,12 +299,16 @@ class UIAppsSection:
         self.initial_info_label.setVisible(False)
         self.app_details_widget.setVisible(True)
 
-        info_text = f"""
-        <b>🧩 Aplicación:</b> {app_data['name']}<br>
-        <b>📦 Paquete:</b> {app_data['package_name']}<br>
-        <b>🏷️ Versión:</b> {app_data['version']}<br>
-        <b>📁 Ruta APK:</b> {app_data['apk_path']}"""
-        self.app_info_label.setText(info_text)
+        while self.app_info_layout.count():
+            child = self.app_info_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        self._add_detail_row("assets/icons/file-white.svg", f"Aplicación:\n{app_data['name']}")
+        self._add_detail_row("assets/icons/package-white.svg", f"Paquete:\n{app_data['package_name']}")
+        self._add_detail_row("assets/icons/tag-white.svg", f"Versión:\n{app_data['version']}")
+        self._add_detail_row("assets/icons/folder-white.svg", f"Ruta APK:\n{app_data['apk_path']}")
+        
         self.uninstall_btn.setEnabled(True)
         self.extract_apk_btn.setEnabled(True)
 
@@ -350,11 +376,23 @@ class UIAppsSection:
             self.show_apps_message("Selecciona un dispositivo", "warning")
             return
 
+        icon_size = 18  # Tamaño fijo en px
         for app in self.filtered_apps_data:
             item = QListWidgetItem()
-            item_text = f"{app['name']}\n📦 {app['package_name']}\n🏷️ {app['version']}"
-            item.setText(item_text)
             item.setData(Qt.ItemDataRole.UserRole, app)
+
+            # Texto de la app
+            item.setText(f" {app['name']}\n {app['package_name']}")
+
+            # Cargar ícono SVG de "file" para representar la app
+            pixmap = QPixmap(resource_path("assets/icons/file-green.svg")).scaled(
+                icon_size, icon_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+            icon = QIcon(pixmap)
+            item.setIcon(icon)
+
             self.apps_list.addItem(item)
 
         # Mostrar mensaje si no hay resultados
