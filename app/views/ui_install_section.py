@@ -282,18 +282,19 @@ class UIInstallSection:
 
     def get_operation_title(self, operation_type, success=True, app_count=1):
         singular_titles = {
-            "install": "Aplicación instalada" if success else "No se pudo instalar la aplicación",
-            "uninstall": "Aplicación desinstalada" if success else "No se pudo desinstalar la aplicación",
-            "extract": "APK extraído" if success else "No se pudo extraer el APK",
+            "install": "Aplicación instalada" if success else "Error al instalar",
+            "uninstall": "Aplicación desinstalada" if success else "Error al desinstalar",
+            "extract": "APK extraído" if success else "Error al extraer APK",
         }
 
         plural_titles = {
-            "install": "Aplicaciones instaladas" if success else "No se pudieron instalar las aplicaciones",
-            "uninstall": "Aplicaciones desinstaladas" if success else "No se pudieron desinstalar las aplicaciones",
-            "extract": "APKs extraídos" if success else "No se pudieron extraer los APKs",
+            "install": "Aplicaciones instaladas" if success else "Error al instalar apps",
+            "uninstall": "Aplicaciones desinstaladas" if success else "Error al desinstalar apps",
+            "extract": "APKs extraídos" if success else "Error al extraer APKs",
         }
 
         return plural_titles[operation_type] if app_count > 1 else singular_titles[operation_type]
+
     
     def show_apk_installation_info_dialog(self):
         """Muestra el diálogo de ayuda para conexión"""

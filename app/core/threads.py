@@ -118,7 +118,7 @@ class InstallationThread(BaseThread):
             # Solo emitir si no hemos sido detenidos
             if self.is_running():
                 if success_count == total_apks:
-                    self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente")
+                    self.finished_signal.emit(True, f"Todos los {total_apks} APKs instalados correctamente. El proceso finalizó sin errores.")
                 elif success_count > 0:
                     result_message = f"{success_count} de {total_apks} APKs instalados correctamente"
                     result_message += f"\n\nAPK(s) instalados:\n" + "\n".join(successful_apks)
