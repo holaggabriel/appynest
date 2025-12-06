@@ -111,6 +111,8 @@ class BuildSystem:
         if not is_windows:
             cmd.append("--strip")
             return cmd
+    
+        return cmd 
 
     def _verify_environment(self):
         """Verificaciones del entorno"""
