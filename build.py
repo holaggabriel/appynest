@@ -107,7 +107,10 @@ class BuildSystem:
             f"--name={binary_name}", f"--icon={icon_path}",
             f"--add-data=assets{sep}assets", f"--add-data=app{sep}app"
         ]
-        return cmd
+        
+        if not is_windows:
+            cmd.append("--strip")
+            return cmd
 
     def _verify_environment(self):
         """Verificaciones del entorno"""
