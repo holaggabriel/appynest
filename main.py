@@ -2,7 +2,7 @@ import sys
 import os
 import ctypes
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QColor
 from app.constants.config import APP_NAME,APP_DISPLAY_NAME, APP_VERSION, APP_ID, ORGANIZATION_NAME, ORGANIZATION_DOMAIN
 from app.constants.delays import SPLASH_SCREEN_DELAY, POST_SPLASH_DELAY
 from app.constants.enums import Platform
@@ -21,7 +21,6 @@ class ApplicationLauncher:
         self.app = None
         self.splash = None
         self.window = None
-        self.launched_from_launcher = "--launched" in sys.argv
     
     def setup_application(self):
         """Configura la aplicación Qt con parámetros básicos."""
@@ -33,21 +32,21 @@ class ApplicationLauncher:
         self.app.setOrganizationDomain(ORGANIZATION_DOMAIN)
         self.app.setStyle("Fusion")
     
-    def show_splash_screen(self):
+    def show_splash_screen(self, mode="normal"):
         """Muestra el splash screen si es necesario."""
-        if not self.launched_from_launcher:
+        if mode == "removable":
+            self.splash = SplashScreen(mode=mode)
+        else:
             self.splash = SplashScreen()
-            self.splash.show()
-            self.app.processEvents()
+            
+        self.splash.show()
+        self.app.processEvents()
     
     def handle_usb_launch(self):
         """Maneja el lanzamiento desde USB si es necesario."""
         
         # Si no es windows, no es necesario lanzarlo desde el usb
         if Platform(sys.platform) is not Platform.WIN32:
-            return False
-
-        if not (is_running_from_usb() and not self.launched_from_launcher):
             return False
         
         print_in_debug_mode("Ejecutando desde USB - usando launcher desacoplado")
@@ -159,11 +158,13 @@ class ApplicationLauncher:
     def run(self):
         """Ejecuta el flujo principal de la aplicación."""
         self.setup_application()
-        self.show_splash_screen()
-        
-        # Si estamos en USB, manejamos el lanzamiento y salimos
-        if self.handle_usb_launch():
-            sys.exit(self.app.exec())
+    
+        if is_running_from_usb():
+            self.show_splash_screen(mode="removable")
+            if self.handle_usb_launch():
+                sys.exit(self.app.exec())
+        else: 
+            self.show_splash_screen()
         
         # Configuración normal de la aplicación
         self.setup_platform_specific_config()

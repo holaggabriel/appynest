@@ -1,19 +1,27 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QFrame
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QFrame, QGridLayout
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor
 from PySide6.QtCore import Property
 from app.utils.helpers import resource_path
 
+MODES = {
+    "normal": {"spinner_color": QColor(66, 133, 244), "background": "#1a1a1a"},
+    "removable": {"spinner_color": QColor(65, 201, 90), "background": "#1a1a1a"},
+    "otro": {"spinner_color": QColor(0,255,0), "background": "#222222"},
+}
+
 class SplashScreen(QWidget):
-    def __init__(self):
+    def __init__(self, mode="normal"):
         super().__init__()
+        self.mode = mode
 
         # Configuración de la ventana
         self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint)
-        self.setFixedSize(500, 400)  # Tamaño fijo de la ventana
-
-        # Fondo negro del splash
-        self.setStyleSheet("background-color: #1a1a1a;")
+        self.setFixedSize(500, 400)  # Tamaño fijo de la ventano
+        
+        style = MODES.get(self.mode, MODES["normal"])
+        self.spinner_color = style["spinner_color"]
+        self.setStyleSheet(f"background-color: {style['background']};")
 
         # QFrame que actuará como borde
         frame = QFrame(self)
@@ -22,22 +30,36 @@ class SplashScreen(QWidget):
             border: 1px solid #333333;
         """)
 
-        # Layout principal dentro del frame
-        layout = QVBoxLayout(frame)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setContentsMargins(40, 40, 40, 40)  # Márgenes para el spinner/logo
+        # Usar GridLayout para posicionar elementos libremente
+        layout = QGridLayout(frame)
+        layout.setContentsMargins(40, 40, 40, 40)
+        
+        # Widget de carga con animación - CENTRADO
+        self.loading_widget = LoadingWidget(spinner_color=self.spinner_color)
+        # Centramos el loading widget en la celda central
+        layout.addWidget(self.loading_widget, 1, 0, 1, 1, Qt.AlignmentFlag.AlignCenter)
 
-        # Widget de carga con animación
-        self.loading_widget = LoadingWidget()
-        layout.addWidget(self.loading_widget)
-
+        # Mensaje opcional - POSICIÓN FIJA en la parte inferior
+        if self.mode == "removable":
+            self.message_label = QLabel("Preparando la aplicación desde un dispositivo extraíble…")
+            self.message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.message_label.setStyleSheet("color: white; font-size: 14px; border: none;")
+            # Añadimos el mensaje en una fila diferente para no afectar el centrado
+            layout.addWidget(self.message_label, 2, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
+            
+            # Ajustamos las proporciones de las filas
+            layout.setRowStretch(0, 1)  # Espacio superior flexible
+            layout.setRowStretch(1, 0)  # Loading widget sin stretch (mantiene su tamaño)
+            layout.setRowStretch(2, 1)  # Espacio inferior flexible
+            
 class LoadingWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, spinner_color=QColor(66, 133, 244)):
         super().__init__(parent)
         self._angle = 0
         self.logo_size = 150  # Tamaño fijo de la imagen
         self.margin_ratio = 0.2  # 20% de margen proporcional al tamaño de la imagen
         self.circle_width = 6  # Ancho del círculo
+        self.spinner_color = spinner_color  # Color fijo del spinner
         
         self.setup_ui()
         self.setup_animation()
@@ -130,7 +152,7 @@ class LoadingWidget(QWidget):
         painter.drawArc(x, y, circle_size, circle_size, 0, 360 * 16)
 
         # Arco animado tipo spinner
-        pen = QPen(QColor(66, 133, 244))
+        pen = QPen(QColor(self.spinner_color))
         pen.setWidth(self.circle_width)
         pen.setCapStyle(Qt.RoundCap)
         painter.setPen(pen)
