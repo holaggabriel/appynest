@@ -131,8 +131,8 @@ class ADBHelpDialog(QDialog):
     def get_adb_in_app(self):
         return f"""
         <p>
-        Cuando seleccionas ADB, la aplicación no usa directamente el ejecutable que escoges.
-        En su lugar, copia de forma completa y aislada la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span> dentro de:
+        Cuando seleccionas la carpeta <span style="color:#4DBD8B; font-weight:bold;">platform-tools</span>, que contiene el ejecutable <code>adb</code>, la aplicación no lo utiliza directamente. 
+        En su lugar, crea una copia aislada de toda la carpeta dentro de:
         </p>
 
         <p><code>~/{CONFIG_DIR_NAME}/platform-tools/</code></p>
@@ -140,19 +140,14 @@ class ADBHelpDialog(QDialog):
         <p><b>¿Por qué se hace esto?</b></p>
 
         <p style="margin-left:2em;">
-            • Para evitar conflictos con otras aplicaciones que también usan ADB (como Android Studio).
+            • Para asegurar que la aplicación tenga acceso confiable a ADB, incluso si la instalación original se elimina, se mueve o se reemplaza.
         </p>
+        
         <p style="margin-left:2em;">
-            • Para permitir que la app inicie y detenga su propio servidor ADB sin afectar otros procesos del sistema.
-        </p>
-        <p style="margin-left:2em;">
-            • Para garantizar estabilidad incluso si el usuario borra, mueve o reemplaza la carpeta ADB original.
-        </p>
-        <p style="margin-left:2em;">
-            • Para trabajar en un entorno controlado, consistente y seguro.
+            • Para no depender de la ubicación original de ADB.
         </p>
 
-        <p><i>La instalación original de ADB jamás se modifica; la aplicación trabaja únicamente con su copia interna.</i></p>
+        <p><i>La instalación original de ADB jamás se modifica; la aplicación solo utiliza su copia interna.</i></p>
         """
 
     def keyPressEvent(self, event):
