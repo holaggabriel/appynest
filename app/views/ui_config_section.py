@@ -23,11 +23,26 @@ class UIConfigSection:
         layout.setSpacing(15)
         layout.setContentsMargins(0, 0, 0, 0)
         
+        # Contenedor horizontal
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        hbox.setSpacing(0)
+        
+        info_button = InfoButton()
+        info_button.clicked.connect(self.show_adb_help_dialog)
+
         adb_title = QLabel("ADB")
         adb_title.setObjectName('title_container')
         adb_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(adb_title)
-        
+
+        # Añadir el label al contenedor horizontal
+        hbox.addWidget(info_button)
+        hbox.addSpacing(10)
+        hbox.addWidget(adb_title)
+
+        # Añadir el contenedor horizontal al layout principal
+        layout.addLayout(hbox)
+                
         # Label para mensajes de estado (info, success, error, warning)
         self.status_message_label = QLabel("")
         self.status_message_label.setObjectName('status_info_message')
@@ -44,7 +59,6 @@ class UIConfigSection:
         
         # Contenedor para estado ADB y botón de actualizar
         status_container = QHBoxLayout()
-        status_container.setSpacing(10)
         
         adb_status_frame = QFrame()
         adb_status_frame.setObjectName('banner_label_container')
@@ -53,6 +67,7 @@ class UIConfigSection:
         adb_status_layout = QHBoxLayout(adb_status_frame)
         adb_status_layout.setSpacing(0)
         adb_status_layout.setContentsMargins(0, 0, 0, 0)
+        adb_status_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
         # Agregar los labels dentro del frame
         self.adb_status_title = QLabel("Estado ADB: ")
@@ -61,8 +76,8 @@ class UIConfigSection:
 
         self.adb_status_label = QLabel("Verificando...")
         self.adb_status_label.setObjectName('normal_label')
+        self.adb_status_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         adb_status_layout.addWidget(self.adb_status_label)
-        adb_status_layout.addStretch()
         
         status_container = QHBoxLayout()
         status_container.setSpacing(8)
@@ -89,13 +104,6 @@ class UIConfigSection:
         info_label_layout = QHBoxLayout(adb_frame)
         info_label_layout.setSpacing(0)
         info_label_layout.setContentsMargins(0,0,0,0)
-
-        # Agregar widgets al primer contenedor
-        info_button = InfoButton(size=16)
-        info_button.clicked.connect(self.show_adb_help_dialog)
-        info_label_layout.addWidget(info_button)
-        
-        info_label_layout.addSpacing(10)
         
         self.adb_path_title = QLabel("Ruta: ")
         self.adb_path_title.setObjectName('adb_status_title')

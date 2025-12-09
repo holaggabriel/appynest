@@ -30,7 +30,7 @@ class UIInstallSection:
         title_section_layout.setContentsMargins(0,0,0,0)
         title_section_layout.setSpacing(0)
 
-        info_button = InfoButton(size=15)
+        info_button = InfoButton()
         info_button.clicked.connect(self.show_apk_installation_info_dialog)
         title_section_layout.addWidget(info_button)
         

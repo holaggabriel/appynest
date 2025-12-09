@@ -69,7 +69,7 @@ class UIDevicePanel:
         title_layout.setContentsMargins(10, 10, 10, 10)
         title_layout.setSpacing(0)
         
-        info_button = InfoButton(size=15)
+        info_button = InfoButton()
         info_button.clicked.connect(self.show_connection_help_dialog)
 
         device_label = QLabel("Dispositivos Conectados:")

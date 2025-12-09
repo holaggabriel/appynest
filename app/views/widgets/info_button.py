@@ -4,9 +4,8 @@ from PySide6.QtGui import QIcon, QCursor
 from app.utils.helpers import resource_path
 
 class InfoButton(QToolButton):
-    def __init__(self, parent=None, size=24):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.size = size
 
         # Rutas a los iconos
         self.icon_normal = QIcon(resource_path("assets/icons/info.svg"))
