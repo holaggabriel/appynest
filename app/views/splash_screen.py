@@ -6,7 +6,7 @@ from app.utils.helpers import resource_path
 
 MODES = {
     "normal": {"spinner_color": QColor(66, 133, 244), "background": "#1a1a1a"},
-    "removable": {"spinner_color": QColor(65, 201, 90), "background": "#1a1a1a"},
+    "removable": {"spinner_color": QColor(66, 244, 66), "background": "#1a1a1a"},
     "otro": {"spinner_color": QColor(0,255,0), "background": "#222222"},
 }
 
