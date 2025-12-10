@@ -76,14 +76,14 @@ class UIInstallSection:
         self.select_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.select_apk_btn)
         
-        self.remove_apk_btn = QPushButton("Eliminar")
+        self.remove_apk_btn = QPushButton("Remover")
         self.remove_apk_btn.setObjectName('button_warning_default')
         self.remove_apk_btn.clicked.connect(self.remove_selected_apks)
         self.remove_apk_btn.setEnabled(False)
         self.remove_apk_btn.setCursor(Qt.PointingHandCursor)
         apk_buttons_layout.addWidget(self.remove_apk_btn)
         
-        self.clear_apk_btn = QPushButton("Eliminar Todo")
+        self.clear_apk_btn = QPushButton("Remover Todo")
         self.clear_apk_btn.setObjectName('button_danger_default')
         self.clear_apk_btn.clicked.connect(self.clear_apk)
         self.clear_apk_btn.setEnabled(False)
