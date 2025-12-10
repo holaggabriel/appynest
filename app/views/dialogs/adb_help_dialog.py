@@ -114,7 +114,7 @@ class ADBHelpDialog(QDialog):
         <p><b>Opción 1:</b></p> 
         <p style="margin-left:2em;">• En <span style="color:#4DBD8B; font-weight:bold;">{APP_DISPLAY_NAME}</span>, dentro de la <span style="color:#4DBD8B; font-weight:bold;">Sección Ajustes</span>, presiona el <span style="color:#4DBD8B; font-weight:bold;">Botón de Verificar</span> para que la aplicación intente detectar ADB automáticamente.</p>
         <p style="margin-left:2em;">• Funciona si tienes Android Studio instalado o si ADB se instaló mediante paquetes del sistema.</p>
-        <p style="margin-left:2em;">• Si la verificación tiene éxito, la ruta y el estado de ADB se mostrarán en la sección de Configuración.</p>
+        <p style="margin-left:2em;">• Si la verificación tiene éxito, la ruta y el estado del ADB se mostrarán en la sección de configuración.</p>
         <p style="margin-left:2em;">• Si la verificación falla, no te preocupes: puedes usar la opción 2.</p>
 
         <p><b>Opción 2:</b></p> 

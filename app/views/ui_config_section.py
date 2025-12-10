@@ -70,7 +70,7 @@ class UIConfigSection:
         adb_status_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
         # Agregar los labels dentro del frame
-        self.adb_status_title = QLabel("Estado ADB: ")
+        self.adb_status_title = QLabel("Estado: ")
         self.adb_status_title.setObjectName('adb_status_title')
         adb_status_layout.addWidget(self.adb_status_title)
 
@@ -190,7 +190,7 @@ class UIConfigSection:
             self.shimmer_label.stop_shimmer()
 
     def _set_adb_status(self, status, path_text, status_type="success"):
-        """Configura el estado de ADB de manera centralizada"""
+        """Configura el estado deL ADB de manera centralizada"""
         self.adb_status_label.setText(status)
         self.adb_path_label.setText(path_text)
         
@@ -212,7 +212,7 @@ class UIConfigSection:
         self.folder_adb_btn.setEnabled(enabled)
 
     def update_adb_status(self):
-        """Inicia la verificación del estado de ADB"""
+        """Inicia la verificación del estado deL ADB"""
         self.set_buttons_enabled(False)
         self._show_verifying_status()
         
@@ -306,7 +306,7 @@ class UIConfigSection:
         execute_after_delay(lambda: self.adb_check_thread.start(), GLOBAL_ACTION_DELAY)
 
     def _on_adb_verify_complete_simple(self, success, message, load_devices=False):
-        """Callback simple que actualiza el estado de ADB"""
+        """Callback simple que actualiza el estado deL ADB"""
         self._show_verifying_status(show=False)
         self.update_adb_availability(success)
         
