@@ -46,7 +46,7 @@ class AboutDialog(QDialog):
     
     def init_ui(self):
         self.setWindowTitle(f"Acerca de {APP_DISPLAY_NAME}")
-        self.setFixedSize(430, 470)
+        self.setFixedSize(430, 410)
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, False)
         self.setObjectName("dialog_base")
         
@@ -60,7 +60,8 @@ class AboutDialog(QDialog):
         self.create_description(layout)
         self.create_separator(layout)
         self.create_repo_button(layout)
-        self.create_tutorial_button(layout)
+        # .addSpacing(10)
+        # self.create_tutorial_button(layout)
         self.create_separator(layout)
         self.create_copyright(layout)
         self.create_credits(layout)
@@ -139,7 +140,6 @@ class AboutDialog(QDialog):
         
         # Agregar el botón del repositorio al layout principal
         parent_layout.addWidget(self.repo_button)
-        parent_layout.addSpacing(10)
     
     def create_tutorial_button(self, parent_layout):
         """Crea el botón del tutorial"""
