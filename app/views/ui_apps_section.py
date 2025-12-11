@@ -312,7 +312,7 @@ class UIAppsSection:
         self._add_detail_row("assets/icons/file-white.svg", title="Aplicación:", label_text=app_data['name'])
         self._add_detail_row("assets/icons/package-white.svg", title="Paquete:", label_text=app_data['package_name'])
         self._add_detail_row("assets/icons/tag-white.svg", title="Versión:", label_text=app_data['version'])
-        self._add_detail_row("assets/icons/folder-white.svg", title="Ruta APK:", label_text=app_data['apk_path'])
+        self._add_detail_row("assets/icons/folder-white.svg", title="Ruta:", label_text=app_data['apk_path'])
         
         self.uninstall_btn.setEnabled(True)
         self.extract_apk_btn.setEnabled(True)
