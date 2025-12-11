@@ -104,7 +104,8 @@ class UIInstallSection:
     def select_apk(self):
         """Seleccionar archivos APK mediante diálogo"""
         file_paths, _ = QFileDialog.getOpenFileNames(
-            self, "Seleccionar APKs", "", "APK Files (*.apk)"
+            self, "Seleccionar APKs", "", "APK Files (*.apk)",
+            options=QFileDialog.DontUseNativeDialog
         )
         if file_paths:
             self.selected_apks = list(set(self.selected_apks + file_paths))

@@ -229,7 +229,7 @@ class UIConfigSection:
             self, 
             "Seleccionar carpeta platform-tools", 
             "",
-            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            options=QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks | QFileDialog.DontUseNativeDialog
         )
 
         if folder_path:
