@@ -457,11 +457,15 @@ class UIDevicePanel:
         
         object_name = style_map.get(message_type, 'status_info_message')
         
+        if message_type == "info":
+            self.loading_details_label.start_shimmer()
+        else:
+            self.loading_details_label.stop_shimmer()
+            
         self.loading_details_label.setText(message)
         self.loading_details_label.setObjectName(object_name)
         self.apply_style_update(self.loading_details_label)
         self.loading_details_label.setVisible(True)
-        self.loading_details_label.start_shimmer()
 
     def _load_device_details(self, device_id):
         """Carga los detalles del dispositivo usando thread"""
