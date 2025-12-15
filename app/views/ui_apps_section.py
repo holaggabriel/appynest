@@ -498,6 +498,7 @@ class UIAppsSection:
                     "Extraer APK",
                     f"{app_data['package_name']}.apk",
                     "APK Files (*.apk)",
+                    options=QFileDialog.DontUseNativeDialog
                 )
                 if not file_path:
                     return
