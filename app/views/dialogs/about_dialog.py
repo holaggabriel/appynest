@@ -188,7 +188,7 @@ class AboutDialog(QDialog):
         <p style='margin: 0;'>
         Copyright © 2025-2026 Gabriel Beltran<br>
         This application comes with absolutely no warranty. See the 
-        <a href='http://www.gnu.org/licenses/'>GNU General Public License, version 3</a> 
+        <a href='https://www.gnu.org/licenses/gpl-3.0.html'>GNU General Public License, version 3</a> 
         or later for details.
         </p>
         """
