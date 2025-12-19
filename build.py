@@ -105,14 +105,15 @@ class BuildSystem:
             sys.executable, "-m", "PyInstaller",
             "main.py", "--onefile", "--windowed", "--clean",
             f"--name={binary_name}", f"--icon={icon_path}",
-            f"--add-data=assets{sep}assets", f"--add-data=app{sep}app"
+            f"--add-data=assets{sep}assets"
         ]
         
         if not is_windows:
             cmd.append("--strip")
-            return cmd
+        else:
+            cmd.append("--add-data=LICENSE;.")
     
-        return cmd 
+        return cmd
 
     def _verify_environment(self):
         """Verificaciones del entorno"""
@@ -151,10 +152,16 @@ class BuildSystem:
 
         if not os.path.exists(binary_path):
             raise RuntimeError(f"❌ No se encontró el binario {binary_path}. Ejecuta primero la opción 1.")
-
+        
         # Crear estructura AppDir
         Path(f"{appdir}/usr/bin").mkdir(parents=True, exist_ok=True)
         shutil.copy(binary_path, f"{appdir}/usr/bin/{binary_name}")
+        
+        # Copiar LICENSE a la raíz del AppDir
+        if not os.path.exists("LICENSE"):
+            raise RuntimeError("❌ No se encontró el archivo LICENSE en la raíz del proyecto")
+
+        shutil.copy("LICENSE", f"{appdir}/LICENSE")
 
         # Crear AppRun
         apprun_content = textwrap.dedent(f"""\
