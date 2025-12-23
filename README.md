@@ -48,8 +48,7 @@ chmod +x AppyNest.AppImage
 
 Para una **mejor integración con tu sistema** (menús, iconos), se recomienda usar **AppImageLauncher**.
 
-* Puedes **descargarlo desde su página de GitHub**:
-  👉 [https://github.com/TheAssassin/AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) 
+* Puedes **descargarlo desde su página de GitHub**: [https://github.com/TheAssassin/AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) 
 * O buscarlo en la **tienda de aplicaciones de tu distribución** (el nombre puede variar según la distro, por ejemplo: “Software”, “Pamac”, “Discover”, “GNOME Software”, etc.).
 
 AppImageLauncher se encargará de gestionar automáticamente tus AppImage sin necesidad de configuraciones manuales.
