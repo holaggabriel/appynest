@@ -2,11 +2,14 @@ import subprocess
 from .adb_manager import ADBManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.utils.helpers import get_subprocess_kwargs
+from app.core.mocks.mock_device_manager import MockDeviceManager
 
 class DeviceManager:
-    def __init__(self, adb_manager: ADBManager):
+    def __init__(self, adb_manager: ADBManager, use_mock=False):
         self.adb_manager = adb_manager
+        self.use_mock = use_mock
         self.kwargs = get_subprocess_kwargs()
+        self._mock_manager = MockDeviceManager() if use_mock else None
         
     def get_connected_devices(self):
         """
@@ -20,6 +23,10 @@ class DeviceManager:
                 'message': str
             }
         """
+        
+        if self.use_mock:
+            return self._mock_manager.get_connected_devices()
+        
         devices = []
         
         try:
@@ -118,6 +125,9 @@ class DeviceManager:
         
     def get_device_info(self, device_id):
         """Obtiene información detallada de un dispositivo"""
+        if self.use_mock:
+            return self._mock_manager.get_device_info(device_id)
+    
         try:
             adb_path = self.adb_manager.get_adb_path()
             
@@ -239,6 +249,10 @@ class DeviceManager:
             Returns:
                 bool: True si el dispositivo está conectado y disponible, False en caso contrario
             """
+            
+            if self.use_mock:
+                return self._mock_manager.is_device_available(device_id)
+    
             try:
                 adb_path = self.adb_manager.get_adb_path()
                 

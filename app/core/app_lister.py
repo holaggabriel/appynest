@@ -2,12 +2,15 @@ import subprocess
 from .base_app_manager import BaseAppManager
 from app.utils.print_in_debug_mode import print_in_debug_mode
 from app.utils.helpers import get_subprocess_kwargs
+from app.core.mocks.mock_app_manager import MockAppManager
 
 class AppLister(BaseAppManager):
     """Clase especializada en listar aplicaciones instaladas"""
-    def __init__(self, adb_manager):
+    def __init__(self, adb_manager, use_mock=False):
         super().__init__(adb_manager)
+        self.use_mock = use_mock
         self.kwargs = get_subprocess_kwargs()
+        self._mock_manager = MockAppManager() if use_mock else None
     
     def is_device_connected(self, device_id):
         """Verifica si el dispositivo está conectado y disponible"""
@@ -46,7 +49,9 @@ class AppLister(BaseAppManager):
     def get_installed_apps_by_type(self, device_id, app_type="all"):
         """Obtiene aplicaciones según el tipo especificado"""
         print_in_debug_mode(f"Obteniendo aplicaciones tipo '{app_type}' para dispositivo {device_id}")
-        
+        if self.use_mock:
+            return self._mock_manager.get_installed_apps_by_type(device_id, app_type)
+
         # Verificar si el dispositivo está conectado antes de proceder
         if not self.is_device_connected(device_id):
             error_msg = f"El dispositivo {device_id} no está conectado o disponible"
