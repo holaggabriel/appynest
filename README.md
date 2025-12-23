@@ -4,7 +4,9 @@
 [![Comentarios](https://img.shields.io/badge/Comentarios-%231177BB?style=for-the-badge)](https://forms.gle/LFJCeutHFTiYwAHt8)
 [![Apoyar Proyecto](https://img.shields.io/badge/Apoyar%20Proyecto-%23E6C23A?style=for-the-badge)](https://buymeacoffee.com/appynest)
 
-Appy Nest es una aplicación de escritorio que facilita la gestión de dispositivos y aplicaciones Android. Permite realizar tareas comunes como instalar, desinstalar o extraer aplicaciones de forma sencilla mediante ADB.
+Appy Nest es una aplicación de escritorio que facilita la gestión de dispositivos y aplicaciones Android. Permite instalar, desinstalar o extraer aplicaciones de manera sencilla, utilizando ADB de forma automática sin necesidad de escribir comandos.
+
+<img width="1022" height="710" alt="appynest-screenshot" src="https://github.com/user-attachments/assets/08ab8c17-8ea0-48df-a111-44c72533f318" />
 
 ## 📥 Descarga y uso
 
